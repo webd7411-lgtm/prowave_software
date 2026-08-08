@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Policies;
+
+use App\Models\User;
+use Spatie\Permission\Models\Role;
+
+class RolePolicy
+{
+    public function before(User $user, string $ability): ?bool
+    {
+        if ($user->hasRole('Super Admin')) {
+            return true;
+        }
+
+        return null;
+    }
+
+    public function viewAny(User $user): bool
+    {
+        return $user->can('roles.view');
+    }
+
+    public function view(User $user, Role $role): bool
+    {
+        return $user->can('roles.view');
+    }
+
+    public function create(User $user): bool
+    {
+        return $user->can('roles.create');
+    }
+
+    public function update(User $user, Role $role): bool
+    {
+        if ($role->name === 'Super Admin') {
+            return false;
+        }
+
+        return $user->can('roles.edit');
+    }
+
+    public function delete(User $user, Role $role): bool
+    {
+        if (in_array($role->name, ['Super Admin', 'Administrator'], true)) {
+            return false;
+        }
+
+        if ($role->users()->count() > 0) {
+            return false;
+        }
+
+        return $user->can('roles.delete');
+    }
+
+    public function assignPermissions(User $user, Role $role): bool
+    {
+        if ($role->name === 'Super Admin') {
+            return false;
+        }
+
+        return $user->can('permissions.assign');
+    }
+}
