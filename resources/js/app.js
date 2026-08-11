@@ -17,6 +17,7 @@ import './modules/confirm';
 import './modules/forms';
 import './modules/datatable';
 import './modules/charts';
+import './modules/notifications';
 import './modules/init';
 
 window.bootstrap = bootstrap;

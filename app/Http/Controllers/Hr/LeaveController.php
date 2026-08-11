@@ -14,6 +14,7 @@ use App\Repositories\EmployeeRepository;
 use App\Repositories\LeaveRepository;
 use App\Services\AuditService;
 use App\Services\Hr\LeaveService;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -57,6 +58,16 @@ class LeaveController extends Controller
 
         $this->audit->log('Leave request submitted', 'hr', $result['leave'], event: 'created');
 
+        if ($result['success']) {
+            $leave = $result['leave'];
+            app(NotificationService::class)->sendToPermission(
+                'leave.approve',
+                'Leave request submitted',
+                $employee->name.' requested '.$leave->leaveType?->name.' ('.$leave->start_date->format('M d').' – '.$leave->end_date->format('M d, Y').')',
+                ['category' => 'leave', 'url' => route('hr.leave.index'), 'color' => 'warning']
+            );
+        }
+
         return redirect()
             ->route('hr.leave.index')
             ->with('toast', ['type' => $result['success'] ? 'success' : 'error', 'message' => $result['message']]);
@@ -77,6 +88,14 @@ class LeaveController extends Controller
         }
 
         $this->audit->log('Leave review '.$request->input('status'), 'hr', $leave, event: 'updated');
+
+        $approved = $request->input('status') === 'approved';
+        app(NotificationService::class)->send(
+            $leave->employee,
+            $approved ? 'Leave approved' : 'Leave rejected',
+            'Your '.($leave->leaveType?->name ?? 'leave').' request ('.$leave->start_date->format('M d').' – '.$leave->end_date->format('M d, Y').') was '.$request->input('status').'.',
+            ['category' => 'leave', 'url' => route('hr.leave.index'), 'color' => $approved ? 'success' : 'danger']
+        );
 
         return back()->with('toast', ['type' => 'success', 'message' => $message]);
     }

@@ -11,7 +11,7 @@ class EmployeeRepository
     public function query(array $filters = []): Builder
     {
         $query = User::query()
-            ->with(['department', 'shift', 'reportingManager', 'designation'])
+            ->with(['department', 'shift', 'reportingManager'])
             ->whereNotNull('employee_id')
             ->latest();
 

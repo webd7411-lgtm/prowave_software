@@ -45,7 +45,7 @@ class Designation extends Model
 
     public function users(): HasMany
     {
-        return $this->hasMany(User::class, 'designation_id');
+        return $this->hasMany(User::class, 'designation', 'name');
     }
 
     public function scopeActive($query)

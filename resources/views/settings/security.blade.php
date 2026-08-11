@@ -18,14 +18,7 @@
 
     <div class="row g-3 g-md-4">
         <div class="col-12 col-lg-3">
-            <nav class="nav flex-column settings-nav gap-1">
-                <a class="nav-link" href="{{ route('settings.general') }}">
-                    <i class="bi bi-sliders"></i> General
-                </a>
-                <a class="nav-link active" href="{{ route('settings.security') }}">
-                    <i class="bi bi-shield-lock"></i> Security
-                </a>
-            </nav>
+            @include('settings.partials.nav')
         </div>
 
         <div class="col-12 col-lg-9">

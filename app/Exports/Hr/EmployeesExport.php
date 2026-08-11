@@ -2,7 +2,6 @@
 
 namespace App\Exports\Hr;
 
-use App\Enums\EmployeeStatus;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;

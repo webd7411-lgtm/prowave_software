@@ -11,6 +11,7 @@ use App\Models\DailyTask;
 use App\Models\DailyWorkUpdate;
 use App\Models\Department;
 use App\Models\LeaveRequest;
+use App\Models\LoginLog;
 use App\Models\User;
 use App\Services\Hr\AttendanceService;
 use Illuminate\View\View;
@@ -52,7 +53,7 @@ class HrDashboardController extends Controller
         ];
 
         // Recent HR activity via audit
-        $recentActivities = \App\Models\LoginLog::query()->with('user')->whereNotNull('user_id')->latest('login_at')->limit(8)->get();
+        $recentActivities = LoginLog::query()->with('user')->whereNotNull('user_id')->latest('login_at')->limit(8)->get();
 
         return view('hr.dashboard', compact(
             'totalEmployees',

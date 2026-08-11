@@ -58,6 +58,7 @@ class User extends Authenticatable
         'locale',
         'timezone',
         'date_format',
+        'notification_preferences',
         'is_active',
         'status',
         'login_attempts',
@@ -88,6 +89,7 @@ protected $casts = [
         'last_login_at' => 'datetime',
         'locked_until' => 'datetime',
         'login_attempts' => 'integer',
+        'notification_preferences' => 'array',
     ];
 
     protected $appends = [
@@ -108,8 +110,9 @@ protected $casts = [
 
     public function getAvatarUrlAttribute(): ?string
     {
-        if ($this->avatar && file_exists(public_path($this->avatar))) {
-            return asset($this->avatar);
+        $avatar = $this->getAttribute('avatar');
+        if ($avatar && file_exists(public_path($avatar))) {
+            return asset($avatar);
         }
 
         return null;
@@ -193,6 +196,17 @@ protected $casts = [
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('Super Admin');
+    }
+
+    public function wantsNotification(string $key): bool
+    {
+        $prefs = $this->notification_preferences ?? [];
+
+        if (array_key_exists($key, $prefs)) {
+            return (bool) $prefs[$key];
+        }
+
+        return true;
     }
 
     public function isActive(): bool

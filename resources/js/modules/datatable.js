@@ -13,7 +13,20 @@ import JSZip from 'jszip';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+window.jQuery = window.$ = $;
+window.DataTable = DataTable;
+$.fn.DataTable = DataTable;
+$.fn.dataTable = DataTable;
+$.fn.dataTable.ext.errMode = 'none';
+
+// pdfmake 0.2.x wraps fonts as { pdfMake: { vfs } }; 0.3.x exports vfs directly
+if (pdfFonts?.pdfMake?.vfs) {
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+} else if (typeof pdfMake.addVirtualFileSystem === 'function') {
+    pdfMake.addVirtualFileSystem(pdfFonts);
+} else {
+    pdfMake.vfs = pdfFonts;
+}
 
 DataTable.Buttons.jszip(JSZip);
 DataTable.Buttons.pdfMake(pdfMake);

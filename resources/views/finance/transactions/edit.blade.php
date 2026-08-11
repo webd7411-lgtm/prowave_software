@@ -1,0 +1,104 @@
+@extends('layouts.app')
+@section('title', 'Edit Transaction')
+@section('content')
+<div class="page-header mb-4 animate-fade-in-up">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('finance.transactions.index') }}">Transactions</a></li>
+            <li class="breadcrumb-item active">Edit Transaction #{{ $transaction->id }}</li>
+        </ol>
+    </nav>
+    <h1 class="page-title">Edit Transaction</h1>
+</div>
+
+<div class="row justify-content-center animate-fade-in-up stagger-1">
+    <div class="col-12 col-lg-9 col-xl-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ route('finance.transactions.update', $transaction) }}">
+                    @csrf
+                    @method('PATCH')
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold">Type <span class="text-danger">*</span></label>
+                            <select name="type" class="form-select @error('type') is-invalid @enderror" required>
+                                @foreach(['income','expense','transfer','payment','refund','adjustment'] as $t)
+                                <option value="{{ $t }}" {{ old('type', $transaction->type) === $t ? 'selected' : '' }}>{{ ucfirst($t) }}</option>
+                                @endforeach
+                            </select>
+                            @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold">Amount <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{ setting('general.currency', 'PKR') }}</span>
+                                <input type="number" name="amount" step="0.01" min="0.01" value="{{ old('amount', $transaction->debit ?: $transaction->credit) }}" class="form-control @error('amount') is-invalid @enderror" required>
+                            </div>
+                            @error('amount')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label fw-semibold">Transaction Date <span class="text-danger">*</span></label>
+                            <input type="date" name="transaction_date" value="{{ old('transaction_date', $transaction->transaction_date?->format('Y-m-d')) }}" class="form-control" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Account <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-3 flex-wrap mb-2">
+                                <div class="form-check">
+                                    <input type="radio" name="account_type" id="acc_cash" value="cash" class="form-check-input" {{ old('account_type', $transaction->account_type) === 'cash' ? 'checked' : '' }}>
+                                    <label for="acc_cash" class="form-check-label">Cash</label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="radio" name="account_type" id="acc_bank" value="bank" class="form-check-input" {{ old('account_type', $transaction->account_type) === 'bank' ? 'checked' : '' }}>
+                                    <label for="acc_bank" class="form-check-label">Bank</label>
+                                </div>
+                            </div>
+                            <div id="cash-accounts-section" {{ $transaction->account_type === 'cash' ? '' : 'style=display:none' }}>
+                                <select name="cash_account_id" class="form-select @error('cash_account_id') is-invalid @enderror">
+                                    <option value="">— Select Cash Account —</option>
+                                    @foreach($cashAccounts as $a)
+                                    <option value="{{ $a->id }}" {{ old('cash_account_id', $transaction->cash_account_id) == $a->id ? 'selected' : '' }}>{{ $a->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('cash_account_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div id="bank-accounts-section" {{ $transaction->account_type === 'bank' ? '' : 'style=display:none' }}>
+                                <select name="bank_account_id" class="form-select @error('bank_account_id') is-invalid @enderror">
+                                    <option value="">— Select Bank Account —</option>
+                                    @foreach($bankAccounts as $a)
+                                    <option value="{{ $a->id }}" {{ old('bank_account_id', $transaction->bank_account_id) == $a->id ? 'selected' : '' }}>{{ $a->bank_name }} – {{ $a->account_title }}</option>
+                                    @endforeach
+                                </select>
+                                @error('bank_account_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <label class="form-label">Reference</label>
+                            <input type="text" name="reference" value="{{ old('reference', $transaction->reference) }}" class="form-control" placeholder="Invoice / Receipt / Voucher No">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" rows="2" class="form-control" placeholder="Brief description...">{{ old('description', $transaction->description) }}</textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4 flex-wrap">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check-circle me-1"></i>Update Transaction
+                        </button>
+                        <a href="{{ route('finance.transactions.index') }}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+@push('scripts')
+<script>
+document.querySelectorAll('[name="account_type"]').forEach(r => {
+    r.addEventListener('change', function() {
+        document.getElementById('cash-accounts-section').style.display = this.value === 'cash' ? '' : 'none';
+        document.getElementById('bank-accounts-section').style.display = this.value === 'bank' ? '' : 'none';
+    });
+});
+</script>
+@endpush

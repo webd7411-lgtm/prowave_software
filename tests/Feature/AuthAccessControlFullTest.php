@@ -33,7 +33,7 @@ class AuthAccessControlFullTest extends TestCase
     public function test_seed_state_roles_and_permissions_counts(): void
     {
         $this->assertSame(11, Role::count());
-        $this->assertSame(56, Permission::count());
+        $this->assertSame(147, Permission::count());
 
         $admin = User::where('email', 'admin@prowave.com')->first();
         $this->assertNotNull($admin);

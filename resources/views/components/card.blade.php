@@ -24,7 +24,7 @@
                 @endif
             </div>
             @if ($actions)
-                <div class="d-flex align-items-center gap-2 flex-shrink-0">{{ $actions }}</div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">{!! $actions !!}</div>
             @endif
         </div>
     @endif

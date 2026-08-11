@@ -106,4 +106,103 @@ class ProfileController extends Controller
             'message' => 'Preferences updated successfully.',
         ]);
     }
+
+    public function updateNotificationPreferences(Request $request): RedirectResponse
+    {
+        $categories = ['lead', 'followup', 'client', 'project', 'task', 'leave', 'update', 'invoice', 'payment', 'expense', 'meeting', 'document', 'system'];
+
+        $prefs = [];
+        foreach ($categories as $category) {
+            $prefs[$category] = (bool) $request->boolean("notify_{$category}");
+        }
+
+        auth()->user()->update(['notification_preferences' => $prefs]);
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Notification preferences saved.',
+        ]);
+    }
+
+    public function sessions(): View
+    {
+        $sessions = collect();
+
+        if (config('session.driver') === 'database' && \Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+            $sessions = \Illuminate\Support\Facades\DB::table('sessions')
+                ->where('user_id', auth()->id())
+                ->get()
+                ->map(function ($session) {
+                    $payload = @unserialize(base64_decode($session->payload));
+
+                    return [
+                        'id' => $session->id,
+                        'ip' => $session->ip_address,
+                        'user_agent' => $session->user_agent,
+                        'last_activity' => \Carbon\Carbon::createFromTimestamp($session->last_activity),
+                        'is_current' => $session->id === session()->getId(),
+                        'browser' => $this->parseUserAgent($session->user_agent),
+                    ];
+                });
+        }
+
+        return view('profile.sessions', ['sessions' => $sessions]);
+    }
+
+    public function revokeSession(string $sessionId): RedirectResponse
+    {
+        if (config('session.driver') !== 'database' || ! \Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'Session management is not enabled for this installation.']);
+        }
+
+        if ($sessionId === session()->getId()) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'You cannot revoke your current session here.']);
+        }
+
+        \Illuminate\Support\Facades\DB::table('sessions')
+            ->where('id', $sessionId)
+            ->where('user_id', auth()->id())
+            ->delete();
+
+        app(AuditService::class)->log('Revoked a remote session', 'security', auth()->user());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'Session revoked.']);
+    }
+
+    public function revokeOthers(): RedirectResponse
+    {
+        if (config('session.driver') !== 'database' || ! \Illuminate\Support\Facades\Schema::hasTable('sessions')) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'Session management is not enabled for this installation.']);
+        }
+
+        \Illuminate\Support\Facades\DB::table('sessions')
+            ->where('user_id', auth()->id())
+            ->where('id', '!=', session()->getId())
+            ->delete();
+
+        app(AuditService::class)->log('Revoked all other sessions', 'security', auth()->user());
+
+        return back()->with('toast', ['type' => 'success', 'message' => 'All other sessions were signed out.']);
+    }
+
+    protected function parseUserAgent(string $userAgent): string
+    {
+        if (str_contains($userAgent, 'Windows')) {
+            return 'Windows';
+        }
+        if (str_contains($userAgent, 'Macintosh') || str_contains($userAgent, 'Mac OS')) {
+            return 'macOS';
+        }
+        if (str_contains($userAgent, 'Android')) {
+            return 'Android';
+        }
+        if (str_contains($userAgent, 'iPhone') || str_contains($userAgent, 'iPad')) {
+            return 'iOS';
+        }
+        if (str_contains($userAgent, 'Linux')) {
+            return 'Linux';
+        }
+
+        return 'Unknown device';
+    }
 }

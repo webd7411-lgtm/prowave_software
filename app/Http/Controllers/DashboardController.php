@@ -78,14 +78,26 @@ class DashboardController extends Controller
             ],
         ];
 
-        // Attendance overview (presentational until module lands) — derive from active staff
+        // Attendance overview — derived from real attendance records
+        $presentToday = \App\Models\Attendance::whereDate('date', $now->toDateString())
+            ->where('status', 'present')->count();
+        $absentToday = \App\Models\Attendance::whereDate('date', $now->toDateString())
+            ->where('status', 'absent')->count();
+        $lateToday = \App\Models\Attendance::whereDate('date', $now->toDateString())
+            ->where('status', 'late')->count();
+        $onLeave = \App\Models\LeaveRequest::where('status', 'approved')
+            ->where('start_date', '<=', $now->toDateString())
+            ->where('end_date', '>=', $now->toDateString())->count();
+
+        $totalStaff = User::where('status', UserStatus::Active->value)->count();
+
         $attendance = [
-            'present' => $stats['active_users'],
-            'absent' => $stats['inactive_users'],
-            'late' => 0,
-            'leave' => $stats['suspended_users'],
-            'present_pct' => $stats['total_users'] > 0
-                ? round(($stats['active_users'] / $stats['total_users']) * 100, 1)
+            'present' => $presentToday,
+            'absent' => $absentToday,
+            'late' => $lateToday,
+            'leave' => $onLeave,
+            'present_pct' => $totalStaff > 0
+                ? round(($presentToday / $totalStaff) * 100, 1)
                 : 0,
         ];
 

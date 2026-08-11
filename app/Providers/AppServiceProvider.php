@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +25,29 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->registerBladeDirectives();
         $this->shareGlobalSettings();
+        $this->shareNavbarData();
+    }
+
+    protected function shareNavbarData(): void
+    {
+        View::composer('partials.navbar', function ($view) {
+            $user = auth()->user();
+
+            $unread = 0;
+            $recent = collect();
+
+            if ($user && Schema::hasTable('notifications')) {
+                try {
+                    $unread = $user->unreadNotifications()->count();
+                    $recent = $user->notifications()->latest()->limit(6)->get();
+                } catch (\Throwable) {
+                    // Notifications table may be unavailable during setup.
+                }
+            }
+
+            $view->with('unreadNotifications', $unread);
+            $view->with('recentNotifications', $recent);
+        });
     }
 
     protected function configureDefaults(): void

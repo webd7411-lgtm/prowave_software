@@ -8,6 +8,9 @@ import { initConfirm } from './confirm';
 import { initForms } from './forms';
 import { initDataTables } from './datatable';
 import { initCharts } from './charts';
+import { initCalendar } from './calendar';
+import { initSearch } from './search';
+import { initRealtimeNotifications } from './notifications';
 
 function initFullscreen() {
     document.addEventListener('click', (event) => {
@@ -76,6 +79,9 @@ export function init() {
     initCharts();
     initCounters();
     initFullscreen();
+    initCalendar();
+    initSearch();
+    initRealtimeNotifications();
 
     document.addEventListener('page-content-loaded', () => {
         initForms();

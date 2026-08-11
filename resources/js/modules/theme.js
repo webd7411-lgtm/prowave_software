@@ -25,6 +25,8 @@ export function applyTheme(theme = getActiveTheme()) {
     const resolved = theme === 'system' ? getSystemTheme() : theme;
 
     root.setAttribute('data-theme', resolved);
+    // Keep Bootstrap 5.3's component styles in sync with our theme.
+    root.setAttribute('data-bs-theme', resolved);
 
     document.querySelectorAll('[data-theme-toggle]').forEach((el) => {
         const target = el.dataset.themeToggle;
@@ -42,11 +44,12 @@ export function setTheme(theme) {
     applyTheme(theme);
 
     fetch(window.Prowave.themeUrl, {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'X-CSRF-TOKEN': window.Prowave.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
         },
         body: JSON.stringify({ theme }),
     }).catch(() => {
@@ -55,7 +58,8 @@ export function setTheme(theme) {
 }
 
 export function toggleDarkMode() {
-    setTheme(getActiveTheme() === 'dark' ? 'light' : 'dark');
+    const current = document.documentElement.getAttribute('data-theme');
+    setTheme(current === 'dark' ? 'light' : 'dark');
 }
 
 export function initTheme() {

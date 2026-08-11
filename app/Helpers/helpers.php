@@ -152,6 +152,25 @@ if (! function_exists('user_avatar')) {
     }
 }
 
+if (! function_exists('human_file_size')) {
+    function human_file_size(int|float|null $bytes, int $precision = 1): string
+    {
+        if ($bytes === null || $bytes < 0) {
+            return '—';
+        }
+
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $factor = 0;
+
+        while ($bytes >= 1024 && $factor < count($units) - 1) {
+            $bytes /= 1024;
+            $factor++;
+        }
+
+        return round($bytes, $precision).' '.$units[$factor];
+    }
+}
+
 if (! function_exists('json_response')) {
     function json_response(bool $success, string $message, mixed $data = null, int $status = 200): JsonResponse
     {

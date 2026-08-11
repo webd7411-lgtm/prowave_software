@@ -12,6 +12,7 @@ use App\Repositories\DailyUpdateRepository;
 use App\Repositories\EmployeeRepository;
 use App\Services\AuditService;
 use App\Services\Hr\DailyUpdateService;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,6 +49,17 @@ class DailyUpdateController extends Controller
         $update = $this->service->submit(auth()->id(), $request->validated());
 
         $this->audit->log('Daily update submitted', 'hr', $update, event: 'created');
+
+        $submitter = auth()->user();
+        $manager = $submitter->reportingManager;
+
+        $managerUsers = $manager ? collect([$manager]) : collect();
+        app(NotificationService::class)->sendMany(
+            $managerUsers,
+            'Daily update submitted',
+            $submitter->name.' submitted their work update for '.$update->work_date->format('M d, Y').'.',
+            ['category' => 'update', 'url' => route('hr.updates.index'), 'color' => 'info']
+        );
 
         return redirect()
             ->route('hr.updates.index')

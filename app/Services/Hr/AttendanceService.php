@@ -7,7 +7,6 @@ use App\Models\Attendance;
 use App\Models\Shift;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class AttendanceService
 {

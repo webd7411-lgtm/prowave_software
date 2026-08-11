@@ -34,17 +34,26 @@ class SettingService
     {
         [$group, $settingKey] = $this->parseKey($key);
 
-        return Setting::updateOrCreate(
+        $result = Setting::updateOrCreate(
             ['group' => $group, 'key' => $settingKey],
             ['value' => $value, 'type' => $type]
         );
+
+        Setting::flushCache();
+
+        return $result;
     }
 
     public function setMany(array $settings): void
     {
         foreach ($settings as $key => $value) {
-            $this->set($key, $value);
+            [$group, $settingKey] = $this->parseKey($key);
+            Setting::updateOrCreate(
+                ['group' => $group, 'key' => $settingKey],
+                ['value' => $value, 'type' => 'string']
+            );
         }
+        Setting::flushCache();
     }
 
     public function forget(string $key): void

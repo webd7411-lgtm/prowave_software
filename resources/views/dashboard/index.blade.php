@@ -48,7 +48,7 @@
 
     {{-- ============ KPI cards ============ --}}
     <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-1">
             <x-stat-card
                 label="Total Staff"
                 icon="bi-people-fill"
@@ -58,7 +58,7 @@
                 :trend-up="true"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-2">
             <x-stat-card
                 label="Active Staff"
                 icon="bi-person-check-fill"
@@ -68,7 +68,7 @@
                 :trend-up="true"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-3">
             <x-stat-card
                 label="New This Month"
                 icon="bi-person-plus-fill"
@@ -78,7 +78,7 @@
                 :trend-up="$trends['users_delta'] >= 0"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-4">
             <x-stat-card
                 label="Departments"
                 icon="bi-diagram-3-fill"
@@ -92,7 +92,7 @@
 
     {{-- ============ Charts row ============ --}}
     <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-xl-8 animate-fade-in-up stagger-2">
             <x-card
                 title="Staff Growth"
                 subtitle="New staff members over the last 6 months"
@@ -122,7 +122,7 @@
             </x-card>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-4">
+        <div class="col-12 col-md-6 col-xl-4 animate-fade-in-up stagger-3">
             <x-card title="Staff Distribution" subtitle="Active vs. inactive" icon="bi-pie-chart">
                 <div class="chart-wrapper chart-wrapper-sm">
                     <canvas id="staffStatusChart" data-chart="doughnut"
@@ -156,7 +156,7 @@
     {{-- ============ Module overview widgets ============ --}}
     <div class="row g-3 g-md-4 mb-4">
         {{-- Sign-ins today --}}
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 animate-fade-in-up stagger-3">
             <x-card title="Sign-ins Today" subtitle="Active user sessions" icon="bi-box-arrow-in-right" hover>
                 <div class="d-flex align-items-center gap-3">
                     <div class="stat-icon bg-emerald-soft">
@@ -171,7 +171,7 @@
         </div>
 
         {{-- Attendance widget (presentational) --}}
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 animate-fade-in-up stagger-4">
             <x-card title="Attendance" subtitle="Today's overview" icon="bi-calendar-check" hover>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="text-muted fs-sm">Present rate</span>
@@ -188,7 +188,7 @@
         </div>
 
         {{-- Open projects (presentational) --}}
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 animate-fade-in-up stagger-5">
             <x-card title="Active Projects" subtitle="Module coming soon" icon="bi-kanban" hover>
                 <div class="d-flex align-items-center gap-3">
                     <div class="stat-icon bg-indigo-soft">
@@ -206,7 +206,7 @@
         </div>
 
         {{-- Pending tasks (presentational) --}}
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-12 col-md-6 col-xl-3 animate-fade-in-up stagger-6">
             <x-card title="Pending Tasks" subtitle="Across all teams" icon="bi-list-check" hover>
                 <div class="d-flex align-items-center gap-3">
                     <div class="stat-icon bg-warning-soft">
@@ -226,7 +226,7 @@
 
     {{-- ============ Revenue / charts (presentational) ============ --}}
     <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-xl-8">
+        <div class="col-12 col-xl-8 animate-fade-in-up stagger-3">
             <x-card
                 title="Revenue Overview"
                 subtitle="Income vs. expenses (Module coming soon)"
@@ -256,7 +256,7 @@
         </div>
 
         {{-- Recent logins --}}
-        <div class="col-12 col-xl-4">
+        <div class="col-12 col-xl-4 animate-fade-in-up stagger-4">
             <x-card title="Recent Sign-ins" subtitle="Latest successful logins" icon="bi-shield-check" body-class="p-0">
                 <div class="list-group list-group-flush">
                     @forelse ($recentLogins as $log)
@@ -280,7 +280,7 @@
 
     {{-- ============ Recent activity + users ============ --}}
     <div class="row g-3 g-md-4">
-        <div class="col-12 col-xl-5">
+        <div class="col-12 col-xl-5 animate-fade-in-up stagger-4">
             <x-card title="Recent Activity" subtitle="Latest system events" icon="bi-activity">
                 @if ($activities->count())
                     <div class="activity-timeline">
@@ -299,7 +299,7 @@
             </x-card>
         </div>
 
-        <div class="col-12 col-xl-7">
+        <div class="col-12 col-xl-7 animate-fade-in-up stagger-5">
             <x-card
                 title="Recent Staff"
                 subtitle="Latest people added to the system"
@@ -307,7 +307,7 @@
                 :actions="auth()->user()->can('users.view') ? '<a href=\''.route('admin.users.index').'\' class=\'btn btn-soft-primary btn-sm\'>View All</a>' : ''"
             >
                 <div class="table-responsive">
-                    <table class="table align-middle mb-0">
+                    <table class="table align-middle mb-0 dashboard-staff-table">
                         <thead>
                             <tr>
                                 <th>User</th>
@@ -319,7 +319,7 @@
                         <tbody>
                             @forelse ($recentUsers as $user)
                                 <tr>
-                                    <td>
+                                    <td data-label="User">
                                         <div class="d-flex align-items-center gap-2">
                                             @if ($user->avatar_url)
                                                 <img src="{{ $user->avatar_url }}" class="avatar-sm rounded-circle" alt="">
@@ -332,11 +332,11 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-nowrap">{{ $user->department?->name ?? ($user->department_label ?? '—') }}</td>
-                                    <td>
+                                    <td data-label="Department" class="text-nowrap">{{ $user->department?->name ?? ($user->department_label ?? '—') }}</td>
+                                    <td data-label="Role">
                                         <span class="badge badge-soft-secondary">{{ $user->roles->first()?->name ?? '—' }}</span>
                                     </td>
-                                    <td>
+                                    <td data-label="Status">
                                         @if ($user->is_active)
                                             <span class="badge badge-soft-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i>Active</span>
                                         @else

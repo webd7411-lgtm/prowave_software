@@ -1,0 +1,1 @@
+<?php namespace App\Models; use Illuminate\Database\Eloquent\Model; class LeadStageHistory extends Model { protected $fillable=['lead_id','from_stage','to_stage','changed_by','entered_at','left_at']; protected $casts=['entered_at'=>'datetime','left_at'=>'datetime']; }

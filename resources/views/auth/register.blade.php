@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="auth-brand">
-        <span class="logo-fallback"><i class="bi bi-water"></i></span>
+        <img src="{{ asset('images/logo.jpg') }}" alt="{{ setting('company.name', 'Prowave') }}" style="height: 36px;">
         <div>
             <div class="brand-name">{{ setting('company.name', 'Prowave') }}</div>
             <div class="text-muted fs-xs">Management System</div>

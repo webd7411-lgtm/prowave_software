@@ -136,7 +136,11 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function () {
+        function initUsersTable() {
+            if (typeof jQuery === 'undefined' || typeof jQuery.fn.DataTable === 'undefined') {
+                setTimeout(initUsersTable, 50);
+                return;
+            }
             const table = $('#usersTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -155,12 +159,23 @@
                         d.trashed = $('#filter-trashed').is(':checked') ? 1 : 0;
                     },
                 },
-                columnDefs: [
-                    { targets: 0, orderable: false, width: '32px', render: function (data, type, row, meta) {
+                columns: [
+                    { data: null, orderable: false, width: '32px', render: function (data, type, row) {
                         return '<input type="checkbox" class="form-check-input dt-checkbox" value="' + row.DT_RowId.replace('user-', '') + '">';
                     } },
-                    { targets: 8, orderable: false },
+                    { data: 'name' },
+                    { data: 'employee_id' },
+                    { data: 'roles' },
+                    { data: 'department' },
+                    { data: 'status' },
+                    { data: 'last_login' },
+                    { data: 'joined' },
+                    { data: 'actions', orderable: false, searchable: false },
                 ],
+                error: function (xhr, error, thrown) {
+                    console.error('DataTables AJAX error:', error, thrown);
+                    console.error('Response:', xhr.responseText);
+                },
                 language: {
                     search: '',
                     searchPlaceholder: 'Search records...',
@@ -226,6 +241,7 @@
 
                 $('#bulkIds').val(ids.join(','));
             });
-        });
+        }
+        initUsersTable();
     </script>
 @endpush

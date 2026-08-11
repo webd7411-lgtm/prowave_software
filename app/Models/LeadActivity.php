@@ -1,0 +1,1 @@
+<?php namespace App\Models; use Illuminate\Database\Eloquent\Model; class LeadActivity extends Model { protected $fillable=['lead_id','type','subject','description','created_by']; public function author(){return $this->belongsTo(User::class,'created_by');} }

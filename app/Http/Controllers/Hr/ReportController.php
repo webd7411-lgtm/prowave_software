@@ -34,7 +34,9 @@ class ReportController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('hr.reports.employees', compact('employees', 'filters'));
+        $departments = Department::query()->active()->orderBy('name')->get();
+
+        return view('hr.reports.employees', compact('employees', 'filters', 'departments'));
     }
 
     public function attendance(Request $request): View
@@ -57,7 +59,9 @@ class ReportController extends Controller
             'total' => $records->count(),
         ];
 
-        return view('hr.reports.attendance', compact('records', 'summary', 'filters'));
+        $departments = Department::query()->active()->orderBy('name')->get();
+
+        return view('hr.reports.attendance', compact('records', 'summary', 'filters', 'departments'));
     }
 
     public function leaves(Request $request): View
@@ -73,7 +77,9 @@ class ReportController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('hr.reports.leaves', compact('leaves', 'filters'));
+        $departments = Department::query()->active()->orderBy('name')->get();
+
+        return view('hr.reports.leaves', compact('leaves', 'filters', 'departments'));
     }
 
     public function tasks(Request $request): View
@@ -93,7 +99,9 @@ class ReportController extends Controller
             'pending' => $tasks->whereIn('status', ['pending', 'in_progress', 'on_hold', 'overdue'])->count(),
         ];
 
-        return view('hr.reports.tasks', compact('tasks', 'summary', 'filters'));
+        $departments = Department::query()->active()->orderBy('name')->get();
+
+        return view('hr.reports.tasks', compact('tasks', 'summary', 'filters', 'departments'));
     }
 
     public function updates(Request $request): View
@@ -108,7 +116,9 @@ class ReportController extends Controller
             ->orderBy('date', 'desc')
             ->get();
 
-        return view('hr.reports.updates', compact('updates', 'filters'));
+        $departments = Department::query()->active()->orderBy('name')->get();
+
+        return view('hr.reports.updates', compact('updates', 'filters', 'departments'));
     }
 
     protected function filters(Request $request): array

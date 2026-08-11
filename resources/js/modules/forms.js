@@ -12,6 +12,26 @@ export function initForms() {
     initAutoDismissErrors();
     initSelect2();
     initFlatpickr();
+    initModalSelect2();
+}
+
+function initModalSelect2() {
+    const modal = document.getElementById('meetingModal');
+    if (!modal) return;
+
+    modal.addEventListener('shown.bs.modal', () => {
+        $(modal).find('.meeting-select2').each(function () {
+            if (!$(this).hasClass('select2-hidden-accessible')) {
+                $(this).select2({
+                    theme: 'bootstrap-5',
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: $(this).data('placeholder') || 'Select an option',
+                    dropdownParent: $(modal),
+                });
+            }
+        });
+    });
 }
 
 function initPasswordToggles() {
@@ -46,7 +66,6 @@ function initLoadingButtons() {
 
         form.querySelectorAll('button[type="submit"]').forEach((button) => {
             button.classList.add('btn-loading');
-            button.setAttribute('disabled', 'disabled');
 
             const original = button.dataset.originalHtml;
             const spinner = document.createElement('span');
@@ -60,6 +79,10 @@ function initLoadingButtons() {
 
             button.innerHTML = '';
             button.append(spinner, button.dataset.loadingText || 'Processing...');
+
+            // Defer disabling until after the submit event so the form
+            // actually fires — disabling synchronously can cancel submission.
+            setTimeout(() => { button.disabled = true; }, 0);
         });
     });
 }

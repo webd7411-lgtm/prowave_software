@@ -46,32 +46,39 @@ export function showConfirm({
 export function initConfirm() {
     document.addEventListener('click', (event) => {
         const trigger = event.target.closest('[data-confirm]');
-        if (!trigger) {
+        if (trigger) {
+            event.preventDefault();
+
+            const form = trigger.closest('form');
+
+            showConfirm({
+                title: trigger.dataset.confirmTitle || 'Are you sure?',
+                text: trigger.dataset.confirmText || 'This action cannot be undone.',
+                icon: trigger.dataset.confirmIcon || 'warning',
+                confirmText: trigger.dataset.confirmConfirmText || 'Yes, proceed',
+                cancelText: trigger.dataset.confirmCancelText || 'Cancel',
+                danger: trigger.dataset.confirmDanger !== 'false',
+            }).then((result) => {
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                if (trigger.dataset.formSubmit) {
+                    document.querySelector(trigger.dataset.formSubmit)?.submit();
+                } else if (form) {
+                    form.submit();
+                } else if (trigger.dataset.confirmAction) {
+                    window.location.href = trigger.dataset.confirmAction;
+                }
+            });
+
             return;
         }
 
-        event.preventDefault();
-
-        const form = trigger.closest('form');
-        const isForm = Boolean(form);
-
-        showConfirm({
-            title: trigger.dataset.confirmTitle || 'Are you sure?',
-            text: trigger.dataset.confirmText || 'This action cannot be undone.',
-            icon: trigger.dataset.confirmIcon || 'warning',
-            confirmText: trigger.dataset.confirmConfirmText || 'Yes, proceed',
-            cancelText: trigger.dataset.confirmCancelText || 'Cancel',
-            danger: trigger.dataset.confirmDanger !== 'false',
-        }).then((result) => {
-            if (!result.isConfirmed) {
-                return;
-            }
-
-            if (isForm) {
-                form.submit();
-            } else if (trigger.dataset.confirmAction) {
-                window.location.href = trigger.dataset.confirmAction;
-            }
-        });
+        const submitTrigger = event.target.closest('[data-form-submit]');
+        if (submitTrigger) {
+            event.preventDefault();
+            document.querySelector(submitTrigger.dataset.formSubmit)?.submit();
+        }
     });
 }

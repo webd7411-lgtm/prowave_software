@@ -72,11 +72,11 @@ export function initSidebar() {
 
     document.querySelectorAll('.nav-item.has-submenu > .nav-link').forEach((link) => {
         link.addEventListener('click', (event) => {
-            if (isMobile() || !document.body.classList.contains('sidebar-collapsed')) {
-                event.preventDefault();
-                link.parentElement.classList.toggle('open');
-                persistOpenMenus();
-            }
+            // Submenu triggers are intentionally non-navigation links. Always
+            // toggle them, including when the desktop sidebar is collapsed.
+            event.preventDefault();
+            link.parentElement.classList.toggle('open');
+            persistOpenMenus();
         });
     });
 
@@ -91,30 +91,37 @@ export function initSidebar() {
         searchInput.addEventListener('input', () => {
             const query = searchInput.value.trim().toLowerCase();
 
-            document.querySelectorAll('.sidebar-nav .nav-link').forEach((link) => {
-                const text = link.textContent.trim().toLowerCase();
-                const parentItem = link.closest('.nav-item');
+            if (!query) {
+                document.querySelectorAll('.sidebar-nav .nav-item').forEach((item) => {
+                    item.style.display = '';
+                    item.classList.remove('open');
+                });
+                document.querySelectorAll('.sidebar-nav .nav-section').forEach((section) => {
+                    section.style.display = '';
+                });
+                return;
+            }
 
-                if (!query) {
-                    if (parentItem) {
-                        parentItem.style.display = '';
-                        parentItem.classList.remove('open');
-                    }
-                    return;
-                }
-
-                if (parentItem) {
-                    const match = text.includes(query);
-                    parentItem.style.display = match ? '' : 'none';
-                    if (match) {
-                        parentItem.classList.add('open');
-                    }
+            document.querySelectorAll('.sidebar-nav > .nav.flex-column > .nav-item').forEach((item) => {
+                const link = item.querySelector(':scope > .nav-link');
+                const text = link ? link.textContent.trim().toLowerCase() : '';
+                const match = text.includes(query);
+                item.style.display = match ? '' : 'none';
+                if (match) {
+                    item.classList.add('open');
                 }
             });
 
             document.querySelectorAll('.sidebar-nav .nav-section').forEach((section) => {
-                const hasVisible = [...section.nextElementSibling?.querySelectorAll('.nav-item') ?? []]
-                    .some((item) => item.style.display !== 'none');
+                let hasVisible = false;
+                let sibling = section.nextElementSibling;
+                while (sibling && !sibling.classList.contains('nav-section')) {
+                    if (sibling.classList.contains('nav-item') && sibling.style.display !== 'none') {
+                        hasVisible = true;
+                        break;
+                    }
+                    sibling = sibling.nextElementSibling;
+                }
                 section.style.display = hasVisible ? '' : 'none';
             });
         });

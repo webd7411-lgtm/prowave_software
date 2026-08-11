@@ -1,0 +1,4 @@
+<?php
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model; use Illuminate\Database\Eloquent\SoftDeletes;
+class Lead extends Model { use SoftDeletes; protected $fillable=['lead_number','company_name','contact_person','phone','whatsapp','email','website','address','city','country','source','service_interested','estimated_budget','owner_id','status','stage','priority','expected_closing_date','notes','converted_client_id','converted_at','created_by','updated_by']; protected $casts=['estimated_budget'=>'decimal:2','expected_closing_date'=>'date','converted_at'=>'datetime']; public function owner(){return $this->belongsTo(User::class,'owner_id');} public function client(){return $this->belongsTo(Client::class,'converted_client_id');} public function followups(){return $this->hasMany(LeadFollowup::class);} public function activities(){return $this->hasMany(LeadActivity::class);} public function stageHistories(){return $this->hasMany(LeadStageHistory::class);} }

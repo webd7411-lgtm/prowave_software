@@ -9,11 +9,11 @@ use App\Http\Requests\Hr\StoreTaskRequest;
 use App\Http\Requests\Hr\UpdateTaskRequest;
 use App\Models\DailyTask;
 use App\Models\Department;
-use App\Models\User;
 use App\Repositories\EmployeeRepository;
 use App\Repositories\TaskRepository;
 use App\Services\AuditService;
 use App\Services\Hr\TaskService;
+use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -66,6 +66,15 @@ class DailyTaskController extends Controller
 
         $this->audit->log('Task created', 'hr', $task, event: 'created');
 
+        if ($task->assigned_to && $task->assigned_to !== auth()->id()) {
+            app(NotificationService::class)->send(
+                $task->assignee,
+                'Task assigned to you',
+                $task->title.($task->deadline ? ' — due '.$task->deadline->format('M d, Y') : ''),
+                ['category' => 'task', 'url' => route('hr.tasks.board'), 'color' => 'info']
+            );
+        }
+
         return redirect()
             ->route('hr.tasks.index')
             ->with('toast', ['type' => 'success', 'message' => 'Task created successfully.']);
@@ -109,6 +118,15 @@ class DailyTaskController extends Controller
         $this->authorize('update', $task);
 
         $this->service->changeStatus($task, $request->string('status'));
+
+        if ($request->string('status')->toString() === 'completed' && $task->created_by && $task->created_by !== auth()->id()) {
+            app(NotificationService::class)->send(
+                $task->assigner,
+                'Task completed',
+                $task->assignee?->name.' completed "'.$task->title.'".',
+                ['category' => 'task', 'url' => route('hr.tasks.index'), 'color' => 'success']
+            );
+        }
 
         return back()->with('toast', ['type' => 'success', 'message' => 'Task status updated.']);
     }
