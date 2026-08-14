@@ -12,7 +12,9 @@ class TransferController extends Controller
 {
     public function index(): View
     {
-        $records      = AccountTransfer::with(['fromCashAccount', 'fromBankAccount', 'toCashAccount', 'toBankAccount', 'createdBy'])->latest()->paginate(20);
+        $this->authorize('transactions.view');
+
+        $records = AccountTransfer::with(['fromCashAccount', 'fromBankAccount', 'toCashAccount', 'toBankAccount', 'createdBy'])->latest()->paginate(20);
         $cashAccounts = CashAccount::where('is_active', true)->orderBy('name')->get();
         $bankAccounts = BankAccount::where('status', 'active')->orderBy('bank_name')->get();
         return view('finance.transfers.index', compact('records', 'cashAccounts', 'bankAccounts'));

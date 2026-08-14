@@ -27,7 +27,7 @@
                             <select name="client_id" class="form-select @error('client_id') is-invalid @enderror" required>
                                 <option value="">— Select Client —</option>
                                 @foreach($clients as $c)
-                                    <option value="{{ $c->id }}" {{ old('client_id', $quotation->client_id ?? '') == $c->id ? 'selected' : '' }}>
+                                    <option value="{{ $c->id }}" {{ old('client_id', $quotation?->client_id ?? '') == $c->id ? 'selected' : '' }}>
                                         {{ $c->company_name }}
                                     </option>
                                 @endforeach
@@ -49,12 +49,12 @@
                         </div>
                         <div class="col-12 col-sm-6">
                             <label class="form-label fw-semibold">Quotation Date <span class="text-danger">*</span></label>
-                            <input type="date" name="quotation_date" value="{{ old('quotation_date', $quotation->quotation_date?->format('Y-m-d') ?? date('Y-m-d')) }}" class="form-control @error('quotation_date') is-invalid @enderror" required>
+                            <input type="date" name="quotation_date" value="{{ old('quotation_date', $quotation?->quotation_date?->format('Y-m-d') ?? date('Y-m-d')) }}" class="form-control @error('quotation_date') is-invalid @enderror" required>
                             @error('quotation_date')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         <div class="col-12 col-sm-6">
                             <label class="form-label">Valid Until</label>
-                            <input type="date" name="valid_until" value="{{ old('valid_until', $quotation->valid_until?->format('Y-m-d') ?? '') }}" class="form-control @error('valid_until') is-invalid @enderror">
+                            <input type="date" name="valid_until" value="{{ old('valid_until', $quotation?->valid_until?->format('Y-m-d') ?? '') }}" class="form-control @error('valid_until') is-invalid @enderror">
                             @error('valid_until')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
@@ -117,11 +117,11 @@
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Notes</label>
-                            <textarea name="notes" rows="3" class="form-control" placeholder="Additional notes for the client...">{{ old('notes', $quotation->notes ?? '') }}</textarea>
+                            <textarea name="notes" rows="3" class="form-control" placeholder="Additional notes for the client...">{{ old('notes', $quotation?->notes ?? '') }}</textarea>
                         </div>
                         <div class="col-12">
                             <label class="form-label">Terms & Conditions</label>
-                            <textarea name="terms" rows="3" class="form-control" placeholder="Payment terms, validity, etc...">{{ old('terms', $quotation->terms ?? '') }}</textarea>
+                            <textarea name="terms" rows="3" class="form-control" placeholder="Payment terms, validity, etc...">{{ old('terms', $quotation?->terms ?? '') }}</textarea>
                         </div>
                     </div>
                 </div>

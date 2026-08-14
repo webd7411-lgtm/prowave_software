@@ -8,7 +8,7 @@
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <h1 class="h3 fw-bold text-dark mb-1">Projects Directory</h1>
-            <p class="text-muted mb-0 fs-sm">Manage software house projects, track health, milestones, deadlines, and financial velocity.</p>
+            <p class="text-muted mb-0 fs-sm">Manage software house projects, track health, deadlines, and financial velocity.</p>
         </div>
         <div class="d-flex flex-wrap align-items-center gap-2">
             @can('projects.export')
@@ -16,10 +16,13 @@
                     <i class="bi bi-download"></i> Export CSV
                 </a>
             @endcan
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+            <button type="button" onclick="printUrlInHiddenFrame('{{ route('projects.print', request()->all()) }}')" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
                 <i class="bi bi-printer"></i> Print
             </button>
             @can('projects.create')
+                <button type="button" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#importProjectsModal">
+                    <i class="bi bi-file-earmark-arrow-up"></i> Import CSV
+                </button>
                 <a href="{{ route('projects.create') }}" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1">
                     <i class="bi bi-plus-lg"></i> New Project
                 </a>
@@ -253,5 +256,45 @@
             {{ $projects->links() }}
         </div>
     @endif
+
+    {{-- Import Projects Modal --}}
+    @can('projects.create')
+    <div class="modal fade" id="importProjectsModal" tabindex="-1" aria-labelledby="importProjectsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <form action="{{ route('projects.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold" id="importProjectsModalLabel">
+                            <i class="bi bi-file-earmark-arrow-up text-primary me-2"></i>Import Projects (CSV)
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted fs-sm mb-3">Upload a CSV file containing project details. Make sure your CSV file matches the sample template format.</p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold fs-sm">CSV File <span class="text-danger">*</span></label>
+                            <input type="file" name="file" class="form-control" accept=".csv, .txt" required>
+                        </div>
+
+                        <div class="bg-light rounded-3 p-3 mb-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <span class="fs-xs text-muted">Need sample formatting?</span>
+                                <a href="{{ route('projects.import-template') }}" class="btn btn-sm btn-link p-0 text-decoration-none fs-xs fw-bold">
+                                    <i class="bi bi-download me-1"></i> Download CSV Template
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top-0 pt-0">
+                        <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-sm btn-primary">Upload & Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
 </div>
 @endsection

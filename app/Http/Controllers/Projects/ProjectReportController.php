@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Project, ProjectTask, ProjectMilestone, ProjectExpense, ProjectTimeEntry, Client, User};
+use App\Models\{Project, ProjectTask, ProjectExpense, ProjectTimeEntry, Client, User};
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -129,5 +129,38 @@ class ProjectReportController extends Controller
 
             fclose($handle);
         }, 200, $headers);
+    }
+
+    public function print(Request $request): View
+    {
+        $this->authorize('project_reports.view');
+
+        $query = Project::with(['client', 'manager', 'tasks', 'expenses']);
+
+        if ($request->filled('project_id')) {
+            $query->where('id', $request->project_id);
+        }
+        if ($request->filled('client_id')) {
+            $query->where('client_id', $request->client_id);
+        }
+        if ($request->filled('manager_id')) {
+            $query->where('project_manager_id', $request->manager_id);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+        if ($request->filled('start_date')) {
+            $query->whereDate('start_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('deadline', '<=', $request->end_date);
+        }
+
+        $reportProjects = $query->get();
+
+        return view('projects.reports_print', [
+            'projects' => $reportProjects,
+            'filters' => $request->only(['type', 'project_id', 'client_id', 'manager_id', 'status', 'start_date', 'end_date']),
+        ]);
     }
 }

@@ -15,9 +15,7 @@
             <h1 class="h3 fw-bold text-dark mb-1">{{ $task->title }}</h1>
             <p class="text-muted mb-0 fs-sm">
                 Project: <a href="{{ route('projects.show', $task->project) }}" class="fw-semibold text-primary text-decoration-none">{{ $task->project->name }}</a>
-                @if($task->milestone)
-                    | Milestone: <strong class="text-dark">{{ $task->milestone->name }}</strong>
-                @endif
+
             </p>
         </div>
 

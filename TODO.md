@@ -12,15 +12,14 @@
 - [x] Migration: create_employee_leave_balances_table
 - [x] Migration: create_daily_tasks_table
 - [x] Migration: create_daily_work_updates_table
-- [x] Migration: create_employee_documents_table
-- [x] Enums: EmployeeStatus, EmploymentType, AttendanceStatus, LeaveStatus, TaskStatus, Priority, DailyUpdateStatus, DocumentType
+- [x] Enums: EmployeeStatus, EmploymentType, AttendanceStatus, LeaveStatus, TaskStatus, Priority, DailyUpdateStatus
 
 ### Phase 2 — Models, Policies, Repositories, Services ✅
-- [x] Models: Designation, Shift, Attendance, LeaveType, LeaveRequest, EmployeeLeaveBalance, DailyTask, DailyWorkUpdate, EmployeeDocument
+- [x] Models: Designation, Shift, Attendance, LeaveType, LeaveRequest, EmployeeLeaveBalance, DailyTask, DailyWorkUpdate
 - [x] User model relations + casts
-- [x] Policies: Employee, Attendance, Leave, Task, DailyUpdate, Document
+- [x] Policies: Employee, Attendance, Leave, Task, DailyUpdate
 - [x] Repositories: Employee, Attendance, Leave, Task, DailyUpdate
-- [x] Services: Attendance (shift calc), Leave (balance), Task, DailyUpdate, Document
+- [x] Services: Attendance (shift calc), Leave (balance), Task, DailyUpdate
 
 ### Phase 3 — Controllers & Routes
 - [ ] Controllers under App\Http\Controllers\Hr\
@@ -37,7 +36,6 @@
 - [ ] Leave dashboard + index + create + review
 - [ ] Daily tasks board/list/form
 - [ ] Daily updates submit/review
-- [ ] Documents upload/list
 - [ ] HR Dashboard
 - [ ] Reports (Excel/PDF)
 

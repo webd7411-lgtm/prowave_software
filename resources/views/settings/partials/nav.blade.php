@@ -5,7 +5,6 @@
         ['route' => 'settings.branding', 'icon' => 'bi-palette', 'label' => 'Branding'],
         ['route' => 'settings.email', 'icon' => 'bi-envelope-at', 'label' => 'Email Settings'],
         ['route' => 'settings.notifications', 'icon' => 'bi-bell', 'label' => 'Notifications'],
-        ['route' => 'settings.whatsapp', 'icon' => 'bi-whatsapp', 'label' => 'WhatsApp'],
         ['route' => 'settings.preferences', 'icon' => 'bi-gear-wide-connected', 'label' => 'System Preferences'],
         ['route' => 'settings.leave-types', 'icon' => 'bi-door-open', 'label' => 'Leave Types'],
         ['route' => 'settings.security', 'icon' => 'bi-shield-lock', 'label' => 'Security'],

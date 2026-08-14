@@ -30,7 +30,7 @@ class SettingsController extends Controller
             'company_name' => ['required', 'string', 'max:255'],
             'company_email' => ['nullable', 'email', 'max:255'],
             'company_phone' => ['nullable', 'string', 'max:30'],
-            'company_whatsapp' => ['nullable', 'string', 'max:30'],
+
             'company_website' => ['nullable', 'url', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:500'],
             'company_city' => ['nullable', 'string', 'max:100'],
@@ -51,7 +51,6 @@ class SettingsController extends Controller
             'general.name' => $data['company_name'],
             'general.email' => $data['company_email'] ?? '',
             'general.phone' => $data['company_phone'] ?? '',
-            'general.whatsapp' => $data['company_whatsapp'] ?? '',
             'general.website' => $data['company_website'] ?? '',
             'general.address' => $data['company_address'] ?? '',
             'general.city' => $data['company_city'] ?? '',
@@ -95,7 +94,7 @@ class SettingsController extends Controller
             'company_name' => ['required', 'string', 'max:255'],
             'company_email' => ['nullable', 'email', 'max:255'],
             'company_phone' => ['nullable', 'string', 'max:30'],
-            'company_whatsapp' => ['nullable', 'string', 'max:30'],
+
             'company_website' => ['nullable', 'url', 'max:255'],
             'company_address' => ['nullable', 'string', 'max:500'],
             'company_city' => ['nullable', 'string', 'max:100'],
@@ -115,7 +114,6 @@ class SettingsController extends Controller
             'general.name' => $data['company_name'],
             'general.email' => $data['company_email'] ?? '',
             'general.phone' => $data['company_phone'] ?? '',
-            'general.whatsapp' => $data['company_whatsapp'] ?? '',
             'general.website' => $data['company_website'] ?? '',
             'general.address' => $data['company_address'] ?? '',
             'general.city' => $data['company_city'] ?? '',
@@ -280,51 +278,6 @@ class SettingsController extends Controller
                 'message' => 'Test email failed: '.$e->getMessage(),
             ]);
         }
-    }
-
-    // WhatsApp Notifications
-
-    public function whatsapp(): View
-    {
-        return view('settings.whatsapp', ['wa' => $this->settings->group('whatsapp')]);
-    }
-
-    public function updateWhatsapp(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'api_url' => ['nullable', 'string', 'max:255'],
-            'api_token' => ['nullable', 'string', 'max:255'],
-            'default_number' => ['nullable', 'string', 'max:30'],
-        ]);
-
-        $this->settings->setMany([
-            'whatsapp.api_url' => trim((string) ($data['api_url'] ?? '')),
-            'whatsapp.api_token' => trim((string) ($data['api_token'] ?? '')),
-            'whatsapp.default_number' => trim((string) ($data['default_number'] ?? '')),
-        ]);
-        $this->audit('WhatsApp settings updated', 'settings');
-
-        return back()->with('toast', [
-            'type' => 'success',
-            'message' => 'WhatsApp settings saved successfully.',
-        ]);
-    }
-
-    public function testWhatsapp(Request $request): RedirectResponse
-    {
-        $data = $request->validate([
-            'test_wa_number' => ['required', 'string', 'max:30'],
-        ]);
-
-        $ok = app(\App\Services\WhatsAppService::class)->send(
-            $data['test_wa_number'],
-            'Test WhatsApp message from '.app_name().'. Sent at '.now()->format('Y-m-d H:i:s').'.'
-        );
-
-        return back()->with('toast', [
-            'type' => $ok ? 'success' : 'warning',
-            'message' => $ok ? 'Test message sent successfully to '.$data['test_wa_number'].'.' : 'WhatsApp gateway is not configured or unreachable.',
-        ]);
     }
 
     protected function decryptSmtpPassword(?string $encrypted): string

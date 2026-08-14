@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\{Project, Client, User, ProjectMember, ProjectMilestone, ProjectTask, TaskComment, ProjectFile, ProjectTimeEntry, ProjectExpense, ProjectActivity};
+use App\Models\{Project, Client, User, ProjectMember, ProjectTask, TaskComment, ProjectFile, ProjectTimeEntry, ProjectExpense, ProjectActivity};
 use Carbon\Carbon;
 
 class ProjectManagementSeeder extends Seeder
@@ -46,7 +46,7 @@ class ProjectManagementSeeder extends Seeder
                 'estimated_hours' => 320.00,
                 'actual_hours' => 84.50,
                 'progress' => 35,
-                'notes' => 'Client requires bi-weekly milestone signoffs.',
+                'notes' => 'Modernizing legacy ERP architecture with Laravel 10, real-time analytics, and automated project accounting modules.',
                 'created_by' => $admin->id,
                 'updated_by' => $admin->id,
             ]
@@ -65,41 +65,12 @@ class ProjectManagementSeeder extends Seeder
             );
         }
 
-        // Milestones
-        $ms1 = ProjectMilestone::updateOrCreate(
-            ['project_id' => $project1->id, 'name' => 'Phase 1: Database Architecture'],
-            [
-                'description' => 'Schema design and migration execution',
-                'start_date' => Carbon::now()->subDays(15),
-                'deadline' => Carbon::now()->subDays(2),
-                'status' => 'Completed',
-                'progress' => 100,
-                'order' => 0,
-                'created_by' => $admin->id,
-            ]
-        );
-
-        $ms2 = ProjectMilestone::updateOrCreate(
-            ['project_id' => $project1->id, 'name' => 'Phase 2: Core Controllers & UI Design'],
-            [
-                'description' => 'Building blade components, controllers, and Kanban board',
-                'start_date' => Carbon::now()->subDays(1),
-                'deadline' => Carbon::now()->addDays(20),
-                'status' => 'In Progress',
-                'progress' => 40,
-                'order' => 1,
-                'created_by' => $admin->id,
-            ]
-        );
-
-        // Tasks
         $task1 = ProjectTask::updateOrCreate(
             ['task_code' => 'TSK-0001'],
             [
                 'title' => 'Design Project Management Migration & Models',
                 'description' => 'Create robust database schema with proper indexes and cascade delete rules.',
                 'project_id' => $project1->id,
-                'milestone_id' => $ms1->id,
                 'assigned_to' => $admin->id,
                 'assigned_by' => $admin->id,
                 'priority' => 'Urgent',
@@ -120,7 +91,6 @@ class ProjectManagementSeeder extends Seeder
                 'title' => 'Implement Mobile-Responsive Kanban Drag-and-Drop Board',
                 'description' => 'Build interactive Kanban board supporting To Do, In Progress, Review, Testing, and Completed columns.',
                 'project_id' => $project1->id,
-                'milestone_id' => $ms2->id,
                 'assigned_to' => $admin->id,
                 'assigned_by' => $admin->id,
                 'priority' => 'High',

@@ -3,11 +3,81 @@
 @section('title', 'Project Analytics & Reports')
 
 @section('content')
+<style>
+@media print {
+    nav, sidebar, .sidebar, .navbar, .btn, form, .no-print, header, footer, .card-header {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-family: system-ui, -apple-system, sans-serif !important;
+        font-size: 11px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    .container-fluid {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+    }
+    .card {
+        border: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+    .table-responsive {
+        overflow: visible !important;
+    }
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 10px !important;
+    }
+    .table th, .table td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 6px 8px !important;
+        color: #0f172a !important;
+        font-size: 11px !important;
+    }
+    .table th {
+        background-color: #f1f5f9 !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+    }
+    .badge {
+        border: 1px solid #94a3b8 !important;
+        color: #000000 !important;
+        background: transparent !important;
+        font-weight: 600 !important;
+        padding: 2px 6px !important;
+    }
+    .progress {
+        border: 1px solid #cbd5e1 !important;
+        background-color: #e2e8f0 !important;
+    }
+    .progress-bar {
+        background-color: #2563eb !important;
+    }
+    @page {
+        size: landscape;
+        margin: 12mm;
+    }
+}
+</style>
+
 <div class="container-fluid px-0">
-    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+    {{-- Printable Document Header --}}
+    <div class="d-none d-print-block text-center mb-4 pb-2 border-bottom">
+        <h2 class="fw-bold mb-1 text-dark">Project Analytics & Financial Report</h2>
+        <p class="text-muted small mb-0">Generated on {{ now('Asia/Karachi')->format('M d, Y h:i A') }} — Prowave ERP</p>
+    </div>
+
+    {{-- Screen Header --}}
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4 no-print">
         <div>
             <h1 class="h3 fw-bold text-dark mb-1">Project Reports & Financial Analytics</h1>
-            <p class="text-muted mb-0 fs-sm">Analyze project execution, delivery milestones, budgets, expenses, and employee task performance.</p>
+            <p class="text-muted mb-0 fs-sm">Analyze project execution, delivery budgets, expenses, and employee task performance.</p>
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
@@ -19,14 +89,14 @@
                     <i class="bi bi-download"></i> Export CSV Report
                 </a>
             @endcan
-            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
-                <i class="bi bi-printer"></i> Print
+            <button type="button" onclick="printUrlInHiddenFrame('{{ route('projects.reports.print', request()->all()) }}')" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+                <i class="bi bi-printer"></i> Print List
             </button>
         </div>
     </div>
 
     {{-- Filter Form --}}
-    <div class="card border-0 shadow-sm mb-4">
+    <div class="card border-0 shadow-sm mb-4 no-print">
         <div class="card-body p-3">
             <form method="GET" action="{{ route('projects.reports.index') }}" class="row g-2 align-items-center">
                 <div class="col-6 col-md-2">
@@ -79,25 +149,25 @@
 
     {{-- Summary Cards --}}
     <div class="row g-3 mb-4">
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm p-3">
                 <div class="text-muted fs-xs font-semibold text-uppercase">In Progress</div>
                 <div class="h2 fw-bold text-primary mb-0 mt-1">{{ number_format($statusCounts['In Progress']) }}</div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm p-3">
                 <div class="text-muted fs-xs font-semibold text-uppercase">Completed Projects</div>
                 <div class="h2 fw-bold text-success mb-0 mt-1">{{ number_format($statusCounts['Completed']) }}</div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm p-3">
                 <div class="text-muted fs-xs font-semibold text-uppercase">Completed Tasks</div>
                 <div class="h2 fw-bold text-info mb-0 mt-1">{{ number_format($taskCounts['Completed']) }}</div>
             </div>
         </div>
-        <div class="col-12 col-md-6 col-xl-3">
+        <div class="col-6 col-md-3">
             <div class="card border-0 shadow-sm p-3">
                 <div class="text-muted fs-xs font-semibold text-uppercase">Overdue Projects</div>
                 <div class="h2 fw-bold text-danger mb-0 mt-1">{{ number_format($statusCounts['Overdue']) }}</div>
@@ -111,6 +181,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="bg-light fs-xs text-uppercase text-muted">
                     <tr>
+                        <th style="width: 40px;">#</th>
                         <th>Code</th>
                         <th>Project Name</th>
                         <th>Client</th>
@@ -118,9 +189,9 @@
                         <th>Status</th>
                         <th>Progress</th>
                         @can('project_finance.view')
-                            <th>Budget ($)</th>
-                            <th>Expenses ($)</th>
-                            <th>Est. Profit ($)</th>
+                            <th class="text-end">Budget ({{ setting('general.currency', 'PKR') }})</th>
+                            <th class="text-end">Expenses ({{ setting('general.currency', 'PKR') }})</th>
+                            <th class="text-end">Est. Profit ({{ setting('general.currency', 'PKR') }})</th>
                         @endcan
                         <th>Deadline</th>
                         <th>Health</th>
@@ -130,6 +201,7 @@
                     @forelse($reportProjects as $project)
                         @php $expenses = $project->expenses->sum('amount'); @endphp
                         <tr>
+                            <td class="text-muted small">{{ $loop->iteration }}</td>
                             <td class="fw-bold text-muted">{{ $project->project_code }}</td>
                             <td>
                                 <a href="{{ route('projects.show', $project) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
@@ -148,16 +220,16 @@
                                 </div>
                             </td>
                             @can('project_finance.view')
-                                <td class="fw-bold">${{ number_format($project->budget, 2) }}</td>
-                                <td class="text-danger">${{ number_format($expenses, 2) }}</td>
-                                <td class="fw-bold text-success">${{ number_format($project->budget - $expenses, 2) }}</td>
+                                <td class="fw-bold text-end">{{ number_format($project->budget, 2) }}</td>
+                                <td class="text-danger text-end">{{ number_format($expenses, 2) }}</td>
+                                <td class="fw-bold text-success text-end">{{ number_format($project->budget - $expenses, 2) }}</td>
                             @endcan
                             <td>{{ $project->deadline ? $project->deadline->format('M d, Y') : 'N/A' }}</td>
                             <td><span class="badge {{ $project->health_badge_class }} fs-xs">{{ $project->health }}</span></td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="text-center py-4 text-muted">No projects found for this report filter.</td>
+                            <td colspan="12" class="text-center py-4 text-muted">No projects found for this report filter.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class IncomeRecord extends Model
 {
@@ -76,8 +77,12 @@ class IncomeRecord extends Model
 
     public static function generateNumber(): string
     {
-        $last = static::withTrashed()->latest('id')->value('income_number');
-        $num = $last ? ((int) substr($last, 4)) + 1 : 1;
-        return 'INC-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $record = static::withTrashed()->lockForUpdate()->latest('id')->first();
+            $last = $record?->income_number;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return 'INC-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        });
     }
 }

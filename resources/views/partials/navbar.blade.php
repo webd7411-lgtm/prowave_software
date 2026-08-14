@@ -4,9 +4,9 @@
     </button>
 
     <button type="button" class="navbar-search-trigger" data-search-open aria-label="Open search">
-        <i class="bi bi-search me-2"></i>
-        <span>Search anything...</span>
-        <kbd class="search-kbd"><i class="bi bi-command"></i>K</kbd>
+        <i class="bi bi-search me-1 me-md-2"></i>
+        <span class="d-none d-sm-inline">Search anything...</span>
+        <kbd class="search-kbd d-none d-md-inline-block"><i class="bi bi-command"></i>K</kbd>
     </button>
 
     <div class="nav-actions">
@@ -64,12 +64,12 @@
             </div>
         </div>
 
-        <button type="button" class="icon-btn" data-theme-toggle="dark" aria-label="Toggle dark mode">
-            <i class="bi bi-moon-stars d-block"></i>
-            <i class="bi bi-sun d-none"></i>
+        <button type="button" class="icon-btn" data-theme-toggle="toggle" aria-label="Toggle theme" title="Toggle Light/Dark Theme">
+            <i class="bi bi-sun-fill theme-icon-light"></i>
+            <i class="bi bi-moon-stars-fill theme-icon-dark"></i>
         </button>
 
-        <button type="button" class="icon-btn" data-fullscreen aria-label="Toggle fullscreen">
+        <button type="button" class="icon-btn d-none d-sm-inline-flex" data-fullscreen aria-label="Toggle fullscreen">
             <i class="bi bi-arrows-fullscreen"></i>
         </button>
 

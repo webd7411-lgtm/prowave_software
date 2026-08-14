@@ -33,10 +33,6 @@
                             <input type="text" name="phone" value="{{ old('phone', $vendor->phone) }}" class="form-control">
                         </div>
                         <div class="col-12 col-sm-6">
-                            <label class="form-label">WhatsApp</label>
-                            <input type="text" name="whatsapp" value="{{ old('whatsapp', $vendor->whatsapp) }}" class="form-control">
-                        </div>
-                        <div class="col-12 col-sm-6">
                             <label class="form-label">Email</label>
                             <input type="email" name="email" value="{{ old('email', $vendor->email) }}" class="form-control @error('email') is-invalid @enderror">
                             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror

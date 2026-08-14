@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\DB;
 
 class Project extends Model
 {
@@ -32,8 +33,6 @@ class Project extends Model
         'created_by',
         'updated_by',
         'deleted_by',
-        'team',
-        'tasks',
     ];
 
     protected $casts = [
@@ -48,8 +47,14 @@ class Project extends Model
     public static function generateCode(): string
     {
         $prefix = 'PRJ-';
-        $number = static::withTrashed()->count() + 1;
-        return $prefix . str_pad((string)$number, 4, '0', STR_PAD_LEFT);
+
+        return DB::transaction(function () use ($prefix) {
+            $record = static::withTrashed()->lockForUpdate()->orderByDesc('id')->first();
+            $last = $record?->project_code;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return $prefix . str_pad((string)$num, 4, '0', STR_PAD_LEFT);
+        });
     }
 
     public function client(): BelongsTo
@@ -72,11 +77,6 @@ class Project extends Model
         return $this->belongsToMany(User::class, 'project_members')
                     ->withPivot(['role', 'assigned_date', 'hours_allocation', 'status'])
                     ->withTimestamps();
-    }
-
-    public function milestones(): HasMany
-    {
-        return $this->hasMany(ProjectMilestone::class)->orderBy('order')->orderBy('id');
     }
 
     public function tasks(): HasMany
@@ -175,8 +175,21 @@ class Project extends Model
         };
     }
 
+    public function getProgressAttribute($value): int
+    {
+        if ($this->status === 'Completed') {
+            return 100;
+        }
+        return (int) ($value ?? 0);
+    }
+
     public function recalculateProgress(): void
     {
+        if ($this->status === 'Completed') {
+            $this->update(['progress' => 100]);
+            return;
+        }
+
         $totalTasks = $this->tasks()->count();
         if ($totalTasks > 0) {
             $completedTasks = $this->tasks()->where('status', 'Completed')->count();

@@ -104,20 +104,26 @@
                 <div class="row g-2 fs-xs text-muted mb-2">
                     <div class="col-6"><i class="bi bi-person me-1"></i>{{ $lead->contact_person ?: '—' }}</div>
                     <div class="col-6"><i class="bi bi-phone me-1"></i>{{ $lead->phone ?: '—' }}</div>
-                    <div class="col-6"><i class="bi bi-geo-alt me-1"></i>{{ $lead->source ? ucfirst($lead->source) : '—' }}</div>
-                    <div class="col-6"><i class="bi bi-person-badge me-1"></i>{{ $lead->owner?->name ?? 'Unassigned' }}</div>
+                    <div class="col-12"><i class="bi bi-person-badge me-1"></i>{{ $lead->owner?->name ?? 'Unassigned' }}</div>
                     <div class="col-12"><i class="bi bi-pin-map me-1"></i>{{ $lead->address ?: '—' }}</div>
-                    <div class="col-6"><i class="bi bi-cash me-1"></i>{{ $lead->estimated_budget ? number_format($lead->estimated_budget,2) : '—' }}</div>
                 </div>
-                @can('leads.edit')
-                    <select class="form-select form-select-sm lead-status-dropdown" data-lead-id="{{ $lead->id }}">
-                        @foreach($statuses->where('slug', '!=', 'contacted') as $s)
-                            <option value="{{ $s->slug }}" @selected($lead->status===$s->slug)>{{ $s->name }}</option>
-                        @endforeach
-                    </select>
-                @else
-                    <span class="badge" style="background:{{ $statusColors[$lead->status]??'#6c757d' }}">{{ ucfirst(str_replace('_',' ',$lead->status)) }}</span>
-                @endcan
+                <div class="d-flex gap-2 mt-2">
+                    <div class="flex-grow-1">
+                        @can('leads.edit')
+                            <select class="form-select form-select-sm lead-status-dropdown" data-lead-id="{{ $lead->id }}">
+                                @foreach($statuses->where('slug', '!=', 'contacted') as $s)
+                                    <option value="{{ $s->slug }}" @selected($lead->status===$s->slug)>{{ $s->name }}</option>
+                                @endforeach
+                            </select>
+                        @else
+                            <span class="badge" style="background:{{ $statusColors[$lead->status]??'#6c757d' }}">{{ $statuses->firstWhere('slug',$lead->status)?->name ?? ucwords(str_replace('_',' ',$lead->status)) }}</span>
+                        @endcan
+                    </div>
+                    @can('leads.edit')
+                        <a class="btn btn-sm btn-soft-info flex-shrink-0" href="{{ route('crm.leads.edit',$lead) }}"><i class="bi bi-pencil"></i></a>
+                    @endcan
+                    <a class="btn btn-sm btn-soft-primary flex-shrink-0" href="{{ route('crm.leads.show',$lead) }}"><i class="bi bi-arrow-right"></i></a>
+                </div>
             </div>
         </div>
     @empty
@@ -130,19 +136,20 @@
             <thead>
                 <tr>
                     <th style="width:30px"><input type="checkbox" class="form-check-input" id="selectAllLeads"></th>
-                    <th>Lead</th><th>Contact</th><th>Source</th><th>Owner</th><th>Status</th><th>Address</th><th>Budget</th><th></th>
+                    <th>Company / Business</th><th>Contact Name</th><th>Phone</th><th>Address</th><th>Owner</th><th>Status</th><th class="text-end"></th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($leads as $lead)
                     <tr class="lead-row" data-lead-id="{{ $lead->id }}">
                         <td><input type="checkbox" class="form-check-input lead-checkbox" value="{{ $lead->id }}"></td>
-                        <td data-label="Lead">
+                        <td data-label="Company / Business">
                             <a class="fw-600 text-decoration-none" href="{{ route('crm.leads.show',$lead) }}">{{ $lead->company_name }}</a>
                             <div class="fs-xs text-muted">{{ $lead->lead_number }}</div>
                         </td>
-                        <td data-label="Contact">{{ $lead->contact_person }}<div class="fs-xs text-muted">{{ $lead->phone }}</div></td>
-                        <td data-label="Source" class="text-capitalize">{{ $lead->source }}</td>
+                        <td data-label="Contact Name">{{ $lead->contact_person }}</td>
+                        <td data-label="Phone">{{ $lead->phone }}</td>
+                        <td data-label="Address">{{ $lead->address ? Str::limit($lead->address, 30) : '—' }}</td>
                         <td data-label="Owner">{{ $lead->owner?->name ?? 'Unassigned' }}</td>
                         <td data-label="Status">
                             @can('leads.edit')
@@ -155,9 +162,14 @@
                                 <span class="badge" style="background:{{ $statusColors[$lead->status]??'#6c757d' }}">{{ $statuses->firstWhere('slug',$lead->status)?->name ?? ucwords(str_replace('_',' ',$lead->status)) }}</span>
                             @endcan
                         </td>
-                        <td data-label="Address">{{ $lead->address ? Str::limit($lead->address, 30) : '—' }}</td>
-                        <td data-label="Budget">{{ $lead->estimated_budget ? number_format($lead->estimated_budget,2) : '—' }}</td>
-                        <td data-label=""><a class="btn btn-sm btn-soft-primary" href="{{ route('crm.leads.show',$lead) }}"><i class="bi bi-arrow-right"></i></a></td>
+                        <td data-label="" class="text-end">
+                            <div class="d-flex gap-1 justify-content-end">
+                                @can('leads.edit')
+                                    <a class="btn btn-sm btn-soft-info" href="{{ route('crm.leads.edit',$lead) }}" title="Edit"><i class="bi bi-pencil"></i></a>
+                                @endcan
+                                <a class="btn btn-sm btn-soft-primary" href="{{ route('crm.leads.show',$lead) }}" title="View"><i class="bi bi-arrow-right"></i></a>
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="8"><x-empty-state title="No leads found" text="Create a lead to get your sales pipeline moving." /></td></tr>
@@ -178,7 +190,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted fs-sm mb-3">Set the meeting date &amp; time for <strong id="meetingLeadName"></strong>. A reminder (in-app + WhatsApp if configured) will be sent to you, Sales Manager and Admin.</p>
+                <p class="text-muted fs-sm mb-3">Set the meeting date &amp; time for <strong id="meetingLeadName"></strong>. A reminder will be sent to you, Sales Manager and Admin.</p>
                 <div class="row g-3">
                     <div class="col-12 col-sm-6">
                         <label class="form-label fw-500">Date <span class="text-danger">*</span></label>
@@ -208,45 +220,66 @@
     var pendingSelect = null;
     var pendingOriginalValue = null;
 
+    function getBootstrapModal(element) {
+        var bs = typeof bootstrap !== 'undefined' ? bootstrap : (window.bootstrap || null);
+        if (bs && bs.Modal) {
+            return bs.Modal.getInstance(element) || new bs.Modal(element);
+        }
+        return null;
+    }
+
+    function notifyToast(type, msg) {
+        if (typeof toastr !== 'undefined' && typeof toastr[type] === 'function') {
+            toastr[type](msg);
+        } else if (typeof window.showToast === 'function') {
+            window.showToast(type, msg);
+        } else {
+            console.log('[' + type + '] ' + msg);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        var modalEl = document.getElementById('meetingScheduleModal');
-        if (modalEl) meetingModal = new bootstrap.Modal(modalEl);
+        var btnConfirm = document.getElementById('btnConfirmMeeting');
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', function() {
+                var date = document.getElementById('meetingFollowUpDate').value;
+                var time = document.getElementById('meetingFollowUpTime').value;
+                if (!date || !time) { notifyToast('error', 'Please select date and time.'); return; }
 
-        document.getElementById('btnConfirmMeeting').addEventListener('click', function() {
-            var date = document.getElementById('meetingFollowUpDate').value;
-            var time = document.getElementById('meetingFollowUpTime').value;
-            if (!date || !time) { toastr.error('Please select date and time.'); return; }
-
-            pendingSelect.disabled = true;
-            fetch('{{ url('/crm/leads') }}/' + pendingLeadId + '/status', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify({ status: 'meeting_scheduled', follow_up_date: date, follow_up_time: time })
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    toastr.success(data.message || 'Meeting scheduled.');
-                    pendingOriginalValue = 'meeting_scheduled';
-                } else {
-                    toastr.error(data.message || 'Failed.');
-                    pendingSelect.value = pendingOriginalValue;
+                if (pendingSelect) {
+                    pendingSelect.value = 'meeting_scheduled';
                 }
-            })
-            .catch(function() {
-                toastr.error('Failed to schedule meeting.');
-                pendingSelect.value = pendingOriginalValue;
-            })
-            .finally(function() {
-                pendingSelect.disabled = false;
-                meetingModal.hide();
+                var modalEl = document.getElementById('meetingScheduleModal');
+                var modal = modalEl ? getBootstrapModal(modalEl) : null;
+                if (modal) modal.hide();
+                notifyToast('info', 'Scheduling meeting...');
+
+                fetch('{{ url('/crm/leads') }}/' + pendingLeadId + '/status', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ status: 'meeting_scheduled', follow_up_date: date, follow_up_time: time })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        notifyToast('success', data.message || 'Meeting scheduled.');
+                        pendingOriginalValue = 'meeting_scheduled';
+                    } else {
+                        notifyToast('error', data.message || 'Failed to schedule meeting.');
+                        if (pendingSelect) pendingSelect.value = pendingOriginalValue;
+                    }
+                })
+                .catch(function() {
+                    notifyToast('error', 'Failed to schedule meeting.');
+                    if (pendingSelect) pendingSelect.value = pendingOriginalValue;
+                });
             });
-        });
+        }
     });
 
     document.querySelectorAll('.lead-status-dropdown').forEach(function(select) {
@@ -263,12 +296,15 @@
                 document.getElementById('meetingLeadName').textContent = name;
                 document.getElementById('meetingFollowUpDate').value = '';
                 document.getElementById('meetingFollowUpTime').value = '';
-                meetingModal.show();
+                
+                var modalEl = document.getElementById('meetingScheduleModal');
+                var modal = modalEl ? getBootstrapModal(modalEl) : null;
+                if (modal) modal.show();
                 this.value = originalValue;
                 return;
             }
 
-            this.disabled = true;
+            var currentSelect = this;
             fetch('{{ url('/crm/leads') }}/' + leadId + '/status', {
                 method: 'PATCH',
                 headers: {
@@ -282,19 +318,16 @@
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data.success) {
-                    toastr.success(data.message || 'Status updated.');
+                    notifyToast('success', data.message || 'Status updated.');
                     originalValue = newStatus;
                 } else {
-                    toastr.error(data.message || 'Failed to update status.');
-                    select.value = originalValue;
+                    notifyToast('error', data.message || 'Failed to update status.');
+                    currentSelect.value = originalValue;
                 }
             })
             .catch(function() {
-                toastr.error('Failed to update status.');
-                select.value = originalValue;
-            })
-            .finally(function() {
-                select.disabled = false;
+                notifyToast('error', 'Failed to update status.');
+                currentSelect.value = originalValue;
             });
         });
     });
@@ -348,7 +381,7 @@
                 var qs = new URLSearchParams(filters).toString();
                 url = '{{ route("crm.leads.print") }}' + (qs ? '?' + qs : '');
             }
-            window.open(url, '_blank');
+            printUrlInHiddenFrame(url);
         });
     });
 })();
@@ -369,7 +402,6 @@
                     <p class="text-muted small mb-2">Upload a CSV file to bulk-create leads. <a href="{{ route('crm.leads.import-template') }}" class="text-decoration-none fw-semibold"><i class="bi bi-filetype-csv me-1"></i>Download template</a></p>
                     <div class="alert alert-info py-2 px-3 mb-3">
                         <small class="d-block fw-semibold mb-1">Required fields (must be filled):</small>
-                        <small class="d-block">• <strong>Company Name</strong> — company or business name</small>
                         <small class="d-block">• <strong>Phone Number</strong> — contact mobile number</small>
                         <small class="d-block text-muted mt-1">All other fields are optional and will use defaults if left empty.</small>
                     </div>

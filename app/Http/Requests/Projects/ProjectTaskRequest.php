@@ -17,7 +17,6 @@ class ProjectTaskRequest extends FormRequest
             'project_id' => 'required|exists:projects,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'milestone_id' => 'nullable|exists:project_milestones,id',
             'assigned_to' => 'nullable|exists:users,id',
             'priority' => 'required|string|in:Low,Medium,High,Urgent',
             'status' => 'nullable|string|in:To Do,In Progress,Review,Testing,Completed,On Hold,Cancelled,Overdue',

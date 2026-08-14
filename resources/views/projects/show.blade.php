@@ -33,11 +33,6 @@
                             <i class="bi bi-plus-lg"></i> Add Task
                         </button>
                     @endcan
-                    @can('milestones.create')
-                        <button type="button" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#createMilestoneModal">
-                            <i class="bi bi-flag"></i> Add Milestone
-                        </button>
-                    @endcan
                     @can('projects.edit')
                         <a href="{{ route('projects.edit', $project) }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
                             <i class="bi bi-pencil"></i> Edit
@@ -97,11 +92,6 @@
         <li class="nav-item" role="presentation">
             <button class="nav-link active btn-sm" id="overview-tab" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab">
                 <i class="bi bi-grid-1x2 me-1"></i> Overview
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link btn-sm" id="milestones-tab" data-bs-toggle="tab" data-bs-target="#tab-milestones" type="button" role="tab">
-                <i class="bi bi-flag me-1"></i> Milestones ({{ $project->milestones->count() }})
             </button>
         </li>
         <li class="nav-item" role="presentation">
@@ -169,20 +159,7 @@
                                         </div>
                                     </div>
 
-                                    @foreach($project->milestones as $ms)
-                                        <div class="d-flex align-items-center gap-3 mb-4">
-                                            <div class="rounded-circle {{ $ms->status === 'Completed' ? 'bg-success' : ($ms->status === 'In Progress' ? 'bg-primary' : 'bg-secondary') }} text-white p-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
-                                                <i class="bi bi-flag-fill fs-6"></i>
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="fw-bold text-dark fs-sm">{{ $ms->name }}</span>
-                                                    <span class="badge {{ $ms->status_badge_class }} fs-xs">{{ $ms->status }}</span>
-                                                </div>
-                                                <div class="fs-xs text-muted">Deadline: {{ $ms->deadline ? $ms->deadline->format('M d, Y') : 'N/A' }} | Progress: {{ $ms->progress }}%</div>
-                                            </div>
-                                        </div>
-                                    @endforeach
+
 
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="rounded-circle {{ $project->status === 'Completed' ? 'bg-success' : 'bg-warning' }} text-white p-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
@@ -262,56 +239,7 @@
             </div>
         </div>
 
-        {{-- 2. MILESTONES TAB --}}
-        <div class="tab-pane fade" id="tab-milestones" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0">Project Milestones</h5>
-                @can('milestones.create')
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createMilestoneModal">
-                        <i class="bi bi-plus-lg me-1"></i> Create Milestone
-                    </button>
-                @endcan
-            </div>
-
-            @if($project->milestones->isEmpty())
-                <div class="card border-0 shadow-sm text-center p-4">
-                    <p class="text-muted mb-0">No milestones defined yet. Click 'Create Milestone' to get started.</p>
-                </div>
-            @else
-                <div class="row g-3">
-                    @foreach($project->milestones as $ms)
-                        <div class="col-12 col-md-6 col-xl-4">
-                            <div class="card border-0 shadow-sm h-100 p-3">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="fw-bold text-dark mb-0">{{ $ms->name }}</h6>
-                                    <span class="badge {{ $ms->status_badge_class }} fs-xs">{{ $ms->status }}</span>
-                                </div>
-                                <p class="fs-xs text-muted mb-3">{{ $ms->description ?? 'No description provided.' }}</p>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between fs-xs mb-1">
-                                        <span class="text-muted">Progress</span>
-                                        <span class="fw-bold">{{ $ms->progress }}%</span>
-                                    </div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $ms->progress }}%;"></div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-between align-items-center fs-xs text-muted pt-2 border-top mt-auto">
-                                    <span><i class="bi bi-calendar-event me-1"></i>Due: {{ $ms->deadline ? $ms->deadline->format('M d, Y') : 'N/A' }}</span>
-                                    @can('milestones.delete')
-                                        <form action="{{ route('projects.milestones.destroy', $ms) }}" method="POST" onsubmit="return confirm('Delete milestone?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm text-danger p-0"><i class="bi bi-trash"></i></button>
-                                        </form>
-                                    @endcan
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
+        
 
         {{-- 3. TASKS TAB --}}
         <div class="tab-pane fade" id="tab-tasks" role="tabpanel">
@@ -352,9 +280,7 @@
                                         <a href="{{ route('projects.tasks.show', $task) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                             {{ $task->title }}
                                         </a>
-                                        @if($task->milestone)
-                                            <div class="fs-xs text-muted"><i class="bi bi-flag me-1"></i>{{ $task->milestone->name }}</div>
-                                        @endif
+
                                     </td>
                                     <td>
                                         @if($task->assignedTo)
@@ -696,15 +622,7 @@
                         <input type="text" name="title" class="form-control" placeholder="e.g. Design API Endpoint for Payments" required>
                     </div>
 
-                    <div class="col-12 col-md-6">
-                        <label class="form-label fw-semibold fs-sm">Milestone</label>
-                        <select name="milestone_id" class="form-select">
-                            <option value="">-- No Milestone --</option>
-                            @foreach($project->milestones as $ms)
-                                <option value="{{ $ms->id }}">{{ $ms->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+
 
                     <div class="col-12 col-md-6">
                         <label class="form-label fw-semibold fs-sm">Assigned To</label>
@@ -766,46 +684,7 @@
     </div>
 </div>
 
-{{-- Create Milestone Modal --}}
-<div class="modal fade" id="createMilestoneModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <form action="{{ route('projects.milestones.store') }}" method="POST" class="modal-content border-0 shadow">
-            @csrf
-            <input type="hidden" name="project_id" value="{{ $project->id }}">
-            <div class="modal-header border-bottom-0">
-                <h5 class="modal-title fw-bold"><i class="bi bi-flag text-primary me-2"></i>New Milestone</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body py-0">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold fs-sm">Milestone Name <span class="text-danger">*</span></label>
-                    <input type="text" name="name" class="form-control" placeholder="e.g. Backend API Launch" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold fs-sm">Status</label>
-                    <select name="status" class="form-select">
-                        <option value="Pending" selected>Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="On Hold">On Hold</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold fs-sm">Deadline</label>
-                    <input type="date" name="deadline" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold fs-sm">Description</label>
-                    <textarea name="description" class="form-control" rows="3"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary btn-sm">Create Milestone</button>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 {{-- Assign Team Modal --}}
 <div class="modal fade" id="assignTeamModal" tabindex="-1" aria-hidden="true">

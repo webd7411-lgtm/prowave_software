@@ -20,18 +20,19 @@ export default defineConfig({
         chunkSizeWarningLimit: 2000,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    'vendor-bootstrap': ['bootstrap'],
-                    'vendor-datatable': [
-                        'datatables.net-bs5',
-                        'datatables.net-buttons-bs5',
-                        'datatables.net-buttons',
-                        'datatables.net-responsive-bs5',
-                        'jszip',
-                    ],
-                    'vendor-pdf': ['pdfmake'],
-                    'vendor-charts': ['chart.js'],
-                    'vendor-ui': ['sweetalert2', 'toastr', 'select2', 'flatpickr'],
+                manualChunks(id) {
+                    if (id.includes('node_modules/jquery')) return 'vendor-ui';
+                    if (id.includes('node_modules/toastr')) return 'vendor-ui';
+                    if (id.includes('node_modules/sweetalert2')) return 'vendor-ui';
+                    if (id.includes('node_modules/select2')) return 'vendor-ui';
+                    if (id.includes('node_modules/flatpickr')) return 'vendor-ui';
+                    if (id.includes('node_modules/bootstrap')) return 'vendor-bootstrap';
+                    if (
+                        id.includes('node_modules/datatables.net') ||
+                        id.includes('node_modules/jszip')
+                    ) return 'vendor-datatable';
+                    if (id.includes('node_modules/pdfmake')) return 'vendor-pdf';
+                    if (id.includes('node_modules/chart.js')) return 'vendor-charts';
                 },
             },
         },

@@ -113,9 +113,7 @@
                                 <a href="{{ route('projects.tasks.show', $task) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                     {{ $task->title }}
                                 </a>
-                                @if($task->milestone)
-                                    <div class="fs-xs text-muted"><i class="bi bi-flag me-1"></i>{{ $task->milestone->name }}</div>
-                                @endif
+
                             </td>
                             <td>
                                 <a href="{{ route('projects.show', $task->project) }}" class="text-secondary text-decoration-none hover-primary fw-medium">

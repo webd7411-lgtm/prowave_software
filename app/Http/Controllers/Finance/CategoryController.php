@@ -11,6 +11,8 @@ class CategoryController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('financial_data.manage');
+
         $expenseCategories = ExpenseCategory::latest()->get();
         $incomeCategories  = IncomeCategory::latest()->get();
         $paymentMethods    = PaymentMethod::latest()->get();

@@ -43,8 +43,10 @@ class NotificationService
      */
     public function sendMany(iterable $users, string $title, string $message = '', array $opts = []): void
     {
+        $includeSelf = $opts['include_self'] ?? false;
+
         foreach ($users as $user) {
-            if ($user instanceof User && $user->id === auth()->id()) {
+            if ($user instanceof User && $user->id === auth()->id() && ! $includeSelf) {
                 continue;
             }
             $this->send($user, $title, $message, $opts);

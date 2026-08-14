@@ -18,6 +18,8 @@ class DesignationController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('designations.view');
+
         $query = Designation::query()
             ->with(['department'])
             ->withCount('users')

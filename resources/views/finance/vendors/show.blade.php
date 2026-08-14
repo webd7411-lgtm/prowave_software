@@ -48,12 +48,6 @@
                         <div><a href="tel:{{ $vendor->phone }}" class="text-decoration-none">{{ $vendor->phone }}</a></div>
                     </div>
                     @endif
-                    @if($vendor->whatsapp)
-                    <div class="col-6 col-md-4">
-                        <div class="text-muted small">WhatsApp</div>
-                        <div>{{ $vendor->whatsapp }}</div>
-                    </div>
-                    @endif
                     @if($vendor->email)
                     <div class="col-6 col-md-4">
                         <div class="text-muted small">Email</div>

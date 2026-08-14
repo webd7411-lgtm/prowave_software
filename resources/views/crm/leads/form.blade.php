@@ -60,13 +60,13 @@
                             @error('contact_person') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
-                        {{-- Company Name (Required) --}}
+                        {{-- Company Name (Optional) --}}
                         <div class="col-12 col-md-6">
-                            <label class="form-label">Company Name <span class="text-danger">*</span></label>
+                            <label class="form-label">Company Name</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-buildings"></i></span>
                                 <input type="text" name="company_name" class="form-control @error('company_name') is-invalid @enderror"
-                                       value="{{ old('company_name', $lead->company_name) }}" required maxlength="255"
+                                       value="{{ old('company_name', $lead->company_name) }}" maxlength="255"
                                        placeholder="Acme Corp">
                             </div>
                             @error('company_name') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -97,11 +97,6 @@
                                     <div id="leadExtraBody" class="accordion-collapse collapse" data-bs-parent="#leadExtra">
                                         <div class="accordion-body pt-0">
                                             <div class="row g-3">
-                                                <div class="col-12 col-md-6">
-                                                    <label class="form-label">WhatsApp</label>
-                                                    <input type="text" name="whatsapp" class="form-control"
-                                                           value="{{ old('whatsapp', $lead->whatsapp) }}" placeholder="+92 300 1234567">
-                                                </div>
                                                 <div class="col-12 col-md-6">
                                                     <label class="form-label">Email</label>
                                                     <input type="email" name="email" class="form-control"
@@ -184,7 +179,7 @@
                                     <input type="time" name="follow_up_time" form="lead-form" class="form-control" value="{{ old('follow_up_time') }}">
                                 </div>
                             </div>
-                            <div class="form-text mt-2">A reminder alert (in-app + WhatsApp, if configured) goes to you, the Sales Manager and Admin at this time.</div>
+                            <div class="form-text mt-2">A reminder alert goes to you, the Sales Manager and Admin at this time.</div>
                         </div>
                     </div>
                 </div>

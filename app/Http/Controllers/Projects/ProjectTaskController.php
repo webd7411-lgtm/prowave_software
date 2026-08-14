@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\ProjectTaskRequest;
-use App\Models\{Project, ProjectTask, ProjectMilestone, ProjectFile, ProjectActivity, User};
+use App\Models\{Project, ProjectTask, ProjectFile, ProjectActivity, User};
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -17,7 +17,7 @@ class ProjectTaskController extends Controller
     {
         $this->authorize('project_tasks.view');
 
-        $query = ProjectTask::with(['project', 'milestone', 'assignedTo', 'assignedBy'])
+        $query = ProjectTask::with(['project', 'assignedTo', 'assignedBy'])
             ->latest();
 
         // My Tasks filter view
@@ -80,7 +80,7 @@ class ProjectTaskController extends Controller
 
         $selectedProjectId = $project ? $project->id : $request->get('project_id');
 
-        $query = ProjectTask::with(['project', 'assignedTo', 'milestone', 'comments', 'attachments']);
+        $query = ProjectTask::with(['project', 'assignedTo', 'comments', 'attachments']);
 
         if ($selectedProjectId) {
             $query->where('project_id', $selectedProjectId);
@@ -138,9 +138,6 @@ class ProjectTaskController extends Controller
         }
 
         $task->project->recalculateProgress();
-        if ($task->milestone) {
-            $task->milestone->recalculateProgress();
-        }
 
         if ($task->assigned_to && $task->assigned_to !== auth()->id()) {
             app(NotificationService::class)->send(
@@ -163,7 +160,6 @@ class ProjectTaskController extends Controller
 
         $task->load([
             'project',
-            'milestone',
             'assignedTo',
             'assignedBy',
             'comments.user',
@@ -193,9 +189,6 @@ class ProjectTaskController extends Controller
         }
 
         $task->project->recalculateProgress();
-        if ($task->milestone) {
-            $task->milestone->recalculateProgress();
-        }
 
         if ($task->status === 'Completed') {
             $assigner = $task->assignedBy;
@@ -230,9 +223,6 @@ class ProjectTaskController extends Controller
         ProjectActivity::log($task->project_id, 'Task status changed', "Task '{$task->title}' moved from {$oldStatus} to {$task->status}.", 'ProjectTask', $task->id);
 
         $task->project->recalculateProgress();
-        if ($task->milestone) {
-            $task->milestone->recalculateProgress();
-        }
 
         if ($request->wantsJson()) {
             return response()->json([

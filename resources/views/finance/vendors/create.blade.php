@@ -32,10 +32,6 @@
                             <input type="text" name="phone" value="{{ old('phone') }}" class="form-control" placeholder="+92 3xx xxxxxxx">
                         </div>
                         <div class="col-12 col-sm-6">
-                            <label class="form-label">WhatsApp</label>
-                            <input type="text" name="whatsapp" value="{{ old('whatsapp') }}" class="form-control" placeholder="+92 3xx xxxxxxx">
-                        </div>
-                        <div class="col-12 col-sm-6">
                             <label class="form-label">Email</label>
                             <input type="email" name="email" value="{{ old('email') }}" class="form-control @error('email') is-invalid @enderror" placeholder="vendor@example.com">
                             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror

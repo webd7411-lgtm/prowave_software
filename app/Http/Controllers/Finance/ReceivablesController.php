@@ -10,6 +10,8 @@ class ReceivablesController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('receivables.view');
+
         $query = Invoice::with('client')
             ->where('status', '!=', 'draft')
             ->where('status', '!=', 'cancelled')

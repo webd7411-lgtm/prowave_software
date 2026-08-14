@@ -12,7 +12,7 @@
                 </ol>
             </nav>
             <h1 class="page-title">Company Calendar</h1>
-            <p class="page-subtitle">Meetings, deadlines, milestones and leaves across the entire company.</p>
+            <p class="page-subtitle">Meetings, deadlines and leaves across the entire company.</p>
         </div>
         <div class="d-flex flex-wrap gap-2">
             <div class="btn-group btn-group-sm">
@@ -39,7 +39,7 @@
                     <h5 class="mb-0 fw-600" id="calendar-title"></h5>
                     <div class="ms-auto d-flex flex-wrap gap-3 fs-xs text-muted legend">
                         <span><i class="bi bi-circle-fill me-1 text-primary"></i>Tasks</span>
-                        <span><i class="bi bi-circle-fill me-1 text-success"></i>Milestones</span>
+                        
                         <span><i class="bi bi-circle-fill me-1 text-warning"></i>Leave</span>
                         <span><i class="bi bi-circle-fill me-1 text-info"></i>Meetings</span>
                         <span><i class="bi bi-circle-fill me-1 text-secondary"></i>Events</span>

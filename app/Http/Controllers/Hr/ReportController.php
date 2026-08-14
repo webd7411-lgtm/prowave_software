@@ -16,6 +16,8 @@ class ReportController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('reports.view');
+
         return view('hr.reports.index', [
             'departments' => Department::query()->active()->orderBy('name')->get(),
         ]);

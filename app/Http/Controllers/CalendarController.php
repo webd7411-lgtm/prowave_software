@@ -7,8 +7,6 @@ use App\Models\CalendarEvent;
 use App\Models\DailyTask;
 use App\Models\LeaveRequest;
 use App\Models\Meeting;
-use App\Models\Project;
-use App\Models\ProjectMilestone;
 use App\Models\ProjectTask;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -50,9 +48,6 @@ class CalendarController extends Controller
 
         if ($request->user()->can('project_tasks.view')) {
             $events = $events->merge($this->taskEvents($start, $end));
-        }
-        if ($request->user()->can('projects.view')) {
-            $events = $events->merge($this->milestoneEvents($start, $end));
         }
         if ($request->user()->can('tasks.view')) {
             $events = $events->merge($this->dailyTaskEvents($start, $end));
@@ -105,26 +100,6 @@ class CalendarController extends Controller
                 'status' => $t->status,
                 'url' => route('projects.tasks.show', $t),
                 'project' => $t->project?->name,
-            ]);
-    }
-
-    protected function milestoneEvents($start, $end)
-    {
-        return ProjectMilestone::query()
-            ->with('project:id,name')
-            ->whereNotNull('deadline')
-            ->whereBetween('deadline', [$start, $end])
-            ->get()
-            ->map(fn ($m) => [
-                'id' => 'ms_'.$m->id,
-                'title' => $m->name,
-                'start' => $m->deadline->format('Y-m-d'),
-                'allDay' => true,
-                'color' => '#10B981',
-                'type' => 'Milestone',
-                'status' => $m->status,
-                'url' => route('projects.show', $m->project_id),
-                'project' => $m->project?->name,
             ]);
     }
 

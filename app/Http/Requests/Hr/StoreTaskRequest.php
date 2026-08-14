@@ -30,11 +30,3 @@ class StoreTaskRequest extends FormRequest
         ];
     }
 }
-
-class UpdateTaskRequest extends StoreTaskRequest
-{
-    public function authorize(): bool
-    {
-        return $this->user()->can('tasks.edit') || $this->user()->id === $this->route('task')?->assigned_to;
-    }
-}

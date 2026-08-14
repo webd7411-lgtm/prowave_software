@@ -12,6 +12,8 @@ class FinanceController extends Controller
 {
     public function invoices(): View
     {
+        $this->authorize('invoices.view');
+
         return view('crm.finance.invoices', [
             'records' => Invoice::with('client')->latest()->paginate(20),
             'clients' => Client::orderBy('company_name')->get(),
@@ -20,6 +22,8 @@ class FinanceController extends Controller
 
     public function quotations(): View
     {
+        $this->authorize('quotations.view');
+
         return view('crm.finance.quotations', [
             'records' => Quotation::with('client')->latest()->paginate(20),
             'clients' => Client::orderBy('company_name')->get(),
@@ -175,6 +179,8 @@ class FinanceController extends Controller
 
     public function payments(): View
     {
+        $this->authorize('payments.view');
+
         return view('crm.finance.payments', [
             'records' => Payment::with(['client', 'invoice'])->latest()->paginate(20),
             'clients' => Client::orderBy('company_name')->get(),

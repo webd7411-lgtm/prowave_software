@@ -10,7 +10,9 @@ class FinanceDashboardController extends Controller
 {
     public function __invoke(FinanceService $service): View
     {
-        $stats        = $service->getDashboardStats();
+        $this->authorize('finance.dashboard');
+
+        $stats = $service->getDashboardStats();
         $monthlyChart = $service->getMonthlyChart();
         $breakdown    = $service->getExpenseBreakdown(
             now()->startOfMonth()->toDateString(),

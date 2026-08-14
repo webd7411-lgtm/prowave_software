@@ -66,7 +66,7 @@ function invStatusBadge(string $status): string {
             <div class="fin-kpi-icon"><i class="bi bi-bell"></i></div>
             <div class="fin-kpi-label">Reminders</div>
             <div class="fin-kpi-value">Manual</div>
-            <div class="fin-kpi-sub">Email / WhatsApp / SMS ready</div>
+            <div class="fin-kpi-sub">Email / SMS ready</div>
         </div>
     </div>
 </div>
@@ -260,7 +260,7 @@ function invStatusBadge(string $status): string {
                     <textarea name="message" rows="3" class="form-control" placeholder="Dear client, your invoice is due. Please arrange payment at your earliest convenience."></textarea>
                     <div class="alert alert-light border small mt-3 mb-0">
                         <i class="bi bi-info-circle me-1"></i>
-                        Reminders are recorded now. Email, WhatsApp and SMS delivery channels are configurable in a future release.
+                        Reminders are recorded now. Email and SMS delivery channels are configurable in a future release.
                     </div>
                 </div>
                 <div class="modal-footer">

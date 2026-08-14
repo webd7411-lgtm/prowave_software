@@ -6,6 +6,7 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@rollup/plugin-inject": "^5.0.5",
         "axios": "^1.6.4",
         "laravel-vite-plugin": "^1.0.0",
         "sass": "^1.102.0",
@@ -21,7 +22,7 @@
         "datatables.net-buttons-bs5": "^4.0.1",
         "datatables.net-responsive-bs5": "^4.0.1",
         "flatpickr": "^4.6.13",
-        "jquery": "^4.0.0",
+        "jquery": "^3.7.1",
         "jszip": "^3.10.1",
         "pdfmake": "^0.3.11",
         "select2": "^4.1.0",

@@ -129,6 +129,7 @@
                         @endcan
                     </x-slot>
                     <div class="row g-3">
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Employee ID</div><div class="fw-500 text-primary">{{ $user->employee_id }}</div></div>
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Username</div><div class="fw-500">{{ $user->username ?? '—' }}</div></div>
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Status</div><div class="fw-500">{{ $user->status->label() }}</div></div>
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Gender</div><div class="fw-500">{{ $user->gender?->label() ?? '—' }}</div></div>
@@ -136,7 +137,6 @@
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Designation</div><div class="fw-500">{{ $user->designation ?? '—' }}</div></div>
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Joining Date</div><div class="fw-500">{{ $user->joining_date ? format_date($user->joining_date) : '—' }}</div></div>
                         <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Reporting Manager</div><div class="fw-500">{{ $user->reportingManager?->name ?? '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">CNIC</div><div class="fw-500">{{ $user->cnic ?? '—' }}</div></div>
                     </div>
                     @if ($user->bio)
                         <hr>

@@ -112,5 +112,34 @@
 
     @stack('modals')
     @stack('scripts')
+    <script>
+        function printUrlInHiddenFrame(url) {
+            let iframe = document.getElementById('global_print_iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'global_print_iframe';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.opacity = '0';
+                iframe.style.pointerEvents = 'none';
+                document.body.appendChild(iframe);
+            }
+            iframe.onload = function() {
+                setTimeout(function() {
+                    try {
+                        iframe.contentWindow.focus();
+                        iframe.contentWindow.print();
+                    } catch (e) {
+                        console.error('Print iframe error:', e);
+                    }
+                }, 300);
+            };
+            iframe.src = url;
+        }
+    </script>
 </body>
 </html>

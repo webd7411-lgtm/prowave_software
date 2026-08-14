@@ -24,6 +24,8 @@ class IncomeController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('income.view');
+
         $query = IncomeRecord::with(['category', 'client', 'project', 'addedBy'])->latest('income_date');
 
         if ($request->filled('category'))   $query->where('category_id', $request->category);

@@ -25,6 +25,8 @@ class ExpenseController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('expenses.view');
+
         $query = Expense::with(['category', 'vendor', 'project', 'addedBy', 'approvedBy'])
             ->latest('expense_date');
 

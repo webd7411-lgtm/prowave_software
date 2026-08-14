@@ -17,6 +17,8 @@ class ShiftController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('shifts.view');
+
         $query = Shift::query()
             ->withCount('employees')
             ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%'.$request->string('search').'%'))

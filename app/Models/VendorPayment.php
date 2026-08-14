@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class VendorPayment extends Model
 {
@@ -24,8 +25,12 @@ class VendorPayment extends Model
 
     public static function generateNumber(): string
     {
-        $last = static::latest('id')->value('payment_number');
-        $num = $last ? ((int) substr($last, 4)) + 1 : 1;
-        return 'VPY-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $record = static::lockForUpdate()->latest('id')->first();
+            $last = $record?->payment_number;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return 'VPY-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        });
     }
 }

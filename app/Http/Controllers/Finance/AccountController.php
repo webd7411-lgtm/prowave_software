@@ -10,6 +10,8 @@ class AccountController extends Controller
 {
     public function cashIndex(): View
     {
+        $this->authorize('accounts.view');
+
         $accounts = CashAccount::latest()->get();
         return view('finance.accounts.cash-index', compact('accounts'));
     }
@@ -56,6 +58,8 @@ class AccountController extends Controller
 
     public function bankIndex(): View
     {
+        $this->authorize('accounts.view');
+
         $accounts = BankAccount::latest()->get();
         return view('finance.accounts.bank-index', compact('accounts'));
     }

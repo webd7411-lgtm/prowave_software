@@ -17,7 +17,7 @@ class SettingsSeeder extends Seeder
                 'phone' => '+1 555 123 4567',
                 'address' => 'Software Technology Park',
                 'website' => 'https://prowavetechnologies.com',
-                'currency' => 'USD',
+                'currency' => 'PKR',
                 'allow_registration' => false,
                 'default_role' => 'Employee',
                 'whatsapp' => '',

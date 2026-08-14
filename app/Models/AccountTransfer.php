@@ -3,6 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class AccountTransfer extends Model
 {
@@ -36,8 +37,12 @@ class AccountTransfer extends Model
 
     public static function generateNumber(): string
     {
-        $last = static::latest('id')->value('transfer_number');
-        $num = $last ? ((int) substr($last, 4)) + 1 : 1;
-        return 'TRF-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $record = static::lockForUpdate()->latest('id')->first();
+            $last = $record?->transfer_number;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return 'TRF-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        });
     }
 }

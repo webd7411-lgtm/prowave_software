@@ -42,10 +42,6 @@
                             <input type="text" name="company_phone" class="form-control" value="{{ old('company_phone', setting('general.phone', '')) }}">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">WhatsApp</label>
-                            <input type="text" name="company_whatsapp" class="form-control" value="{{ old('company_whatsapp', setting('general.whatsapp', '')) }}">
-                        </div>
-                        <div class="col-md-6">
                             <label class="form-label">Website</label>
                             <input type="url" name="company_website" class="form-control" value="{{ old('company_website', setting('general.website', '')) }}">
                         </div>

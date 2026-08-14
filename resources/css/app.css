@@ -1,5 +1,5 @@
 /* =========================================================
-   PROWAVE ERP — Global Design System
+   PROWAVE ERP — Global Design System (Light & Dark)
    Architecture: tokens -> base -> layout -> components -> utilities
    ========================================================= */
 
@@ -7,91 +7,94 @@
    1. DESIGN TOKENS
    --------------------------------------------------------- */
 :root {
-    --pw-primary: #1e40af;
-    --pw-primary-50: #eff6ff;
-    --pw-primary-100: #dbeafe;
-    --pw-primary-200: #bfdbfe;
-    --pw-primary-600: #1e40af;
-    --pw-primary-700: #1e3a8a;
-    --pw-secondary: #7c3aed;
-    --pw-emerald: #059669;
---pw-warning: #d97706;
-    --pw-danger: #dc2626;
-    --pw-success: #16a34a;
-    --pw-info: #0284c7;
+    /* Light Theme — Soft Slate & Royal Indigo */
+    --pw-bg: #f8fafc;
+    --pw-bg-soft: #f1f5f9;
+    --pw-surface: #ffffff;
+    --pw-surface-2: #f8fafc;
+    --pw-surface-elevated: #ffffff;
+    --pw-border: rgba(226, 232, 240, 0.85);
+    --pw-border-strong: #cbd5e1;
 
-    --pw-bg: #fefdfb;
-    --pw-bg-soft: #f8f6f3;
-    --pw-surface: rgba(255, 255, 255, 0.92);
-    --pw-surface-2: rgba(248, 246, 243, 0.8);
-    --pw-border: rgba(214, 211, 209, 0.6);
-    --pw-border-strong: rgba(168, 162, 158, 0.5);
+    --pw-text: #0f172a;
+    --pw-text-soft: #334155;
+    --pw-text-muted: #64748b;
 
-    --pw-text: #1c1917;
-    --pw-text-soft: #44403c;
-    --pw-text-muted: #78716c;
-
-    --pw-sidebar-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(250, 248, 245, 0.85) 100%);
+    --pw-sidebar-bg: #ffffff;
     --pw-sidebar-width: 240px;
     --pw-sidebar-collapsed: 72px;
     --pw-navbar-height: 68px;
+
+    --pw-primary: #2563eb;
+    --pw-primary-50: #eff6ff;
+    --pw-primary-100: #dbeafe;
+    --pw-primary-200: #bfdbfe;
+    --pw-primary-600: #2563eb;
+    --pw-primary-700: #1d4ed8;
+    --pw-secondary: #6366f1;
+    --pw-emerald: #10b981;
+    --pw-warning: #f59e0b;
+    --pw-danger: #ef4444;
+    --pw-success: #10b981;
+    --pw-info: #0ea5e9;
 
     --pw-radius-sm: 0.5rem;
     --pw-radius: 0.75rem;
     --pw-radius-lg: 1rem;
     --pw-radius-xl: 1.25rem;
 
-    --pw-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
-    --pw-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 10px 30px -12px rgba(15, 23, 42, 0.12);
-    --pw-shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.2);
+    --pw-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05);
+    --pw-shadow: 0 4px 18px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    --pw-shadow-lg: 0 20px 35px -8px rgba(15, 23, 42, 0.12);
 
---pw-font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --pw-font: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
     --pw-transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --pw-transition-fast: 0.12s cubic-bezier(0.4, 0, 0.2, 1);
     --pw-transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 
---pw-gradient-primary: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
-    --pw-gradient-emerald: linear-gradient(135deg, #059669 0%, #0891b2 100%);
-    --pw-gradient-warning: linear-gradient(135deg, #d97706 0%, #dc2626 100%);
-    --pw-gradient-dark: linear-gradient(135deg, #1c1917 0%, #1c1917 100%);
+    --pw-gradient-primary: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
+    --pw-gradient-emerald: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+    --pw-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+    --pw-gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
 }
 
-[data-theme="dark"] {
-    /* Midnight Indigo — premium, colorful navy palette */
-    --pw-bg: #0a1020;
-    --pw-bg-soft: #101a33;
-    --pw-surface: #141e3a;
-    --pw-surface-2: #1b2849;
-    --pw-border: #27365f;
-    --pw-border-strong: #3a4d80;
+html[data-theme="dark"] {
+    /* Midnight Indigo / Slate Navy Palette */
+    --pw-bg: #090d16;
+    --pw-bg-soft: #0f172a;
+    --pw-surface: #131d35;
+    --pw-surface-2: #1b2847;
+    --pw-surface-elevated: #1b2847;
+    --pw-border: #1e2d4a;
+    --pw-border-strong: #2d3e63;
 
-    --pw-text: #eaeeff;
-    --pw-text-soft: #b3bfdf;
-    --pw-text-muted: #7e8db8;
+    --pw-text: #f1f5f9;
+    --pw-text-soft: #94a3b8;
+    --pw-text-muted: #64748b;
 
-    --pw-sidebar-bg: #0d1530;
+    --pw-sidebar-bg: #0d1322;
 
-    --pw-primary: #4e8bff;
-    --pw-primary-50: rgba(78, 139, 255, 0.12);
-    --pw-primary-100: rgba(78, 139, 255, 0.2);
-    --pw-primary-200: rgba(78, 139, 255, 0.32);
-    --pw-primary-600: #4e8bff;
-    --pw-primary-700: #6ea4ff;
+    --pw-primary: #3b82f6;
+    --pw-primary-50: rgba(59, 130, 246, 0.14);
+    --pw-primary-100: rgba(59, 130, 246, 0.22);
+    --pw-primary-200: rgba(59, 130, 246, 0.35);
+    --pw-primary-600: #3b82f6;
+    --pw-primary-700: #60a5fa;
     --pw-secondary: #818cf8;
     --pw-emerald: #34d399;
     --pw-success: #34d399;
     --pw-warning: #fbbf24;
-    --pw-danger: #fb7185;
+    --pw-danger: #f87171;
     --pw-info: #38bdf8;
 
-    --pw-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-    --pw-shadow: 0 4px 24px -6px rgba(0, 0, 0, 0.55);
-    --pw-shadow-lg: 0 24px 48px -16px rgba(0, 0, 0, 0.65);
+    --pw-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
+    --pw-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.5);
+    --pw-shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.7);
 
-    --pw-gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    --pw-gradient-emerald: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-    --pw-gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%);
+    --pw-gradient-primary: linear-gradient(135deg, #3b82f6 0%, #818cf8 100%);
+    --pw-gradient-emerald: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
+    --pw-gradient-warning: linear-gradient(135deg, #fbbf24 0%, #f87171 100%);
 }
 
 /* ---------------------------------------------------------
@@ -758,26 +761,26 @@ body.sidebar-mobile-open .sidebar-backdrop {
 .card-header {
     background: transparent;
     border-bottom: 1px solid var(--pw-border);
-    padding: 1.25rem 1.5rem;
+    padding: 0.875rem 1.25rem;
 }
 
 .card-header .card-title {
     margin: 0;
-    font-size: 1rem;
+    font-size: 0.9375rem;
     font-weight: 600;
 }
 
 .card-header .card-subtitle {
-    font-size: 0.8125rem;
+    font-size: 0.78rem;
     color: var(--pw-text-muted);
-    margin-top: 0.15rem;
+    margin-top: 0.1rem;
 }
 
-.card-body { padding: 1.5rem; }
+.card-body { padding: 1.125rem 1.25rem; }
 .card-footer {
     background: var(--pw-surface-2);
     border-top: 1px solid var(--pw-border);
-    padding: 1rem 1.5rem;
+    padding: 0.75rem 1.25rem;
 }
 
 /* Stat cards */
@@ -786,19 +789,23 @@ body.sidebar-mobile-open .sidebar-backdrop {
     overflow: hidden;
 }
 
+.stat-card .card-body {
+    padding: 0.875rem 1.125rem !important;
+}
+
 .stat-card .stat-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: var(--pw-radius);
+    width: 40px;
+    height: 40px;
+    border-radius: var(--pw-radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
 }
 
 .stat-card .stat-value {
-    font-size: 1.75rem;
+    font-size: 1.35rem;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.2;
@@ -806,13 +813,13 @@ body.sidebar-mobile-open .sidebar-backdrop {
 }
 
 .stat-card .stat-label {
-    font-size: 0.8125rem;
+    font-size: 0.78rem;
     color: var(--pw-text-muted);
     font-weight: 500;
 }
 
 .stat-card .stat-trend {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
@@ -2099,6 +2106,77 @@ table.dataTable thead th, table.dataTable thead td {
     }
 }
 
+/* Activity timeline */
+.activity-timeline {
+    position: relative;
+    padding-left: 1.25rem;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.35rem;
+    width: 2px;
+    background: var(--pw-border-strong);
+}
+
+.activity-item {
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.activity-item:last-child {
+    padding-bottom: 0;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -1.25rem;
+    top: 0.4rem;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--pw-primary);
+    border: 2px solid var(--pw-surface);
+    box-shadow: 0 0 0 2px var(--pw-primary-100);
+}
+
+.activity-item.success::before {
+    background: var(--pw-success);
+    box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+}
+
+.activity-item.danger::before {
+    background: var(--pw-danger);
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.activity-title {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--pw-text);
+    word-break: break-word;
+}
+
+.activity-meta {
+    font-size: 0.75rem;
+    color: var(--pw-text-muted);
+    margin-top: 0.15rem;
+}
+
+/* Page header global */
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
 /* ---------------------------------------------------------
    22. RESPONSIVE
    --------------------------------------------------------- */
@@ -2139,12 +2217,96 @@ table.dataTable thead th, table.dataTable thead td {
     .navbar-app { padding: 0 1rem; }
 }
 
+@media (max-width: 767.98px) {
+    .dashboard-header .page-title {
+        font-size: 1.35rem !important;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    .page-subtitle {
+        font-size: 0.8rem;
+        word-break: break-word;
+    }
+}
+
 @media (max-width: 575.98px) {
-    .app-content { padding: 1.25rem 1rem 1.5rem; }
-    .page-header .page-title { font-size: 1.25rem; }
+    .app-content {
+        padding: 0.875rem 0.75rem 1.5rem !important;
+        overflow-x: hidden;
+    }
+    .navbar-app {
+        padding: 0 0.75rem !important;
+        gap: 0.5rem !important;
+    }
+    .navbar-app .nav-actions {
+        gap: 0.25rem !important;
+    }
+    .icon-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.05rem !important;
+    }
+    .profile-trigger {
+        padding: 0.2rem 0.4rem !important;
+    }
     .profile-trigger .profile-meta { display: none; }
-    .stat-card .stat-value { font-size: 1.5rem; }
-    #toast-container { max-width: calc(100vw - 2rem); }
+    #toast-container { max-width: calc(100vw - 1.5rem); }
+
+    /* Compact Cards for Small Mobile */
+    .card-body {
+        padding: 0.875rem 1rem !important;
+    }
+    .card-header {
+        padding: 0.75rem 1rem !important;
+    }
+    .stat-card .card-body {
+        padding: 0.75rem 0.875rem !important;
+    }
+    .stat-card .stat-icon {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+    }
+    .stat-card .stat-value {
+        font-size: 1.25rem !important;
+    }
+    .stat-card .stat-label {
+        font-size: 0.75rem !important;
+    }
+    .stat-card .stat-trend {
+        font-size: 0.7rem !important;
+        word-break: break-word;
+    }
+
+    /* Dashboard Staff Table Mobile Stack */
+    .dashboard-staff-table thead { display: none; }
+    .dashboard-staff-table,
+    .dashboard-staff-table tbody,
+    .dashboard-staff-table tr,
+    .dashboard-staff-table td { display: block; width: 100%; }
+    .dashboard-staff-table tr {
+        border-bottom: 1px solid var(--pw-border);
+        padding: 0.6rem 0;
+    }
+    .dashboard-staff-table tr:last-child { border-bottom: none; }
+    .dashboard-staff-table td {
+        padding: 0.25rem 0;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .dashboard-staff-table td[data-label="User"] {
+        justify-content: flex-start;
+        padding-bottom: 0.35rem;
+    }
+    .dashboard-staff-table td:not([data-label="User"])::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--pw-text-muted);
+        text-transform: uppercase;
+    }
 }
 
 /* ---------------------------------------------------------
@@ -2341,11 +2503,7 @@ table.dataTable thead th, table.dataTable thead td {
 }
 
 /* Print-hide utility — elements hidden when printing */
-@media screen {
-    .print-hide {
-        /* visible on screen, hidden in print (handled below) */
-    }
-}
+/* .print-hide is hidden during @media print rules below */
 
 /* =========================================================
    PROFESSIONAL PRINT STYLES — Invoice-like print output
@@ -3388,4 +3546,236 @@ html { overflow-x: hidden; }
     color: var(--pw-text-soft);
 }
 
-/* Native select dropdown arrow + date pickers inherit color-scheme: dark */
+/* =========================================================
+   THEME SWITCHER & COMPONENT POLISH
+   ========================================================= */
+
+/* Navbar Theme Icon Visibility */
+html[data-theme="light"] .theme-icon-dark,
+html:not([data-theme="dark"]) .theme-icon-dark {
+    display: none !important;
+}
+html[data-theme="light"] .theme-icon-light,
+html:not([data-theme="dark"]) .theme-icon-light {
+    display: inline-block !important;
+    color: #f59e0b !important;
+}
+
+html[data-theme="dark"] .theme-icon-light {
+    display: none !important;
+}
+html[data-theme="dark"] .theme-icon-dark {
+    display: inline-block !important;
+    color: #3b82f6 !important;
+}
+
+/* Theme Switcher Menu Active Indicators */
+.theme-check {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+.theme-switcher-menu [data-theme-toggle].active .theme-check {
+    opacity: 1;
+}
+.theme-switcher-menu [data-theme-toggle].active {
+    background-color: var(--pw-primary-50) !important;
+    color: var(--pw-primary) !important;
+    font-weight: 600 !important;
+}
+html[data-theme="dark"] .theme-switcher-menu [data-theme-toggle].active {
+    background-color: rgba(59, 130, 246, 0.18) !important;
+    color: #60a5fa !important;
+}
+
+/* Dark Mode Navbar Polish */
+html[data-theme="dark"] .navbar-app {
+    background: linear-gradient(180deg, #111b33 0%, #0d152a 100%) !important;
+    border-bottom-color: var(--pw-border) !important;
+}
+
+html[data-theme="dark"] .navbar-search-trigger {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--pw-border) !important;
+    color: var(--pw-text-soft) !important;
+}
+
+html[data-theme="dark"] .navbar-search-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.09) !important;
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .profile-trigger {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border-color: var(--pw-border) !important;
+}
+
+html[data-theme="dark"] .profile-name {
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .icon-btn {
+    color: var(--pw-text-soft) !important;
+}
+
+html[data-theme="dark"] .icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--pw-text) !important;
+}
+
+/* =========================================================
+   LOADING SKELETONS & EMPTY STATES
+   ========================================================= */
+.skeleton-line, .skeleton-box, .skeleton-circle {
+    background: linear-gradient(90deg, rgba(203, 213, 225, 0.2) 25%, rgba(203, 213, 225, 0.4) 50%, rgba(203, 213, 225, 0.2) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: var(--pw-radius-sm);
+}
+
+html[data-theme="dark"] .skeleton-line,
+html[data-theme="dark"] .skeleton-box,
+html[data-theme="dark"] .skeleton-circle {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.09) 50%, rgba(255, 255, 255, 0.04) 75%);
+    background-size: 200% 100%;
+}
+
+@keyframes skeleton-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-line { height: 1rem; width: 100%; margin-bottom: 0.5rem; }
+.skeleton-box { height: 120px; width: 100%; }
+.skeleton-circle { width: 42px; height: 42px; border-radius: 50%; }
+
+/* =========================================================
+   COMPREHENSIVE DARK THEME OVERRIDES (CARDS, TABLES, CHARTS, HEADERS)
+   ========================================================= */
+
+html[data-theme="dark"] body {
+    background-color: var(--pw-bg) !important;
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light,
+html[data-theme="dark"] .bg-body {
+    background-color: var(--pw-surface) !important;
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .bg-body-tertiary,
+html[data-theme="dark"] .bg-body-secondary {
+    background-color: var(--pw-surface-2) !important;
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .text-dark,
+html[data-theme="dark"] .text-black,
+html[data-theme="dark"] .text-body {
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .text-secondary {
+    color: var(--pw-text-soft) !important;
+}
+
+html[data-theme="dark"] .border,
+html[data-theme="dark"] .border-top,
+html[data-theme="dark"] .border-bottom,
+html[data-theme="dark"] .border-start,
+html[data-theme="dark"] .border-end {
+    border-color: var(--pw-border) !important;
+}
+
+/* Beautiful Elevated Dark Cards */
+html[data-theme="dark"] .card {
+    background: linear-gradient(180deg, #131d35 0%, #0f172a 100%) !important;
+    border: 1px solid var(--pw-border) !important;
+    color: var(--pw-text) !important;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-theme="dark"] .card:hover {
+    border-color: rgba(59, 130, 246, 0.35) !important;
+    box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(59, 130, 246, 0.15) !important;
+}
+
+html[data-theme="dark"] .card-header {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-bottom: 1px solid var(--pw-border) !important;
+    color: var(--pw-text) !important;
+}
+
+html[data-theme="dark"] .card-footer {
+    background: rgba(0, 0, 0, 0.15) !important;
+    border-top: 1px solid var(--pw-border) !important;
+    color: var(--pw-text-soft) !important;
+}
+
+html[data-theme="dark"] .stat-card {
+    background: linear-gradient(180deg, #162444 0%, #101a33 100%) !important;
+    border: 1px solid var(--pw-border-strong) !important;
+}
+
+html[data-theme="dark"] .stat-card .stat-label,
+html[data-theme="dark"] .stat-card .stat-value,
+html[data-theme="dark"] .stat-card .stat-trend,
+html[data-theme="dark"] .stat-label,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .stat-trend {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+html[data-theme="dark"] .stat-card .stat-value {
+    color: #ffffff !important;
+}
+
+/* Beautiful High-Contrast Dark Tables */
+html[data-theme="dark"] .table {
+    --bs-table-bg: transparent !important;
+    --bs-table-color: var(--pw-text-soft) !important;
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.03) !important;
+    --bs-table-hover-bg: rgba(59, 130, 246, 0.12) !important;
+    --bs-table-border-color: var(--pw-border) !important;
+    color: var(--pw-text-soft) !important;
+    border-color: var(--pw-border) !important;
+}
+
+html[data-theme="dark"] .table th,
+html[data-theme="dark"] .table thead th {
+    background: linear-gradient(180deg, #1b2847 0%, #131d35 100%) !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid var(--pw-border-strong) !important;
+}
+
+html[data-theme="dark"] .table td {
+    border-bottom: 1px solid var(--pw-border) !important;
+    color: var(--pw-text-soft) !important;
+}
+
+html[data-theme="dark"] .table tbody tr:hover td {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: #ffffff !important;
+}
+
+/* Dark Header & Top Bar */
+html[data-theme="dark"] .navbar-app,
+html[data-theme="dark"] header,
+html[data-theme="dark"] .app-header {
+    background: linear-gradient(180deg, #111b33 0%, #0d152a 100%) !important;
+    border-bottom: 1px solid var(--pw-border) !important;
+    color: var(--pw-text) !important;
+}
+
+/* Dark Charts */
+html[data-theme="dark"] .chart-wrapper,
+html[data-theme="dark"] .chart-container,
+html[data-theme="dark"] canvas {
+    background: transparent !important;
+}
+
+

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Project, ProjectTask, ProjectMilestone};
+use App\Models\{Project, ProjectTask};
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -16,16 +16,13 @@ class ProjectCalendarController extends Controller
         $projects = Project::orderBy('name')->get();
         $selectedProjectId = $request->get('project_id');
 
-        $taskQuery = ProjectTask::with(['project', 'assignedTo']);
-        $milestoneQuery = ProjectMilestone::with('project');
+         $taskQuery = ProjectTask::with(['project', 'assignedTo']);
 
         if ($selectedProjectId) {
             $taskQuery->where('project_id', $selectedProjectId);
-            $milestoneQuery->where('project_id', $selectedProjectId);
         }
 
         $tasks = $taskQuery->whereNotNull('deadline')->get();
-        $milestones = $milestoneQuery->whereNotNull('deadline')->get();
 
         $events = [];
 
@@ -43,19 +40,6 @@ class ProjectCalendarController extends Controller
                 'type' => 'Task',
                 'status' => $task->status,
                 'project_name' => $task->project->name,
-            ];
-        }
-
-        foreach ($milestones as $ms) {
-            $events[] = [
-                'id' => 'ms_' . $ms->id,
-                'title' => '[Milestone] ' . $ms->name,
-                'start' => $ms->deadline->format('Y-m-d'),
-                'url' => route('projects.show', $ms->project_id),
-                'className' => 'bg-success text-white',
-                'type' => 'Milestone',
-                'status' => $ms->status,
-                'project_name' => $ms->project->name,
             ];
         }
 

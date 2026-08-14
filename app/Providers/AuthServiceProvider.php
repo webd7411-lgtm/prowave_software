@@ -6,13 +6,11 @@ use App\Models\Attendance;
 use App\Models\DailyTask;
 use App\Models\DailyWorkUpdate;
 use App\Models\Department;
-use App\Models\EmployeeDocument;
 use App\Models\LeaveRequest;
 use App\Models\User;
 use App\Policies\AttendancePolicy;
 use App\Policies\DailyUpdatePolicy;
 use App\Policies\DepartmentPolicy;
-use App\Policies\EmployeeDocumentPolicy;
 use App\Policies\EmployeePolicy;
 use App\Policies\LeavePolicy;
 use App\Policies\RolePolicy;
@@ -32,7 +30,6 @@ class AuthServiceProvider extends ServiceProvider
         LeaveRequest::class => LeavePolicy::class,
         DailyTask::class => TaskPolicy::class,
         DailyWorkUpdate::class => DailyUpdatePolicy::class,
-        EmployeeDocument::class => EmployeeDocumentPolicy::class,
     ];
 
     public function boot(): void

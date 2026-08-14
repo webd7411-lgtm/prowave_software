@@ -46,30 +46,13 @@ return new class extends Migration {
             $table->unique(['project_id', 'user_id', 'role']);
         });
 
-        // 3. Project Milestones
-        Schema::create('project_milestones', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('deadline')->nullable()->index();
-            $table->string('status')->default('Pending')->index();
-            $table->integer('progress')->default(0);
-            $table->text('notes')->nullable();
-            $table->integer('order')->default(0);
-            $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
-            $table->timestamps();
-        });
-
-        // 4. Project Tasks
+        // 3. Project Tasks
         Schema::create('project_tasks', function (Blueprint $table) {
             $table->id();
             $table->string('task_code')->unique();
             $table->string('title');
             $table->text('description')->nullable();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
-            $table->foreignId('milestone_id')->nullable()->constrained('project_milestones')->nullOnDelete();
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('assigned_by')->nullable()->constrained('users')->nullOnDelete();
             $table->string('priority')->default('Medium')->index();
@@ -86,7 +69,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // 5. Task Comments
+        // 4. Task Comments
         Schema::create('task_comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('task_id')->constrained('project_tasks')->cascadeOnDelete();
@@ -97,7 +80,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // 6. Project Files / Task Attachments
+        // 5. Project Files / Task Attachments
         Schema::create('project_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
@@ -111,7 +94,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // 7. Time Entries (Stopwatch & Manual)
+        // 6. Time Entries (Stopwatch & Manual)
         Schema::create('project_time_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
@@ -125,7 +108,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // 8. Project Expenses
+        // 7. Project Expenses
         Schema::create('project_expenses', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
@@ -138,7 +121,7 @@ return new class extends Migration {
             $table->timestamps();
         });
 
-        // 9. Project Activities
+        // 8. Project Activities
         Schema::create('project_activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
@@ -160,7 +143,6 @@ return new class extends Migration {
             'project_files',
             'task_comments',
             'project_tasks',
-            'project_milestones',
             'project_members',
             'projects',
         ] as $table) {

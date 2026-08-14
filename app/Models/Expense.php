@@ -4,6 +4,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Expense extends Model
 {
@@ -85,8 +86,12 @@ class Expense extends Model
 
     public static function generateNumber(): string
     {
-        $last = static::withTrashed()->latest('id')->value('expense_number');
-        $num = $last ? ((int) substr($last, 4)) + 1 : 1;
-        return 'EXP-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        return DB::transaction(function () {
+            $record = static::withTrashed()->lockForUpdate()->latest('id')->first();
+            $last = $record?->expense_number;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return 'EXP-' . str_pad($num, 5, '0', STR_PAD_LEFT);
+        });
     }
 }

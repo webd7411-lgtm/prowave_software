@@ -22,6 +22,8 @@ class HrDashboardController extends Controller
 
     public function dashboard(): View
     {
+        $this->authorize('hr_dashboard.view');
+
         $today = now()->toDateString();
 
         $totalEmployees = User::whereNotNull('employee_id')->count();

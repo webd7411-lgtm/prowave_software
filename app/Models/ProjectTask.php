@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class ProjectTask extends Model
 {
@@ -17,7 +18,6 @@ class ProjectTask extends Model
         'title',
         'description',
         'project_id',
-        'milestone_id',
         'assigned_to',
         'assigned_by',
         'priority',
@@ -44,18 +44,19 @@ class ProjectTask extends Model
     public static function generateCode(): string
     {
         $prefix = 'TSK-';
-        $number = static::withTrashed()->count() + 1;
-        return $prefix . str_pad((string)$number, 4, '0', STR_PAD_LEFT);
+
+        return DB::transaction(function () use ($prefix) {
+            $record = static::withTrashed()->lockForUpdate()->orderByDesc('id')->first();
+            $last = $record?->task_code;
+            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
+
+            return $prefix . str_pad((string)$num, 4, '0', STR_PAD_LEFT);
+        });
     }
 
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function milestone(): BelongsTo
-    {
-        return $this->belongsTo(ProjectMilestone::class, 'milestone_id');
     }
 
     public function assignedTo(): BelongsTo

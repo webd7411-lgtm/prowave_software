@@ -128,11 +128,8 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/email', [SettingsController::class, 'email'])->name('email');
         Route::post('/email', [SettingsController::class, 'updateEmail'])->middleware('permission:settings.edit')->name('email.update');
         Route::post('/email/test', [SettingsController::class, 'testEmail'])->middleware('permission:settings.edit')->name('email.test');
-Route::get('/notifications', [SettingsController::class, 'notifications'])->name('notifications');
-Route::post('/notifications', [SettingsController::class, 'updateNotifications'])->middleware('permission:settings.edit')->name('notifications.update');
-Route::get('/whatsapp', [SettingsController::class, 'whatsapp'])->name('whatsapp');
-Route::post('/whatsapp', [SettingsController::class, 'updateWhatsapp'])->middleware('permission:settings.edit')->name('whatsapp.update');
-Route::post('/whatsapp/test', [SettingsController::class, 'testWhatsapp'])->middleware('permission:settings.edit')->name('whatsapp.test');
+        Route::get('/notifications', [SettingsController::class, 'notifications'])->name('notifications');
+        Route::post('/notifications', [SettingsController::class, 'updateNotifications'])->middleware('permission:settings.edit')->name('notifications.update');
         Route::get('/preferences', [SettingsController::class, 'preferences'])->name('preferences');
         Route::post('/preferences', [SettingsController::class, 'updatePreferences'])->middleware('permission:settings.edit')->name('preferences.update');
         Route::get('/leave-types', [SettingsController::class, 'leaveTypes'])->name('leave-types');
@@ -422,6 +419,9 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
         Route::middleware('permission:projects.view')->group(function () {
             Route::get('/', [ProjectController::class, 'index'])->name('index');
             Route::get('/export', [ProjectController::class, 'export'])->middleware('permission:projects.export')->name('export');
+            Route::get('/print', [ProjectController::class, 'printProjects'])->name('print');
+            Route::get('/import/template', [ProjectController::class, 'importTemplate'])->middleware('permission:projects.create')->name('import-template');
+            Route::post('/import', [ProjectController::class, 'import'])->middleware('permission:projects.create')->name('import');
             Route::get('/create', [ProjectController::class, 'create'])->middleware('permission:projects.create')->name('create');
             Route::post('/', [ProjectController::class, 'store'])->middleware('permission:projects.create')->name('store');
             Route::get('/{project}', [ProjectController::class, 'show'])->name('show');
@@ -436,11 +436,6 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
             // Files Management
             Route::post('/{project}/files', [ProjectFileController::class, 'store'])->middleware('permission:project_files.upload')->name('files.store');
         });
-
-        // Milestones
-        Route::post('/milestones', [ProjectMilestoneController::class, 'store'])->middleware('permission:milestones.create')->name('milestones.store');
-        Route::patch('/milestones/{milestone}', [ProjectMilestoneController::class, 'update'])->middleware('permission:milestones.edit')->name('milestones.update');
-        Route::delete('/milestones/{milestone}', [ProjectMilestoneController::class, 'destroy'])->middleware('permission:milestones.delete')->name('milestones.destroy');
 
         // Tasks & Kanban
         Route::get('/tasks/list', [ProjectTaskController::class, 'index'])->middleware('permission:project_tasks.view')->name('tasks.index');
@@ -474,9 +469,11 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
 
         // Reports & Workload
         Route::get('/reports/analytics', [ProjectReportController::class, 'index'])->middleware('permission:project_reports.view')->name('reports.index');
+        Route::get('/reports/print', [ProjectReportController::class, 'print'])->middleware('permission:project_reports.view')->name('reports.print');
         Route::get('/reports/export', [ProjectReportController::class, 'export'])->middleware('permission:project_reports.export')->name('reports.export');
         Route::get('/workload/overview', [WorkloadController::class, 'index'])->middleware('permission:project_team.view')->name('workload');
     });
+
     // ─── Finance Module ───────────────────────────────────────────────────────
     Route::prefix('finance')->name('finance.')->middleware('permission:finance.view')->group(function () {
 

@@ -12,6 +12,8 @@ class ReportController extends Controller
 {
     public function index(): View
     {
+        $this->authorize('financial_reports.view');
+
         return view('finance.reports.index');
     }
 

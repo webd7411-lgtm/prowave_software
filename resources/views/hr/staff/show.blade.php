@@ -124,7 +124,6 @@
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Gender</div><div class="fw-500">{{ $employee->gender?->label() ?? '—' }}</div></div>
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Date of Birth</div><div class="fw-500">{{ $employee->dob ? format_date($employee->dob) : '—' }}</div></div>
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">CNIC</div><div class="fw-500">{{ $employee->cnic ?? '—' }}</div></div>
-                                    <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">WhatsApp</div><div class="fw-500">{{ $employee->whatsapp ?? '—' }}</div></div>
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">City</div><div class="fw-500">{{ $employee->city ?? '—' }}</div></div>
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Emergency Contact</div><div class="fw-500">{{ $employee->emergency_contact ?? '—' }}</div></div>
                                     <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Emergency Phone</div><div class="fw-500">{{ $employee->emergency_phone ?? '—' }}</div></div>

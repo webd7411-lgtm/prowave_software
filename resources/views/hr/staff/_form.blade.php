@@ -30,9 +30,6 @@
         <div class="col-12 col-md-3">
             <x-form.input label="Phone" name="phone" :value="$employee?->phone" icon="bi-telephone" placeholder="+92 300 0000000" />
         </div>
-        <div class="col-12 col-md-3">
-            <x-form.input label="WhatsApp" name="whatsapp" :value="$employee?->whatsapp" icon="bi-whatsapp" placeholder="+92 300 0000000" />
-        </div>
 
         <div class="col-12 col-md-3">
             <x-form.select label="Gender" name="gender" :selected="$employee?->gender?->value" placeholder="Select gender" :options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']" />

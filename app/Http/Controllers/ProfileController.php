@@ -133,8 +133,6 @@ class ProfileController extends Controller
                 ->where('user_id', auth()->id())
                 ->get()
                 ->map(function ($session) {
-                    $payload = @unserialize(base64_decode($session->payload));
-
                     return [
                         'id' => $session->id,
                         'ip' => $session->ip_address,

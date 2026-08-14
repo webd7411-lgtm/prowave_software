@@ -32,6 +32,8 @@ class StaffController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('staff.view');
+
         $filters = $request->only(['search', 'status', 'department_id', 'designation', 'employment_type', 'joining_from', 'joining_to', 'trashed']);
 
         $employees = $this->repository->paginate($filters, (int) $request->integer('per_page', 15) ?: 15);
@@ -89,7 +91,7 @@ class StaffController extends Controller
     {
         $staff->load([
             'department', 'shift', 'reportingManager', 'subordinates',
-            'attendanceRecords', 'leaveRequests', 'leaveBalances', 'assignedTasks', 'dailyWorkUpdates', 'documents',
+            'attendanceRecords', 'leaveRequests', 'leaveBalances', 'assignedTasks', 'dailyWorkUpdates',
         ]);
 
         $attendanceSummary = [
@@ -113,8 +115,6 @@ class StaffController extends Controller
             'recentAttendance' => $staff->attendanceRecords->sortByDesc('date')->take(7),
             'recentTasks' => $staff->assignedTasks->sortByDesc('created_at')->take(5),
             'recentUpdates' => $staff->dailyWorkUpdates->sortByDesc('date')->take(5),
-            'recentDocuments' => $staff->documents->sortByDesc('created_at')->take(5),
-            'documents' => $staff->documents,
         ]);
     }
 

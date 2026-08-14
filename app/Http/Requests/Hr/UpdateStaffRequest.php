@@ -26,7 +26,6 @@ class UpdateStaffRequest extends FormRequest
             'dob' => ['nullable', 'date', 'before:today'],
             'cnic' => ['nullable', 'string', 'max:30', Rule::unique('users', 'cnic')->ignore($id)],
             'phone' => ['nullable', 'string', 'max:30'],
-            'whatsapp' => ['nullable', 'string', 'max:30'],
             'address' => ['nullable', 'string', 'max:500'],
             'city' => ['nullable', 'string', 'max:100'],
             'joining_date' => ['nullable', 'date'],

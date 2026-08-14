@@ -75,7 +75,7 @@
                             <x-form.input
                                 label="Default Currency"
                                 name="currency"
-                                :value="setting('general.currency', 'USD')"
+                                :value="setting('general.currency', 'PKR')"
                                 :required="true"
                                 help="ISO currency code, e.g. USD, EUR, BDT."
                             />

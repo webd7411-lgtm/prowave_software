@@ -27,6 +27,8 @@ class AttendanceController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('attendance.view');
+
         $filters = $request->only(['employee_id', 'department_id', 'status', 'date', 'from', 'to']);
 
         return view('hr.attendance.index', [

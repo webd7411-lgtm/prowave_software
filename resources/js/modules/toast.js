@@ -1,7 +1,10 @@
 /**
  * Prowave ERP — Toast notifications (Toastr wrapper)
+ * jQuery is already on window via jquery-global.js imported before this file.
  */
 import toastr from 'toastr';
+
+window.toastr = toastr;
 
 export function configureToastr() {
     toastr.options = {
@@ -13,7 +16,6 @@ export function configureToastr() {
         newestOnTop: true,
         showDuration: 200,
         hideDuration: 200,
-        progressBar: true,
     };
 }
 
@@ -28,6 +30,8 @@ export function showToast(type = 'success', message = '', title = '') {
         toastr.info(message, title);
     }
 }
+
+window.showToast = showToast;
 
 export function initToast() {
     configureToastr();

@@ -21,6 +21,17 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasRoles, LogsActivity, Notifiable, SoftDeletes;
 
+    protected static function booted(): void
+    {
+        static::created(function (User $user) {
+            if (empty($user->getRawOriginal('employee_id'))) {
+                $user->forceFill([
+                    'employee_id' => sprintf('EMP-%04d', $user->id),
+                ])->saveQuietly();
+            }
+        });
+    }
+
     protected $fillable = [
         'employee_id',
         'username',
@@ -29,7 +40,6 @@ class User extends Authenticatable
         'password',
         'avatar',
         'phone',
-        'whatsapp',
         'father_name',
         'cnic',
         'gender',
@@ -61,13 +71,16 @@ class User extends Authenticatable
         'notification_preferences',
         'is_active',
         'status',
+        'created_by',
+        'updated_by',
+        'deleted_by',
+    ];
+
+    protected $guarded = [
         'login_attempts',
         'locked_until',
         'last_login_at',
         'last_login_ip',
-        'created_by',
-        'updated_by',
-        'deleted_by',
     ];
 
     protected $hidden = [
@@ -118,6 +131,17 @@ protected $casts = [
         return null;
     }
 
+    public function getEmployeeIdAttribute($value): string
+    {
+        if (! empty($value)) {
+            return $value;
+        }
+
+        $id = $this->attributes['id'] ?? 0;
+
+        return $id ? sprintf('EMP-%04d', $id) : '—';
+    }
+
     public function activities(): HasMany
     {
         return $this->hasMany(config('activitylog.activity_model'), 'causer_id');
@@ -161,11 +185,6 @@ protected $casts = [
     public function dailyWorkUpdates(): HasMany
     {
         return $this->hasMany(DailyWorkUpdate::class, 'employee_id');
-    }
-
-    public function documents(): HasMany
-    {
-        return $this->hasMany(EmployeeDocument::class, 'employee_id');
     }
 
     public function reportingManager(): BelongsTo

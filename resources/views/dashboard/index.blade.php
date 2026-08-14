@@ -12,34 +12,34 @@
 
 @section('content')
     {{-- ============ Welcome header ============ --}}
-    <div class="page-header dashboard-header">
+    <div class="page-header dashboard-header flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
         <div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-1">
                     <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
                 </ol>
             </nav>
-            <h1 class="page-title">
+            <h1 class="page-title text-break">
                 {{ $greeting }}, {{ Str::before(auth()->user()?->name ?? 'there', ' ') }} 👋
             </h1>
-            <p class="page-subtitle">
+            <p class="page-subtitle mb-0">
                 Here's what's happening across {{ setting('company.name', 'Prowave') }} today —
                 {{ \Carbon\Carbon::now()->format('l, F j, Y') }}.
             </p>
         </div>
-        <div class="d-flex flex-wrap gap-2">
+        <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
             @can('users.import')
-                <a href="{{ route('admin.users.import') }}" class="btn btn-outline">
+                <a href="{{ route('admin.users.import') }}" class="btn btn-outline flex-grow-1 flex-md-grow-0">
                     <i class="bi bi-upload me-1"></i>Import
                 </a>
             @endcan
             @can('users.export')
-                <a href="{{ route('admin.users.export') }}" class="btn btn-soft-success">
+                <a href="{{ route('admin.users.export') }}" class="btn btn-soft-success flex-grow-1 flex-md-grow-0">
                     <i class="bi bi-cloud-download me-1"></i>Export
                 </a>
             @endcan
             @can('users.create')
-                <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                <a href="{{ route('admin.users.create') }}" class="btn btn-primary flex-grow-1 flex-md-grow-0">
                     <i class="bi bi-person-plus me-1"></i>Add User
                 </a>
             @endcan

@@ -1,7 +1,13 @@
 import '../scss/app.scss';
 
+// ⚠ jQuery MUST be first — toastr depends on window.jQuery
+import './modules/jquery-global';
+
 import * as bootstrap from 'bootstrap';
-import 'bootstrap-icons/font/bootstrap-icons.css';import 'sweetalert2/dist/sweetalert2.min.css';
+window.bootstrap = bootstrap;
+
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'sweetalert2/dist/sweetalert2.min.css';
 import 'toastr/build/toastr.min.css';
 import 'select2/dist/css/select2.min.css';
 import 'select2-bootstrap-5-theme/dist/select2-bootstrap-5-theme.min.css';
@@ -19,8 +25,3 @@ import './modules/datatable';
 import './modules/charts';
 import './modules/notifications';
 import './modules/init';
-
-window.bootstrap = bootstrap;
-
-import $ from 'jquery';
-window.jQuery = window.$ = $;

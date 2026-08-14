@@ -15,9 +15,6 @@
         @if($lead->phone)
             <a href="tel:{{ $lead->phone }}" class="btn btn-soft-primary"><i class="bi bi-telephone"></i></a>
         @endif
-        @if($lead->whatsapp)
-            <a href="https://wa.me/{{ preg_replace('/\D/', '', $lead->whatsapp) }}" class="btn btn-soft-success"><i class="bi bi-whatsapp"></i></a>
-        @endif
     </div>
 </div>
 
@@ -68,7 +65,7 @@
                 @csrf
                 <input type="date" name="follow_up_date" class="form-control mb-2" required>
                 <select name="type" class="form-select mb-2">
-                    @foreach(['call', 'whatsapp', 'email', 'meeting', 'other'] as $t)
+                    @foreach(['call', 'email', 'meeting', 'other'] as $t)
                         <option>{{ $t }}</option>
                     @endforeach
                 </select>

@@ -29,7 +29,7 @@ class EmployeeRepository
     {
         $query = User::query()->with([
             'department', 'shift', 'reportingManager', 'subordinates',
-            'attendanceRecords', 'leaveRequests', 'assignedTasks', 'documents',
+            'attendanceRecords', 'leaveRequests', 'assignedTasks',
         ]);
 
         if ($withTrashed) {

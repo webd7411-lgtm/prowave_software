@@ -545,7 +545,7 @@
                 <div class="feature-card">
                     <div class="feature-icon i-blue"><i class="bi bi-kanban-fill"></i></div>
                     <h3 class="feature-title">Projects & Tasks</h3>
-                    <p class="feature-text">Kanban boards, timelines, milestones, and real-time collaboration to keep every project on track.</p>
+                    <p class="feature-text">Kanban boards, timelines, and real-time collaboration to keep every project on track.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon i-purple"><i class="bi bi-people-fill"></i></div>

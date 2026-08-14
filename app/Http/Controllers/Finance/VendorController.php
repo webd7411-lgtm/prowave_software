@@ -10,6 +10,8 @@ class VendorController extends Controller
 {
     public function index(Request $request): View
     {
+        $this->authorize('vendors.view');
+
         $query = Vendor::withCount('vendorPayments')->withSum('expenses as total_expenses_sum', 'amount')->latest();
         if ($request->filled('status'))   $query->where('status', $request->status);
         if ($request->filled('category')) $query->where('category', $request->category);
@@ -33,14 +35,13 @@ class VendorController extends Controller
             'name'           => 'required|string|max:150',
             'contact_person' => 'nullable|string|max:100',
             'phone'          => 'nullable|string|max:30',
-            'whatsapp'       => 'nullable|string|max:30',
             'email'          => 'nullable|email|max:150',
             'address'        => 'nullable|string|max:500',
             'category'       => 'nullable|string|max:100',
             'notes'          => 'nullable|string|max:2000',
             'status'         => 'required|in:active,inactive',
         ]);
-        $data['vendor_number'] = 'VND-' . str_pad(Vendor::withTrashed()->count() + 1, 4, '0', STR_PAD_LEFT);
+        $data['vendor_number'] = Vendor::generateNumber();
         $data['created_by'] = auth()->id();
         Vendor::create($data);
 
@@ -69,7 +70,6 @@ class VendorController extends Controller
             'name'           => 'required|string|max:150',
             'contact_person' => 'nullable|string|max:100',
             'phone'          => 'nullable|string|max:30',
-            'whatsapp'       => 'nullable|string|max:30',
             'email'          => 'nullable|email|max:150',
             'address'        => 'nullable|string|max:500',
             'category'       => 'nullable|string|max:100',

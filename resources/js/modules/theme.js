@@ -1,13 +1,12 @@
 /**
- * Prowave ERP — Theme system (light / dark / system)
+ * Prowave ERP — Premium Theme System (Light / Dark / System)
  */
 export function getStoredTheme() {
     const saved = localStorage.getItem('pw-theme');
     if (saved) {
         return saved;
     }
-
-    const userTheme = document.body.dataset.userTheme;
+    const userTheme = document.body?.dataset?.userTheme;
     return userTheme || 'system';
 }
 
@@ -16,58 +15,55 @@ export function getSystemTheme() {
 }
 
 export function getActiveTheme() {
-    const theme = getStoredTheme();
-    return theme === 'system' ? getSystemTheme() : theme;
+    const stored = getStoredTheme();
+    return stored === 'system' ? getSystemTheme() : stored;
 }
 
-export function applyTheme(theme = getActiveTheme()) {
+export function applyTheme() {
     const root = document.documentElement;
-    const resolved = theme === 'system' ? getSystemTheme() : theme;
+    const stored = getStoredTheme();
+    const resolved = stored === 'system' ? getSystemTheme() : stored;
 
     root.setAttribute('data-theme', resolved);
-    // Keep Bootstrap 5.3's component styles in sync with our theme.
     root.setAttribute('data-bs-theme', resolved);
+    root.setAttribute('data-theme-preference', stored);
 
     document.querySelectorAll('[data-theme-toggle]').forEach((el) => {
         const target = el.dataset.themeToggle;
-        if (target === 'dark') {
-            el.classList.toggle('active', resolved === 'dark');
-            el.setAttribute('aria-pressed', String(resolved === 'dark'));
-        }
+        const isActive = target === stored;
+        el.classList.toggle('active', isActive);
+        el.setAttribute('aria-pressed', String(isActive));
     });
 
-    window.dispatchEvent(new CustomEvent('pw:theme-changed', { detail: { theme: resolved } }));
+    window.dispatchEvent(new CustomEvent('pw:theme-changed', { detail: { theme: resolved, preference: stored } }));
 }
 
 export function setTheme(theme) {
     localStorage.setItem('pw-theme', theme);
-    applyTheme(theme);
+    applyTheme();
 
-    fetch(window.Prowave.themeUrl, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': window.Prowave.csrfToken,
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify({ theme }),
-    }).catch(() => {
-        // Persisting theme is best-effort; the local preference still applies.
-    });
+    if (window.Prowave?.themeUrl) {
+        fetch(window.Prowave.themeUrl, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': window.Prowave.csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: JSON.stringify({ theme }),
+        }).catch(() => {
+            // Best-effort server sync
+        });
+    }
 }
 
 export function toggleDarkMode() {
-    const current = document.documentElement.getAttribute('data-theme');
-    setTheme(current === 'dark' ? 'light' : 'dark');
+    const active = getActiveTheme();
+    setTheme(active === 'dark' ? 'light' : 'dark');
 }
 
 export function initTheme() {
-    if (!window.Prowave.themeEnabled) {
-        applyTheme('light');
-        return;
-    }
-
     window.matchMedia('(prefers-color-scheme: dark)')
         .addEventListener('change', () => {
             if (getStoredTheme() === 'system') {
@@ -81,12 +77,14 @@ export function initTheme() {
             return;
         }
 
-        if (toggler.dataset.themeToggle === 'dark') {
+        const mode = toggler.dataset.themeToggle;
+        if (mode === 'light' || mode === 'dark' || mode === 'system') {
+            setTheme(mode);
+        } else if (mode === 'toggle') {
             toggleDarkMode();
-        } else if (toggler.dataset.themeToggle === 'system') {
-            setTheme('system');
         }
     });
 
     applyTheme();
 }
+

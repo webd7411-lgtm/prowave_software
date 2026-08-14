@@ -30,6 +30,7 @@ class DailyTaskController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('tasks.view');
         $this->service->applyOverdue();
 
         $filters = $request->only(['search', 'assigned_to', 'department_id', 'status', 'priority', 'my']);
@@ -95,6 +96,8 @@ class DailyTaskController extends Controller
     {
         $data = $request->validated();
 
+        $oldAssignedTo = $task->assigned_to;
+
         if ($request->hasFile('attachment')) {
             if ($task->attachment) {
                 Storage::disk('public')->delete($task->attachment);
@@ -105,6 +108,17 @@ class DailyTaskController extends Controller
         $this->service->update($task, $data);
 
         $this->audit->log('Task updated', 'hr', $task, event: 'updated');
+
+        $task->refresh();
+
+        if ($task->assigned_to && $task->assigned_to !== auth()->id() && $task->assigned_to !== $oldAssignedTo) {
+            app(NotificationService::class)->send(
+                $task->assignee,
+                'Task assigned to you',
+                $task->title.($task->deadline ? ' — due '.$task->deadline->format('M d, Y') : ''),
+                ['category' => 'task', 'url' => route('hr.tasks.board'), 'color' => 'info']
+            );
+        }
 
         return redirect()
             ->route('hr.tasks.index')

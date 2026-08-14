@@ -13,6 +13,8 @@ class DashboardController extends Controller
 {
     public function __invoke(): View
     {
+        $this->authorize('dashboard.view');
+
         $now = now();
 
         $stats = [

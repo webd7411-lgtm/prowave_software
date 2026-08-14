@@ -8,7 +8,7 @@
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 fw-bold text-dark mb-1">Create Project</h1>
-            <p class="text-muted mb-0 fs-sm">Set up a new software project, assign client, PM, team members, initial milestones and tasks.</p>
+            <p class="text-muted mb-0 fs-sm">Set up a new software project, assign client, PM, team members, and tasks.</p>
         </div>
         <a href="{{ route('projects.index') }}" class="btn btn-outline-secondary btn-sm">
             <i class="bi bi-arrow-left me-1"></i> Back to Projects
@@ -77,74 +77,7 @@
                     </div>
                 </div>
 
-                {{-- Initial Milestones --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-flag text-primary me-2"></i>Initial Milestones</h5>
-                        <button type="button" class="btn btn-sm btn-soft-primary" id="addMilestoneBtn">
-                            <i class="bi bi-plus-circle me-1"></i> Add Milestone
-                        </button>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div id="milestonesContainer">
-                            {{-- Preset Default Milestones --}}
-                            @php
-                                $defaultMilestones = ['Planning & Scope', 'UI/UX Design', 'Frontend & Backend Development', 'QA & Client Testing', 'Deployment'];
-                            @endphp
-                            @foreach($defaultMilestones as $index => $msName)
-                                <div class="row g-2 align-items-center mb-2 milestone-row">
-                                    <div class="col-7 col-md-8">
-                                        <input type="text" name="milestones[{{ $index }}][name]" class="form-control form-control-sm" value="{{ $msName }}" placeholder="Milestone Name">
-                                    </div>
-                                    <div class="col-4 col-md-3">
-                                        <input type="date" name="milestones[{{ $index }}][deadline]" class="form-control form-control-sm">
-                                    </div>
-                                    <div class="col-1 text-end">
-                                        <button type="button" class="btn btn-sm text-danger remove-row-btn"><i class="bi bi-x-lg"></i></button>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
 
-                {{-- Initial Tasks --}}
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-list-check text-primary me-2"></i>Initial Tasks</h5>
-                        <button type="button" class="btn btn-sm btn-soft-primary" id="addTaskBtn">
-                            <i class="bi bi-plus-circle me-1"></i> Add Task
-                        </button>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div id="tasksContainer">
-                            <div class="row g-2 align-items-center mb-2 task-row">
-                                <div class="col-12 col-md-5">
-                                    <input type="text" name="tasks[0][title]" class="form-control form-control-sm" placeholder="Task Title (e.g. Database Architecture)">
-                                </div>
-                                <div class="col-6 col-md-3">
-                                    <select name="tasks[0][assigned_to]" class="form-select form-select-sm">
-                                        <option value="">Unassigned</option>
-                                        @foreach($users as $u)
-                                            <option value="{{ $u->id }}">{{ $u->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-5 col-md-3">
-                                    <select name="tasks[0][priority]" class="form-select form-select-sm">
-                                        <option value="Medium">Medium</option>
-                                        <option value="Low">Low</option>
-                                        <option value="High">High</option>
-                                        <option value="Urgent">Urgent</option>
-                                    </select>
-                                </div>
-                                <div class="col-1 text-end">
-                                    <button type="button" class="btn btn-sm text-danger remove-row-btn"><i class="bi bi-x-lg"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
             </div>
 
@@ -165,14 +98,7 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold fs-sm">Priority <span class="text-danger">*</span></label>
-                            <select name="priority" class="form-select" required>
-                                @foreach(['Low', 'Medium', 'High', 'Urgent'] as $pr)
-                                    <option value="{{ $pr }}" {{ old('priority', 'Medium') === $pr ? 'selected' : '' }}>{{ $pr }}</option>
-                                @endforeach
-                            </select>
-                        </div>
+
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold fs-sm">Project Manager</label>
@@ -259,62 +185,10 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        let milestoneIdx = {{ count($defaultMilestones) }};
         let taskIdx = 1;
         let teamIdx = 1;
 
-        // Dynamic Add Milestone
-        document.getElementById('addMilestoneBtn').addEventListener('click', function () {
-            const container = document.getElementById('milestonesContainer');
-            const row = document.createElement('div');
-            row.className = 'row g-2 align-items-center mb-2 milestone-row';
-            row.innerHTML = `
-                <div class="col-7 col-md-8">
-                    <input type="text" name="milestones[${milestoneIdx}][name]" class="form-control form-control-sm" placeholder="Milestone Name">
-                </div>
-                <div class="col-4 col-md-3">
-                    <input type="date" name="milestones[${milestoneIdx}][deadline]" class="form-control form-control-sm">
-                </div>
-                <div class="col-1 text-end">
-                    <button type="button" class="btn btn-sm text-danger remove-row-btn"><i class="bi bi-x-lg"></i></button>
-                </div>
-            `;
-            container.appendChild(row);
-            milestoneIdx++;
-        });
 
-        // Dynamic Add Task
-        document.getElementById('addTaskBtn').addEventListener('click', function () {
-            const container = document.getElementById('tasksContainer');
-            const row = document.createElement('div');
-            row.className = 'row g-2 align-items-center mb-2 task-row';
-            row.innerHTML = `
-                <div class="col-12 col-md-5">
-                    <input type="text" name="tasks[${taskIdx}][title]" class="form-control form-control-sm" placeholder="Task Title">
-                </div>
-                <div class="col-6 col-md-3">
-                    <select name="tasks[${taskIdx}][assigned_to]" class="form-select form-select-sm">
-                        <option value="">Unassigned</option>
-                        @foreach($users as $u)
-                            <option value="{{ $u->id }}">{{ $u->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-5 col-md-3">
-                    <select name="tasks[${taskIdx}][priority]" class="form-select form-select-sm">
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
-                        <option value="High">High</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
-                </div>
-                <div class="col-1 text-end">
-                    <button type="button" class="btn btn-sm text-danger remove-row-btn"><i class="bi bi-x-lg"></i></button>
-                </div>
-            `;
-            container.appendChild(row);
-            taskIdx++;
-        });
 
         // Dynamic Add Team Member
         document.getElementById('addTeamMemberBtn').addEventListener('click', function () {
@@ -348,7 +222,7 @@
         // Remove row delegated event
         document.addEventListener('click', function (e) {
             if (e.target.closest('.remove-row-btn')) {
-                const row = e.target.closest('.milestone-row, .task-row, .team-row');
+                const row = e.target.closest('.task-row, .team-row');
                 if (row) row.remove();
             }
         });

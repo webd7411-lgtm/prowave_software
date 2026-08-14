@@ -30,6 +30,8 @@ class LeaveController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('leave.view');
+
         $filters = $request->only(['employee_id', 'department_id', 'leave_type_id', 'status', 'from', 'to']);
 
         return view('hr.leave.index', [

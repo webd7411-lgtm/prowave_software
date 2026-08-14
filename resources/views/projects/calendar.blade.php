@@ -7,7 +7,7 @@
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
             <h1 class="h3 fw-bold text-dark mb-1">Project & Task Calendar</h1>
-            <p class="text-muted mb-0 fs-sm">Visual schedule of project milestones, task deadlines, and delivery targets.</p>
+            <p class="text-muted mb-0 fs-sm">Visual schedule of task deadlines and delivery targets.</p>
         </div>
 
         <div class="d-flex align-items-center gap-2">
@@ -51,7 +51,7 @@
                                     @if($evt['type'] === 'Task')
                                         <span class="badge bg-primary-subtle text-primary fs-xs"><i class="bi bi-check2-square me-1"></i>Task</span>
                                     @else
-                                        <span class="badge bg-success-subtle text-success fs-xs"><i class="bi bi-flag me-1"></i>Milestone</span>
+                                        
                                     @endif
                                 </td>
                                 <td class="fw-bold text-dark">{{ $evt['title'] }}</td>

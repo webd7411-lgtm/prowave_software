@@ -28,6 +28,8 @@ class DailyUpdateController extends Controller
 
     public function index(Request $request): View
     {
+        $this->authorize('daily_reports.view');
+
         $filters = $request->only(['employee_id', 'department_id', 'status', 'from', 'to', 'my']);
 
         return view('hr.updates.index', [
@@ -54,8 +56,18 @@ class DailyUpdateController extends Controller
         $manager = $submitter->reportingManager;
 
         $managerUsers = $manager ? collect([$manager]) : collect();
+
+        // Notify manager
         app(NotificationService::class)->sendMany(
             $managerUsers,
+            'Daily update submitted',
+            $submitter->name.' submitted their work update for '.$update->work_date->format('M d, Y').'.',
+            ['category' => 'update', 'url' => route('hr.updates.index'), 'color' => 'info']
+        );
+
+        // Notify admins (Administrator/Super Admin have daily_reports.view permission)
+        app(NotificationService::class)->sendToPermission(
+            'daily_reports.view',
             'Daily update submitted',
             $submitter->name.' submitted their work update for '.$update->work_date->format('M d, Y').'.',
             ['category' => 'update', 'url' => route('hr.updates.index'), 'color' => 'info']
