@@ -14,9 +14,9 @@
     </div>
     <div class="d-flex gap-2">
         <a href="{{ route('crm.quotations.create') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>Add Quotation
+            <i class="bi bi-plus-circle me-1"></i>New Quotation
         </a>
-        <a href="{{ route('crm.dashboard') }}" class="btn btn-outline">
+        <a href="{{ route('crm.dashboard') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back to CRM
         </a>
     </div>
@@ -24,16 +24,16 @@
 
 <x-card body-class="p-0">
     <div class="table-responsive">
-        <table class="table mb-0">
+        <table class="table mb-0 align-middle">
             <thead>
                 <tr>
-                    <th>Quotation</th>
+                    <th>Quotation #</th>
                     <th>Client</th>
                     <th>Date</th>
                     <th>Valid Until</th>
-                    <th>Total</th>
+                    <th class="text-end">Total</th>
                     <th>Status</th>
-                    <th class="text-end">Actions</th>
+                    <th class="text-end" style="min-width: 220px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,9 +45,9 @@
                         </a>
                     </td>
                     <td>{{ $record->client->company_name }}</td>
-                    <td>{{ $record->quotation_date->format('M d, Y') }}</td>
-                    <td>{{ $record->valid_until?->format('M d, Y') ?? '—' }}</td>
-                    <td class="fw-semibold">{{ number_format($record->total, 2) }}</td>
+                    <td>{{ $record->quotation_date->format('d M, Y') }}</td>
+                    <td>{{ $record->valid_until?->format('d M, Y') ?? '—' }}</td>
+                    <td class="text-end fw-semibold">{{ number_format($record->total, 2) }} PKR</td>
                     <td>
                         @php
                             $statusColors = ['draft'=>'secondary','sent'=>'primary','accepted'=>'success','rejected'=>'danger','expired'=>'warning'];
@@ -57,31 +57,37 @@
                         </span>
                     </td>
                     <td class="text-end">
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('crm.quotations.show', $record) }}"><i class="bi bi-eye me-2"></i>View</a></li>
-                                <li><a class="dropdown-item" href="{{ route('crm.quotations.edit', $record) }}"><i class="bi bi-pencil me-2"></i>Edit</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="POST" action="{{ route('crm.quotations.destroy', $record) }}" onsubmit="return confirm('Delete this quotation?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash me-2"></i>Delete</button>
-                                    </form>
-                                </li>
-                            </ul>
+                        <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                            <a href="{{ route('crm.quotations.show', $record) }}"
+                               class="btn btn-sm btn-soft-primary" title="View">
+                                <i class="bi bi-eye me-1"></i>View
+                            </a>
+                            <a href="{{ route('crm.quotations.print', $record) }}"
+                               class="btn btn-sm btn-soft-success" title="Print Slip" target="_blank">
+                                <i class="bi bi-printer me-1"></i>Print
+                            </a>
+                            <a href="{{ route('crm.quotations.edit', $record) }}"
+                               class="btn btn-sm btn-soft-warning" title="Edit">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                            <form method="POST" action="{{ route('crm.quotations.destroy', $record) }}"
+                                  onsubmit="return confirm('Delete quotation {{ $record->quotation_number }}?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-soft-danger" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-file-earmark-text display-6 d-block mb-2 opacity-25"></i>
                         No quotations created yet.
                         <br>
-                        <a href="{{ route('crm.quotations.create') }}" class="btn btn-sm btn-primary mt-2">
+                        <a href="{{ route('crm.quotations.create') }}" class="btn btn-sm btn-primary mt-3">
                             <i class="bi bi-plus-circle me-1"></i>Create First Quotation
                         </a>
                     </td>

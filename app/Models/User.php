@@ -124,11 +124,7 @@ protected $casts = [
     public function getAvatarUrlAttribute(): ?string
     {
         $avatar = $this->getAttribute('avatar');
-        if ($avatar && file_exists(public_path($avatar))) {
-            return asset($avatar);
-        }
-
-        return null;
+        return $avatar ? asset($avatar) : null;
     }
 
     public function getEmployeeIdAttribute($value): string

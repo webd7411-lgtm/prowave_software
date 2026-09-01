@@ -19,7 +19,6 @@
     <div class="row g-3">
         @foreach ([
             ['route' => 'reports.lead-conversion', 'icon' => 'bi-graph-up-arrow', 'title' => 'Lead Conversion', 'text' => 'Conversion rates, monthly funnel and owner performance.'],
-            ['route' => 'reports.lead-sources', 'icon' => 'bi-tag', 'title' => 'Lead Sources', 'text' => 'Which marketing channels bring the most business.'],
             ['route' => 'reports.client-revenue', 'icon' => 'bi-currency-dollar', 'title' => 'Client Revenue', 'text' => 'Invoiced vs received amounts per client.'],
             ['route' => 'reports.invoice-aging', 'icon' => 'bi-hourglass-split', 'title' => 'Invoice Aging', 'text' => 'Outstanding receivables by overdue bucket.'],
             ['route' => 'reports.task-performance', 'icon' => 'bi-list-check', 'title' => 'Task Performance', 'text' => 'Team completion rates for project and daily tasks.'],

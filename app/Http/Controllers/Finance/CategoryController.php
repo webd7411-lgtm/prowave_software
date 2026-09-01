@@ -22,6 +22,8 @@ class CategoryController extends Controller
     public function storeExpense(Request $request): RedirectResponse
     {
         $data = $request->validate(['name' => 'required|string|max:100', 'color' => 'nullable|string|max:20', 'icon' => 'nullable|string|max:50', 'description' => 'nullable|string|max:300']);
+        $data['icon'] = $data['icon'] ?: 'bi-tag';
+        $data['color'] = $data['color'] ?: '#6c757d';
         $data['slug'] = Str::slug($data['name']) . '-' . time();
         $data['created_by'] = auth()->id();
         ExpenseCategory::create($data);
@@ -31,6 +33,8 @@ class CategoryController extends Controller
     public function storeIncome(Request $request): RedirectResponse
     {
         $data = $request->validate(['name' => 'required|string|max:100', 'color' => 'nullable|string|max:20', 'icon' => 'nullable|string|max:50', 'description' => 'nullable|string|max:300']);
+        $data['icon'] = $data['icon'] ?: 'bi-arrow-down-circle';
+        $data['color'] = $data['color'] ?: '#198754';
         $data['slug'] = Str::slug($data['name']) . '-' . time();
         $data['created_by'] = auth()->id();
         IncomeCategory::create($data);
@@ -40,6 +44,7 @@ class CategoryController extends Controller
     public function storeMethod(Request $request): RedirectResponse
     {
         $data = $request->validate(['name' => 'required|string|max:100', 'icon' => 'nullable|string|max:50']);
+        $data['icon'] = $data['icon'] ?: 'bi-credit-card';
         $data['slug'] = Str::slug($data['name']) . '-' . time();
         PaymentMethod::create($data);
         return back()->with('toast', ['type' => 'success', 'message' => 'Payment method added.']);

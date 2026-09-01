@@ -34,7 +34,7 @@ class ProjectTask extends Model
 
     protected $casts = [
         'start_date' => 'date',
-        'deadline' => 'date',
+        'deadline' => 'datetime',
         'estimated_hours' => 'decimal:2',
         'actual_hours' => 'decimal:2',
         'progress' => 'integer',

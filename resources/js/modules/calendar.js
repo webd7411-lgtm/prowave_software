@@ -13,7 +13,7 @@ export function initCalendar() {
         events: [],
     };
 
-    const elView = document.querySelectorAll('[data-calendar-view]');
+    const elViewBtns = document.querySelectorAll('[data-calendar-view-btn]');
     const elTitle = document.getElementById('calendar-title');
     const elGrid = document.getElementById('calendar-grid');
     const elSidebar = document.getElementById('calendar-upcoming');
@@ -53,12 +53,27 @@ export function initCalendar() {
     }
 
     async function load() {
-        const start = fmtDate(startOfRange());
-        const end = fmtDate(endOfRange());
-        const res = await fetch(root.dataset.calendarUrl + `?start=${start}&end=${end}`, {
-            headers: { Accept: 'application/json' },
-        });
-        state.events = await res.json();
+        if (!elGrid) return;
+        elGrid.innerHTML = `
+            <div class="p-5 text-center">
+                <div class="spinner-border text-primary" role="status" aria-label="Loading calendar"></div>
+            </div>`;
+
+        try {
+            const start = fmtDate(startOfRange());
+            const end = fmtDate(endOfRange());
+            const res = await fetch(root.dataset.calendarUrl + `?start=${start}&end=${end}`, {
+                headers: { Accept: 'application/json' },
+            });
+            if (res.ok) {
+                state.events = await res.json();
+            } else {
+                state.events = [];
+            }
+        } catch (e) {
+            console.error('Calendar fetch error:', e);
+            state.events = [];
+        }
         render();
     }
 
@@ -78,6 +93,7 @@ export function initCalendar() {
         const link = document.createElement('a');
         link.className = 'cal-chip';
         link.style.background = e.color || '#2563EB';
+        link.style.color = '#ffffff';
         link.textContent = `${e.type ? `[${e.type}] ` : ''}${e.title}`;
         link.title = `${e.title}${e.project ? ` — ${e.project}` : ''}`;
         if (e.url) {
@@ -140,7 +156,7 @@ export function initCalendar() {
                 </div>`);
             bodies.push(`
                 <div class="cal-week-cell ${isToday ? 'cal-cell-today' : ''}">
-                    ${events.map((e) => eventChip(e).outerHTML).join('') || '<span class="cal-empty-cell">No events</span>'}
+                    ${events.map((e) => eventChip(e).outerHTML).join('') || '<span class="cal-empty-cell text-muted fs-xs">No events</span>'}
                 </div>`);
         }
 
@@ -154,10 +170,10 @@ export function initCalendar() {
         const events = eventsFor(key, true).sort((a, b) => String(a.start).localeCompare(String(b.start)));
 
         elGrid.innerHTML = `
-            <div class="cal-day-list">
+            <div class="cal-day-list p-3">
                 ${events.length ? events.map((e) => `
-                    <div class="cal-day-item" style="border-left: 4px solid ${e.color || '#2563EB'}">
-                        <div class="cal-day-time">${e.allDay ? 'All day' : String(e.start || '').slice(11, 16) || '—'}</div>
+                    <div class="cal-day-item p-2 mb-2 rounded bg-body-tertiary" style="border-left: 4px solid ${e.color || '#2563EB'}">
+                        <div class="cal-day-time fw-500 fs-xs text-muted mb-1">${e.allDay ? 'All day' : String(e.start || '').slice(11, 16) || '—'}</div>
                         <div class="flex-grow-1 min-w-0">
                             <a href="${e.url || 'javascript:void(0)'}" class="fw-600 text-body text-decoration-none">${e.title}</a>
                             <div class="fs-xs text-muted">${e.type || 'Event'}${e.project ? ` · ${e.project}` : ''}</div>
@@ -165,7 +181,7 @@ export function initCalendar() {
                     </div>`).join('') : `
                     <div class="text-center py-5">
                         <i class="bi bi-calendar-x fs-2 text-muted d-block mb-2"></i>
-                        <span class="text-muted">No events on this day</span>
+                        <span class="text-muted fs-sm">No events scheduled for this day</span>
                     </div>`}
             </div>`;
     }
@@ -174,18 +190,18 @@ export function initCalendar() {
         const sorted = [...state.events].sort((a, b) => String(a.start).localeCompare(String(b.start)));
 
         elGrid.innerHTML = `
-            <div class="cal-day-list">
+            <div class="cal-day-list p-3">
                 ${sorted.length ? sorted.map((e) => `
-                    <div class="cal-day-item" style="border-left: 4px solid ${e.color || '#2563EB'}">
-                        <div class="cal-day-time">${String(e.start || '').slice(0, 10)}</div>
+                    <div class="cal-day-item p-2 mb-2 rounded bg-body-tertiary d-flex align-items-center gap-3" style="border-left: 4px solid ${e.color || '#2563EB'}">
+                        <div class="cal-day-time fw-600 fs-xs text-primary" style="min-width: 85px;">${String(e.start || '').slice(0, 10)}</div>
                         <div class="flex-grow-1 min-w-0">
-                            <a href="${e.url || 'javascript:void(0)'}" class="fw-600 text-body text-decoration-none">${e.title}</a>
+                            <a href="${e.url || 'javascript:void(0)'}" class="fw-600 text-body text-decoration-none d-block text-truncate">${e.title}</a>
                             <div class="fs-xs text-muted">${e.type || 'Event'}${e.project ? ` · ${e.project}` : ''}</div>
                         </div>
                     </div>`).join('') : `
                     <div class="text-center py-5">
                         <i class="bi bi-calendar-x fs-2 text-muted d-block mb-2"></i>
-                        <span class="text-muted">No events in this range</span>
+                        <span class="text-muted fs-sm">No events in this range</span>
                     </div>`}
             </div>`;
     }
@@ -193,37 +209,41 @@ export function initCalendar() {
     function render() {
         const options = { month: 'long', year: 'numeric' };
         const weekYear = new Date(startOfRange());
-        elTitle.textContent = state.view === 'day'
-            ? state.current.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })
-            : state.view === 'week'
-                ? `Week of ${weekYear.toLocaleDateString(undefined, options)}`
-                : state.current.toLocaleDateString(undefined, options);
+        if (elTitle) {
+            elTitle.textContent = state.view === 'day'
+                ? state.current.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+                : state.view === 'week'
+                    ? `Week of ${weekYear.toLocaleDateString(undefined, options)}`
+                    : state.current.toLocaleDateString(undefined, options);
+        }
 
         if (state.view === 'month') renderMonth();
         else if (state.view === 'week') renderWeek();
         else if (state.view === 'day') renderDay();
         else renderAgenda();
 
-        elView.forEach((btn) => {
-            btn.classList.toggle('active', btn.dataset.calendarView === state.view);
+        elViewBtns.forEach((btn) => {
+            const isSel = btn.dataset.calendarViewBtn === state.view;
+            btn.classList.toggle('btn-primary', isSel);
+            btn.classList.toggle('btn-outline-secondary', !isSel);
         });
 
         if (elSidebar) {
             const sorted = [...state.events].sort((a, b) => String(a.start).localeCompare(String(b.start)));
             elSidebar.innerHTML = sorted.slice(0, 10).map((e) => `
-                <a href="${e.url || 'javascript:void(0)'}" class="list-group-item list-group-item-action d-flex align-items-center gap-2">
-                    <span class="cal-dot" style="background:${e.color || '#2563EB'}"></span>
-                    <span class="min-w-0">
-                        <span class="d-block text-truncate fw-500">${e.title}</span>
+                <a href="${e.url || 'javascript:void(0)'}" class="list-group-item list-group-item-action d-flex align-items-center gap-2 py-2">
+                    <span class="cal-dot rounded-circle flex-shrink-0" style="width:10px;height:10px;background:${e.color || '#2563EB'}"></span>
+                    <span class="min-w-0 flex-grow-1">
+                        <span class="d-block text-truncate fw-500 fs-sm text-body">${e.title}</span>
                         <span class="d-block fs-xs text-muted">${String(e.start || '').slice(0, 10)}${e.project ? ` · ${e.project}` : ''}</span>
                     </span>
-                </a>`).join('') || '<div class="p-3 text-muted fs-sm text-center">No events in view</div>';
+                </a>`).join('') || '<div class="p-3 text-muted fs-sm text-center">No upcoming events</div>';
         }
     }
 
-    elView.forEach((btn) => {
+    elViewBtns.forEach((btn) => {
         btn.addEventListener('click', () => {
-            state.view = btn.dataset.calendarView;
+            state.view = btn.dataset.calendarViewBtn;
             load();
         });
     });

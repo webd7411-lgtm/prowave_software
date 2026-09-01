@@ -39,7 +39,7 @@ class StoreUserRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:2000'],
             'status' => ['required', Rule::in(['active', 'inactive', 'suspended'])],
             'roles' => ['nullable', 'array'],
-            'roles.*' => ['exists:roles,id'],
+            'roles.*' => ['nullable'],
         ];
     }
 

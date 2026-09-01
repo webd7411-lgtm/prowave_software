@@ -82,22 +82,6 @@
                                 </a>
                             </li>
                         @endcan
-                        @can('time_tracking.view')
-                            <li>
-                                <a href="{{ route('projects.time.index') }}" class="nav-link {{ request()->routeIs('projects.time.*') ? 'active' : '' }}">
-                                    <i class="bi bi-stopwatch"></i>
-                                    <span class="nav-text">Time Tracking</span>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('project_team.view')
-                            <li>
-                                <a href="{{ route('projects.workload') }}" class="nav-link {{ request()->routeIs('projects.workload') ? 'active' : '' }}">
-                                    <i class="bi bi-person-lines-fill"></i>
-                                    <span class="nav-text">Team Workload</span>
-                                </a>
-                            </li>
-                        @endcan
                         @can('project_reports.view')
                             <li>
                                 <a href="{{ route('projects.reports.index') }}" class="nav-link {{ request()->routeIs('projects.reports.*') ? 'active' : '' }}">
@@ -110,12 +94,13 @@
                 </li>
             @endcanany
 
-            @canany(['leads.view', 'clients.view', 'followups.view', 'quotations.view', 'invoices.view', 'payments.view', 'ledger.view'])
+            @canany(['crm_dashboard.view', 'leads.view', 'clients.view', 'followups.view', 'quotations.view', 'invoices.view', 'payments.view', 'ledger.view'])
                 <div class="nav-section">CRM</div>
                 <li class="nav-item has-submenu {{ request()->routeIs('crm.*') ? 'open' : '' }}" id="menu-crm">
                     <a href="javascript:void(0)" class="nav-link {{ request()->routeIs('crm.*') ? 'active' : '' }}"><i class="bi bi-briefcase"></i><span class="nav-text">CRM</span><i class="bi bi-chevron-down chevron"></i></a>
                     <ul class="nav-submenu">
-                        @can('leads.view')<li><a href="{{ route('crm.dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i><span class="nav-text">CRM Dashboard</span></a></li><li><a href="{{ route('crm.leads.index') }}" class="nav-link"><i class="bi bi-person-lines-fill"></i><span class="nav-text">Leads</span></a></li>@endcan
+                        @can('crm_dashboard.view')<li><a href="{{ route('crm.dashboard') }}" class="nav-link"><i class="bi bi-speedometer2"></i><span class="nav-text">CRM Dashboard</span></a></li>@endcan
+                        @can('leads.view')<li><a href="{{ route('crm.leads.index') }}" class="nav-link"><i class="bi bi-person-lines-fill"></i><span class="nav-text">Leads</span></a></li>@endcan
                         @can('clients.view')<li><a href="{{ route('crm.clients.index') }}" class="nav-link"><i class="bi bi-buildings"></i><span class="nav-text">Clients</span></a></li>@endcan
                         @can('followups.view')<li><a href="{{ route('crm.followups.index') }}" class="nav-link"><i class="bi bi-calendar-check"></i><span class="nav-text">Follow-ups</span></a></li>@endcan
                         @can('quotations.view')<li><a href="{{ route('crm.quotations.index') }}" class="nav-link"><i class="bi bi-file-earmark-text"></i><span class="nav-text">Quotations</span></a></li>@endcan

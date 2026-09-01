@@ -121,7 +121,7 @@ if (! function_exists('is_active_sidebar')) {
 if (! function_exists('app_name')) {
     function app_name(): string
     {
-        return config('app.name', 'Prowave ERP');
+        return config('app.name', 'Prowave Technologies');
     }
 }
 

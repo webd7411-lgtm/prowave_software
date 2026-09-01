@@ -13,8 +13,16 @@
 
 @php
     $id = $id ?? $name;
-    $hasError = $errors->has($name);
+    $hasError = $errors->has($name) || $errors->has($name . '.*');
     $selected = old($name, $selected);
+
+    // Normalize selected values to an array of strings for robust comparison
+    if ($selected instanceof \Illuminate\Support\Collection) {
+        $selected = $selected->all();
+    }
+    $selectedArray = is_array($selected)
+        ? array_map('strval', $selected)
+        : ($selected !== null ? [(string) $selected] : []);
 @endphp
 
 <div class="mb-3">
@@ -46,11 +54,11 @@
             @if (is_array($optionLabel))
                 <optgroup label="{{ $optionValue }}">
                     @foreach ($optionLabel as $subValue => $subLabel)
-                        <option value="{{ $subValue }}" @selected(in_array($subValue, (array) $selected))>{{ $subLabel }}</option>
+                        <option value="{{ $subValue }}" @selected(in_array((string) $subValue, $selectedArray))>{{ $subLabel }}</option>
                     @endforeach
                 </optgroup>
             @else
-                <option value="{{ $optionValue }}" @selected(in_array($optionValue, (array) $selected))>{{ $optionLabel }}</option>
+                <option value="{{ $optionValue }}" @selected(in_array((string) $optionValue, $selectedArray))>{{ $optionLabel }}</option>
             @endif
         @endforeach
     </select>

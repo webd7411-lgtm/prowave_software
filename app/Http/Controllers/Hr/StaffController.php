@@ -14,6 +14,7 @@ use App\Models\Designation;
 use App\Models\Shift;
 use App\Models\User;
 use App\Repositories\EmployeeRepository;
+use App\Repositories\RoleRepository;
 use App\Services\Admin\UserService;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +29,7 @@ class StaffController extends Controller
         protected EmployeeRepository $repository,
         protected UserService $service,
         protected AuditService $audit,
+        protected RoleRepository $roles,
     ) {}
 
     public function index(Request $request): View
@@ -65,12 +67,16 @@ class StaffController extends Controller
             'managers' => $this->repository->employeesOptions(),
             'statuses' => EmployeeStatus::options(),
             'employmentTypes' => EmploymentType::options(),
+            'roles' => $this->roles->all(),
         ]);
     }
 
     public function store(StoreStaffRequest $request): RedirectResponse
     {
         $data = $request->validated();
+
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
 
         $data['password'] = Hash::make($data['password']);
         $data['employee_status'] = $data['employee_status'] ?? EmployeeStatus::Active->value;
@@ -79,6 +85,7 @@ class StaffController extends Controller
         $data['created_by'] = auth()->id();
 
         $employee = User::create($data);
+        $employee->syncRoles(\Spatie\Permission\Models\Role::whereIn('id', $roles)->get());
 
         $this->audit->log('Staff member created', 'hr', $employee, event: 'created');
 
@@ -128,12 +135,16 @@ class StaffController extends Controller
             'managers' => $this->repository->employeesOptions(),
             'statuses' => EmployeeStatus::options(),
             'employmentTypes' => EmploymentType::options(),
+            'roles' => $this->roles->all(),
         ]);
     }
 
     public function update(UpdateStaffRequest $request, User $staff): RedirectResponse
     {
         $data = $request->validated();
+
+        $roles = $data['roles'] ?? [];
+        unset($data['roles']);
 
         if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -146,6 +157,7 @@ class StaffController extends Controller
         $data['updated_by'] = auth()->id();
 
         $staff->update($data);
+        $staff->syncRoles(\Spatie\Permission\Models\Role::whereIn('id', $roles)->get());
 
         $this->audit->log('Staff member updated', 'hr', $staff, event: 'updated');
 

@@ -20,7 +20,7 @@ class StoreStaffRequest extends FormRequest
             'employee_id' => ['nullable', 'string', 'max:50', 'unique:users,employee_id'],
             'password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[a-zA-Z]/', 'regex:/[0-9]/'],
             'father_name' => ['nullable', 'string', 'max:255'],
-            'gender' => ['nullable', Rule::in(['male', 'female', 'other'])],
+            'gender' => ['nullable', Rule::in(['male', 'female'])],
             'dob' => ['nullable', 'date', 'before:today'],
             'cnic' => ['nullable', 'string', 'max:30', 'unique:users,cnic'],
             'phone' => ['nullable', 'string', 'max:30'],
@@ -37,6 +37,8 @@ class StoreStaffRequest extends FormRequest
             'emergency_contact' => ['nullable', 'string', 'max:255'],
             'emergency_phone' => ['nullable', 'string', 'max:30'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'roles' => ['nullable', 'array'],
+            'roles.*' => ['exists:roles,id'],
         ];
     }
 

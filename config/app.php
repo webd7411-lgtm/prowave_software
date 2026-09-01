@@ -20,11 +20,11 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Prowave ERP'),
+    'name' => env('APP_NAME', 'Prowave Technologies'),
 
     'version' => env('APP_VERSION', '1.0.0'),
 
-    'description' => env('APP_DESCRIPTION', 'Prowave ERP — Enterprise Management System'),
+    'description' => env('APP_DESCRIPTION', 'Prowave Technologies — Enterprise Management System'),
 
     /*
     |--------------------------------------------------------------------------

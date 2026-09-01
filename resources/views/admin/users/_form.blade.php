@@ -47,10 +47,10 @@
                     <x-form.select
                         label="Roles"
                         name="roles"
-                        :options="$roles->pluck('name', 'id')->all()"
-                        :selected="$user?->roles->pluck('id')->all()"
-                        multiple
-                        select2
+                        :options="$roles instanceof \Illuminate\Support\Collection ? $roles->pluck('name', 'id')->all() : $roles"
+                        :selected="$user ? $user->roles->pluck('id')->merge($user->roles->pluck('name'))->all() : []"
+                        :multiple="true"
+                        :select2="true"
                         placeholder="Select one or more roles"
                     />
                 </div>

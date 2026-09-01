@@ -135,7 +135,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Follow-up Date</label>
-                                <input type="date" name="follow_up_date" value="{{ $meeting->follow_up_date?->format('Y-m-d') }}" class="form-control">
+                                <input type="date" name="follow_up_date" value="{{ $meeting->follow_up_date ? ($meeting->follow_up_date instanceof \DateTimeInterface ? $meeting->follow_up_date->format('Y-m-d') : \Carbon\Carbon::parse($meeting->follow_up_date)->format('Y-m-d')) : '' }}" class="form-control">
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Meeting Notes</label>
@@ -247,12 +247,32 @@
                                     </select>
                                 </div>
                                 <div class="col-12">
-                                    <label class="form-label">Participants</label>
-                                    <select name="participant_ids[]" class="form-select select2" multiple data-placeholder="Select participants">
-                                        @foreach ($users as $user)
-                                            <option value="{{ $user->id }}" {{ in_array($user->id, (array) ($meeting->participant_ids ?? [])) ? 'selected' : '' }}>{{ $user->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="d-flex align-items-center justify-content-between mb-1">
+                                        <label class="form-label fw-500 mb-0">Select Participants</label>
+                                        <span class="fs-xs text-muted" id="edit_selected_count">{{ count((array) ($meeting->participant_ids ?? [])) }} selected</span>
+                                    </div>
+                                    <div class="card p-2 border shadow-none bg-body-tertiary">
+                                        <div class="input-group input-group-sm mb-2">
+                                            <span class="input-group-text bg-transparent border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                            <input type="text" class="form-control form-control-sm border-start-0 participant-search-input" data-target="#edit_participants_list" placeholder="Search team member by name...">
+                                        </div>
+                                        <div class="participant-scroll-list overflow-auto pe-1" id="edit_participants_list" style="max-height: 180px;">
+                                            @foreach ($users as $user)
+                                                @php $checked = in_array($user->id, (array) ($meeting->participant_ids ?? [])); @endphp
+                                                <div class="participant-item d-flex align-items-center p-2 rounded hover-bg-light border mb-1 bg-surface" data-name="{{ strtolower($user->name) }}">
+                                                    <div class="form-check m-0 w-100 d-flex align-items-center justify-content-between cursor-pointer">
+                                                        <div class="d-flex align-items-center">
+                                                            <input class="form-check-input me-2 participant-checkbox" type="checkbox" name="participant_ids[]" value="{{ $user->id }}" id="edit_user_{{ $user->id }}" {{ $checked ? 'checked' : '' }} data-counter="#edit_selected_count">
+                                                            <label class="form-check-label fw-500 cursor-pointer text-body mb-0" for="edit_user_{{ $user->id }}">
+                                                                {{ $user->name }}
+                                                            </label>
+                                                        </div>
+                                                        <span class="badge bg-secondary-soft text-muted fs-xs">{{ $user->job_title ?: ($user->relationLoaded('roles') && $user->roles->first() ? $user->roles->first()->name : 'Staff') }}</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label">Agenda</label>

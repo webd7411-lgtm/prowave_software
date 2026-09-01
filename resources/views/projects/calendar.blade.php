@@ -51,7 +51,7 @@
                                     @if($evt['type'] === 'Task')
                                         <span class="badge bg-primary-subtle text-primary fs-xs"><i class="bi bi-check2-square me-1"></i>Task</span>
                                     @else
-                                        
+                                        <span class="badge bg-success-subtle text-success fs-xs"><i class="bi bi-folder-symlink me-1"></i>Project</span>
                                     @endif
                                 </td>
                                 <td class="fw-bold text-dark">{{ $evt['title'] }}</td>

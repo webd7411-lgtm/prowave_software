@@ -24,7 +24,26 @@ class ProjectCalendarController extends Controller
 
         $tasks = $taskQuery->whereNotNull('deadline')->get();
 
+        $projectQuery = Project::whereNotNull('deadline');
+        if ($selectedProjectId) {
+            $projectQuery->where('id', $selectedProjectId);
+        }
+        $projectsWithDeadlines = $projectQuery->get();
+
         $events = [];
+
+        foreach ($projectsWithDeadlines as $proj) {
+            $events[] = [
+                'id' => 'proj_' . $proj->id,
+                'title' => '[Project] ' . $proj->name,
+                'start' => $proj->deadline->format('Y-m-d'),
+                'url' => route('projects.show', $proj),
+                'className' => 'bg-success text-white fw-bold',
+                'type' => 'Project',
+                'status' => $proj->status,
+                'project_name' => $proj->name,
+            ];
+        }
 
         foreach ($tasks as $task) {
             $events[] = [

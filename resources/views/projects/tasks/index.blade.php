@@ -101,7 +101,6 @@
                         <th>Priority</th>
                         <th>Status</th>
                         <th>Deadline</th>
-                        <th>Est / Act Hours</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -113,7 +112,6 @@
                                 <a href="{{ route('projects.tasks.show', $task) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                     {{ $task->title }}
                                 </a>
-
                             </td>
                             <td>
                                 <a href="{{ route('projects.show', $task->project) }}" class="text-secondary text-decoration-none hover-primary fw-medium">
@@ -128,11 +126,16 @@
                                 @endif
                             </td>
                             <td><span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }}</span></td>
-                            <td><span class="badge {{ $task->status_badge_class }} fs-xs">{{ $task->status }}</span></td>
-                            <td class="{{ $task->deadline && $task->deadline->isPast() && $task->status !== 'Completed' ? 'text-danger fw-bold' : '' }}">
-                                {{ $task->deadline ? $task->deadline->format('M d, Y') : 'No deadline' }}
+                            <td>
+                                <select class="form-select form-select-sm task-status-dropdown border-0 bg-light shadow-sm rounded-2 fw-semibold fs-xs" data-task-id="{{ $task->id }}" style="min-width: 125px;">
+                                    @foreach(['To Do', 'In Progress', 'Review', 'Testing', 'Completed', 'On Hold', 'Cancelled'] as $st)
+                                        <option value="{{ $st }}" {{ $task->status === $st ? 'selected' : '' }}>{{ $st }}</option>
+                                    @endforeach
+                                </select>
                             </td>
-                            <td>{{ $task->estimated_hours }} / {{ $task->actual_hours }} hrs</td>
+                            <td class="{{ $task->deadline && $task->deadline->isPast() && $task->status !== 'Completed' ? 'text-danger fw-bold' : '' }}">
+                                {{ $task->deadline ? $task->deadline->format('M d, Y — h:i A') : 'No deadline' }}
+                            </td>
                             <td class="text-end">
                                 <a href="{{ route('projects.tasks.show', $task) }}" class="btn btn-sm btn-light" title="View Task"><i class="bi bi-eye"></i></a>
                                 @can('project_tasks.delete')
@@ -146,7 +149,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5 text-muted">No tasks found matching your filter criteria.</td>
+                            <td colspan="8" class="text-center py-5 text-muted">No tasks found matching your filter criteria.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -198,7 +201,7 @@
                         </select>
                     </div>
 
-                    <div class="col-6 col-md-3">
+                    <div class="col-6 col-md-2">
                         <label class="form-label fw-semibold fs-sm">Priority</label>
                         <select name="priority" class="form-select">
                             <option value="Low">Low</option>
@@ -208,9 +211,14 @@
                         </select>
                     </div>
 
-                    <div class="col-6 col-md-3">
-                        <label class="form-label fw-semibold fs-sm">Deadline</label>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label fw-semibold fs-sm">Deadline Date</label>
                         <input type="date" name="deadline" class="form-control">
+                    </div>
+
+                    <div class="col-6 col-md-2">
+                        <label class="form-label fw-semibold fs-sm">Time</label>
+                        <input type="time" name="deadline_time" class="form-control" value="18:00">
                     </div>
 
                     <div class="col-12">
@@ -226,4 +234,40 @@
         </form>
     </div>
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.task-status-dropdown').forEach(function (select) {
+        select.addEventListener('change', function () {
+            const taskId = this.getAttribute('data-task-id');
+            const newStatus = this.value;
+
+            fetch(`/projects/tasks/${taskId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ status: newStatus })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (window.toastr) {
+                        toastr.success(data.message || 'Task status updated');
+                    }
+                } else {
+                    alert(data.message || 'Failed to update status');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+            });
+        });
+    });
+});
+</script>
+@endpush
 @endsection

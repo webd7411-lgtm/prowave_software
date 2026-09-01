@@ -34,7 +34,7 @@
         <div class="card-body p-3">
             <form method="GET" action="{{ $project ? route('projects.tasks.kanban', $project) : route('projects.tasks.kanban') }}" class="row g-2 align-items-center">
                 @if(!$project)
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                         <select name="project_id" class="form-select form-select-sm" onchange="this.form.submit()">
                             <option value="">All Projects</option>
                             @foreach($projects as $p)
@@ -44,7 +44,7 @@
                     </div>
                 @endif
 
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-2">
                     <select name="assigned_to" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">All Assignees</option>
                         @foreach($users as $u)
@@ -53,7 +53,7 @@
                     </select>
                 </div>
 
-                <div class="col-6 col-md-3">
+                <div class="col-6 col-md-2">
                     <select name="priority" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">All Priorities</option>
                         @foreach(['Low', 'Medium', 'High', 'Urgent'] as $pr)
@@ -62,9 +62,27 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-md-2 text-end">
-                    @if(request()->anyFilled(['project_id', 'assigned_to', 'priority']))
-                        <a href="{{ $project ? route('projects.tasks.kanban', $project) : route('projects.tasks.kanban') }}" class="btn btn-sm btn-light text-muted">Clear Filters</a>
+                <div class="col-6 col-md-2">
+                    <select name="filter" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="">All Deadlines</option>
+                        <option value="today" {{ request('filter') === 'today' ? 'selected' : '' }}>Due Today</option>
+                        <option value="this_week" {{ request('filter') === 'this_week' ? 'selected' : '' }}>Due This Week</option>
+                        <option value="upcoming" {{ request('filter') === 'upcoming' ? 'selected' : '' }}>Upcoming</option>
+                        <option value="overdue" {{ request('filter') === 'overdue' ? 'selected' : '' }}>Overdue</option>
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-1-5">
+                    <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}" title="Deadline From Date" onchange="this.form.submit()">
+                </div>
+
+                <div class="col-6 col-md-1-5">
+                    <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}" title="Deadline To Date" onchange="this.form.submit()">
+                </div>
+
+                <div class="col-12 col-md-1 text-end">
+                    @if(request()->anyFilled(['project_id', 'assigned_to', 'priority', 'filter', 'date_from', 'date_to']))
+                        <a href="{{ $project ? route('projects.tasks.kanban', $project) : route('projects.tasks.kanban') }}" class="btn btn-sm btn-light text-muted" title="Clear Filters"><i class="bi bi-x-circle"></i> Clear</a>
                     @endif
                 </div>
             </form>
@@ -215,7 +233,7 @@
                     </div>
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-6">
+                    <div class="col-4">
                         <label class="form-label fw-semibold fs-sm">Status</label>
                         <select name="status" class="form-select">
                             <option value="To Do" selected>To Do</option>
@@ -225,9 +243,13 @@
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-                    <div class="col-6">
-                        <label class="form-label fw-semibold fs-sm">Deadline</label>
+                    <div class="col-4">
+                        <label class="form-label fw-semibold fs-sm">Deadline Date</label>
                         <input type="date" name="deadline" class="form-control">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label fw-semibold fs-sm">Time</label>
+                        <input type="time" name="deadline_time" class="form-control" value="18:00">
                     </div>
                 </div>
             </div>
@@ -248,8 +270,8 @@
                 const taskId = this.getAttribute('data-task-id');
                 const newStatus = this.value;
 
-                fetch(`{{ url('/projects/tasks') }}/${taskId}/status`, {
-                    method: 'POST',
+                fetch(`/projects/tasks/${taskId}/status`, {
+                    method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',

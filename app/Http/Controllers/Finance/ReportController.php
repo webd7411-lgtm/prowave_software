@@ -78,16 +78,16 @@ class ReportController extends Controller
 
     public function projectProfitability(Request $request): View
     {
-        $projects = Project::with(['client.invoices' => fn($q) => $q->where('status', '!=', 'draft')])
+        $projects = Project::with(['client'])
             ->withSum('expenses as total_expenses', 'amount')
             ->latest()
             ->paginate(20);
 
-        // Invoices are linked through the client, aggregate per project
         $projects->getCollection()->transform(function (Project $project) {
-            $invoices = $project->client?->invoices ?? collect();
+            $invoices = Invoice::where('project_id', $project->id)->where('status', '!=', 'draft')->get();
             $project->total_invoiced = (float) $invoices->sum('total');
-            $project->total_received = (float) $invoices->sum('paid_amount');
+            $rawReceived = (float) $invoices->sum('paid_amount');
+            $project->total_received = $project->budget > 0 ? min((float) $project->budget, $rawReceived) : $rawReceived;
             return $project;
         });
 

@@ -132,7 +132,7 @@
 
     <div class="report-header">
         <h2>Project Analytics & Financial Report</h2>
-        <p>Prowave ERP &mdash; Generated {{ now('Asia/Karachi')->format('M d, Y h:i A') }}</p>
+        <p>{{ setting('general.company_name', 'Prowave Technologies') }} &mdash; Generated {{ now('Asia/Karachi')->format('M d, Y h:i A') }}</p>
     </div>
 
     <div class="d-flex justify-content-between align-items-center report-meta">
@@ -191,9 +191,9 @@
                         </div>
                     </td>
                     @can('project_finance.view')
-                        <td class="fw-bold text-end">{{ number_format($project->budget, 2) }}</td>
-                        <td class="text-danger text-end">{{ number_format($expenses, 2) }}</td>
-                        <td class="fw-bold text-success text-end">{{ number_format($profit, 2) }}</td>
+                        <td class="fw-bold text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</td>
+                        <td class="text-danger text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expenses, 2) }}</td>
+                        <td class="fw-bold text-success text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($profit, 2) }}</td>
                     @endcan
                     <td>{{ $project->deadline ? $project->deadline->format('M d, Y') : 'N/A' }}</td>
                     <td>

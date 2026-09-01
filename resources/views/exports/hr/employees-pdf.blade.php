@@ -44,7 +44,7 @@
                     <td>{{ $employee->designation ?? '—' }}</td>
                     <td>{{ $employee->email }}</td>
                     <td>{{ $employee->joining_date?->format('d-m-Y') }}</td>
-                    <td>{{ $employee->employee_status ? \Illuminate\Support\Str::title(str_replace('_', ' ', $employee->employee_status)) : '—' }}</td>
+                    <td>{{ $employee->employee_status?->label() ?? '—' }}</td>
                 </tr>
             @endforeach
         </tbody>

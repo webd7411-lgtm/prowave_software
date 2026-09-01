@@ -77,7 +77,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/unread-count', [NotificationController::class, 'unreadCount'])->name('unread-count');
         Route::get('/recent', [NotificationController::class, 'recent'])->name('recent');
         Route::get('/{notification}/read', [NotificationController::class, 'markRead'])->name('read');
-        Route::post('/mark-all-read', [NotificationController::class, 'markAllRead'])->name('read-all');
+        Route::match(['GET', 'POST'], '/mark-all-read', [NotificationController::class, 'markAllRead'])->name('read-all');
         Route::post('/clear', [NotificationController::class, 'destroyAll'])->name('clear');
         Route::delete('/{notification}', [NotificationController::class, 'destroy'])->name('destroy');
     });
@@ -379,7 +379,7 @@ Route::middleware('permission:departments.view')->group(function () {
     });
 
     Route::prefix('crm')->name('crm.')->group(function () {
-        Route::get('/dashboard', CrmDashboardController::class)->middleware('permission:leads.view')->name('dashboard');
+        Route::get('/dashboard', CrmDashboardController::class)->middleware('permission:crm_dashboard.view')->name('dashboard');
         Route::middleware('permission:leads.view')->group(function () {
             Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
             Route::get('/leads/pipeline', [LeadController::class, 'pipeline'])->name('leads.pipeline');
@@ -398,6 +398,7 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
             Route::post('/leads/{lead}/move', [LeadController::class, 'move'])->middleware('permission:leads.edit')->name('leads.move');
             Route::post('/leads/{lead}/followups', [LeadController::class, 'followup'])->middleware('permission:followups.create')->name('leads.followups.store');
             Route::post('/leads/{lead}/convert', [LeadController::class, 'convert'])->middleware('permission:leads.convert')->name('leads.convert');
+            Route::post('/leads/bulk-delete', [LeadController::class, 'bulkDelete'])->middleware('permission:leads.delete')->name('leads.bulk-delete');
             Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->middleware('permission:leads.delete')->name('leads.destroy');
         });
         Route::middleware('permission:clients.view')->group(function () { Route::resource('clients', ClientController::class); Route::get('/clients/{client}/ledger', [FinanceController::class, 'ledger'])->middleware('permission:ledger.view')->name('clients.ledger'); });
@@ -407,10 +408,18 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
         Route::get('/quotations/create', [FinanceController::class, 'createQuotation'])->middleware('permission:quotations.create')->name('quotations.create');
         Route::post('/quotations', [FinanceController::class, 'storeQuotation'])->middleware('permission:quotations.create')->name('quotations.store');
         Route::get('/quotations/{quotation}', [FinanceController::class, 'showQuotation'])->middleware('permission:quotations.view')->name('quotations.show');
+        Route::get('/quotations/{quotation}/print', [FinanceController::class, 'printQuotation'])->middleware('permission:quotations.view')->name('quotations.print');
         Route::get('/quotations/{quotation}/edit', [FinanceController::class, 'editQuotation'])->middleware('permission:quotations.edit')->name('quotations.edit');
         Route::patch('/quotations/{quotation}', [FinanceController::class, 'updateQuotation'])->middleware('permission:quotations.edit')->name('quotations.update');
         Route::delete('/quotations/{quotation}', [FinanceController::class, 'destroyQuotation'])->middleware('permission:quotations.delete')->name('quotations.destroy');
         Route::get('/invoices', [FinanceController::class, 'invoices'])->middleware('permission:invoices.view')->name('invoices.index');
+        Route::get('/invoices/create', [FinanceController::class, 'createInvoice'])->middleware('permission:invoices.create')->name('invoices.create');
+        Route::post('/invoices', [FinanceController::class, 'storeInvoice'])->middleware('permission:invoices.create')->name('invoices.store');
+        Route::get('/invoices/{invoice}', [FinanceController::class, 'showInvoice'])->middleware('permission:invoices.view')->name('invoices.show');
+        Route::get('/invoices/{invoice}/print', [FinanceController::class, 'printInvoice'])->middleware('permission:invoices.view')->name('invoices.print');
+        Route::get('/invoices/{invoice}/edit', [FinanceController::class, 'editInvoice'])->middleware('permission:invoices.edit')->name('invoices.edit');
+        Route::patch('/invoices/{invoice}', [FinanceController::class, 'updateInvoice'])->middleware('permission:invoices.edit')->name('invoices.update');
+        Route::delete('/invoices/{invoice}', [FinanceController::class, 'destroyInvoice'])->middleware('permission:invoices.delete')->name('invoices.destroy');
         Route::get('/payments', [FinanceController::class, 'payments'])->middleware('permission:payments.view')->name('payments.index');
         Route::post('/payments', [FinanceController::class, 'storePayment'])->middleware('permission:payments.create')->name('payments.store');
     });
@@ -443,7 +452,7 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
         Route::post('/tasks', [ProjectTaskController::class, 'store'])->middleware('permission:project_tasks.create')->name('tasks.store');
         Route::get('/tasks/{task}', [ProjectTaskController::class, 'show'])->middleware('permission:project_tasks.view')->name('tasks.show');
         Route::patch('/tasks/{task}', [ProjectTaskController::class, 'update'])->middleware('permission:project_tasks.edit')->name('tasks.update');
-        Route::post('/tasks/{task}/status', [ProjectTaskController::class, 'updateStatus'])->middleware('permission:project_tasks.edit')->name('tasks.status');
+        Route::match(['POST', 'PATCH'], '/tasks/{task}/status', [ProjectTaskController::class, 'updateStatus'])->middleware('permission:project_tasks.edit')->name('tasks.status');
         Route::delete('/tasks/{task}', [ProjectTaskController::class, 'destroy'])->middleware('permission:project_tasks.delete')->name('tasks.destroy');
 
         // Comments
@@ -477,7 +486,7 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
     // ─── Finance Module ───────────────────────────────────────────────────────
     Route::prefix('finance')->name('finance.')->middleware('permission:finance.view')->group(function () {
 
-        Route::get('/dashboard', FinanceDashboardController::class)->middleware('permission:finance.dashboard')->name('dashboard');
+        Route::get('/dashboard', FinanceDashboardController::class)->middleware('permission:finance_dashboard.view')->name('dashboard');
 
         // Expenses
         Route::middleware('permission:expenses.view')->prefix('expenses')->name('expenses.')->group(function () {

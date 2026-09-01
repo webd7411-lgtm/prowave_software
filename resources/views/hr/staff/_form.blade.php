@@ -32,7 +32,7 @@
         </div>
 
         <div class="col-12 col-md-3">
-            <x-form.select label="Gender" name="gender" :selected="$employee?->gender?->value" placeholder="Select gender" :options="['male' => 'Male', 'female' => 'Female', 'other' => 'Other']" />
+            <x-form.select label="Gender" name="gender" :selected="$employee?->gender?->value" placeholder="Select gender" :options="['male' => 'Male', 'female' => 'Female']" />
         </div>
         <div class="col-12 col-md-3">
             <x-form.input label="Date of Birth" name="dob" type="date" :value="$employee?->dob?->format('Y-m-d')" icon="bi-calendar3" />
@@ -57,7 +57,28 @@
             <x-form.select label="Department" name="department_id" :options="$departments->pluck('name', 'id')" :selected="$employee?->department_id" placeholder="Select department" select2 />
         </div>
         <div class="col-12 col-md-4">
-            <x-form.select label="Designation" name="designation" :options="$designations->pluck('name', 'name')" :selected="$employee?->designation" placeholder="Select designation" select2 />
+            <div class="mb-3">
+                <label for="designation" class="form-label">
+                    Designation
+                </label>
+                <select
+                    id="designation"
+                    name="designation"
+                    class="form-select select2"
+                    data-placeholder="Select designation"
+                >
+                    <option value="">Select designation</option>
+                    @foreach ($designations as $designation)
+                        <option 
+                            value="{{ $designation->name }}" 
+                            data-department-id="{{ $designation->department_id }}"
+                            @selected(old('designation', $employee?->designation) === $designation->name)
+                        >
+                            {{ $designation->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         </div>
         <div class="col-12 col-md-4">
             <x-form.select label="Reporting Manager" name="reporting_manager_id" :options="$managers" :selected="$employee?->reporting_manager_id" placeholder="Select manager" select2 />
@@ -79,8 +100,18 @@
         <div class="col-12 col-md-3">
             <x-form.select label="Employee Status" name="employee_status" :options="$statuses" :selected="$employee?->employee_status?->value ?? 'active'" />
         </div>
-
-        <div class="col-12 col-md-9">
+        <div class="col-12 col-md-3">
+            <x-form.select
+                label="System Roles"
+                name="roles"
+                :options="$roles->pluck('name', 'id')->all()"
+                :selected="$employee?->roles->pluck('id')->all()"
+                :multiple="true"
+                :select2="true"
+                placeholder="Select one or more roles"
+            />
+        </div>
+        <div class="col-12 col-md-3">
             <x-form.input label="Emergency Contact" name="emergency_contact" :value="$employee?->emergency_contact" icon="bi-person-exclamation" placeholder="Name" />
         </div>
         <div class="col-12 col-md-3">
@@ -100,6 +131,21 @@
         </div>
         <div class="col-12 col-md-6">
             <x-form.input label="Confirm Password" name="password_confirmation" type="password" placeholder="Re-enter password" />
+        </div>
+
+        <div class="col-12 mt-2">
+            <div class="alert alert-soft-info border-0 mb-0 d-flex align-items-start gap-2">
+                <i class="bi bi-info-circle flex-shrink-0 mt-0.5"></i>
+                <div class="fs-sm">
+                    <strong>Password Requirements:</strong>
+                    <ul class="mb-0 ps-3 mt-1 small">
+                        <li>Minimum <strong>8 characters</strong></li>
+                        <li>At least <strong>one letter</strong> (a-z or A-Z)</li>
+                        <li>At least <strong>one number</strong> (0-9)</li>
+                        <li>Must match <strong>Confirm Password</strong> field exactly</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 </x-form>

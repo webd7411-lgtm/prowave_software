@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
             $unread = 0;
             $recent = collect();
 
-            if ($user && Schema::hasTable('notifications')) {
+            if ($user) {
                 try {
                     $unread = $user->unreadNotifications()->count();
                     $recent = $user->notifications()->latest()->limit(6)->get();
@@ -65,31 +65,21 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::directive('money', fn ($expression) => "<?php echo format_money($expression); ?>");
         Blade::directive('setting', fn ($expression) => "<?php echo e(setting($expression)); ?>");
-
-        Blade::directive('canany', function ($expression) {
-            return "<?php if(auth()->user()?->canAny([{$expression}])): ?>";
-        });
-
-        Blade::directive('endcanany', function () {
-            return '<?php endif; ?>';
-        });
     }
 
     protected function shareGlobalSettings(): void
     {
         try {
-            if (Schema::hasTable('settings')) {
-                $settings = Setting::allCached();
+            $settings = Setting::allCached();
 
-                view()->share('system_settings', $settings);
+            view()->share('system_settings', $settings);
 
-                if (isset($settings['general']['name'])) {
-                    config()->set('app.name', $settings['general']['name']);
-                }
+            if (isset($settings['general']['name'])) {
+                config()->set('app.name', $settings['general']['name']);
+            }
 
-                if (isset($settings['security']['session_lifetime'])) {
-                    config()->set('session.lifetime', (int) $settings['security']['session_lifetime']);
-                }
+            if (isset($settings['security']['session_lifetime'])) {
+                config()->set('session.lifetime', (int) $settings['security']['session_lifetime']);
             }
         } catch (\Throwable) {
             // Database is not ready yet (e.g. during migrations).

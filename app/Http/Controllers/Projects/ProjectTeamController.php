@@ -35,6 +35,15 @@ class ProjectTeamController extends Controller
         $user = User::find($validated['user_id']);
         ProjectActivity::log($project->id, 'Team member added', "Assigned {$user->name} as {$validated['role']}.");
 
+        if ($user) {
+            app(\App\Services\NotificationService::class)->send(
+                $user,
+                'Assigned to Project',
+                "You have been added to project '{$project->name}' as {$validated['role']}.",
+                ['category' => 'project', 'url' => route('projects.show', $project), 'color' => 'info']
+            );
+        }
+
         return redirect()->back()->with('toast', ['type' => 'success', 'message' => "{$user->name} assigned to project team."]);
     }
 

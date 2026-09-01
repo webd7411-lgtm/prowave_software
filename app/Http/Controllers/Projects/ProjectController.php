@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\ProjectRequest;
-use App\Models\{Project, Client, User, ProjectMember, ProjectTask, ProjectFile, ProjectActivity};
+use App\Models\{Project, Client, User, ProjectMember, ProjectTask, ProjectFile, ProjectActivity, ClientLedger, Payment};
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -123,6 +123,7 @@ class ProjectController extends Controller
         $validated['created_by'] = auth()->id();
         $validated['updated_by'] = auth()->id();
         $validated['budget'] = $validated['budget'] ?? 0;
+        $validated['currency'] = $validated['currency'] ?? setting('general.currency', 'PKR');
         $validated['estimated_hours'] = $validated['estimated_hours'] ?? 0;
         $validated['priority'] = $validated['priority'] ?? 'Medium';
 
@@ -148,7 +149,7 @@ class ProjectController extends Controller
                 $members,
                 'You were added to project '.$project->name,
                 $project->start_date ? 'Starts '.$project->start_date->format('M d, Y') : 'Project team assigned.',
-                ['category' => 'project', 'url' => route('projects.show', $project), 'color' => 'info']
+                ['category' => 'project', 'url' => route('projects.show', $project), 'color' => 'info', 'include_self' => true]
             );
         }
 
@@ -228,28 +229,23 @@ class ProjectController extends Controller
         $this->authorize('projects.view');
 
         $project->load([
-            'client.invoices.payments',
+            'client',
             'manager',
             'members.user',
             'tasks.assignedTo',
             'files.uploader',
             'timeEntries.user',
+            'timeEntries.task',
             'expenses.addedBy',
             'activities.user',
+            'payments.client',
         ]);
 
         $users = User::where('status', 'active')->orderBy('name')->get();
 
-        // Financial metrics (for authorized users)
-        $invoiceAmount = 0;
-        $paidAmount = 0;
-        if ($project->client) {
-            // Calculate invoices & payments for client
-            $invoices = $project->client->invoices;
-            $invoiceAmount = $invoices->sum('total');
-            $paidAmount = $invoices->sum('paid_amount');
-        }
-        $outstandingAmount = max(0, $invoiceAmount - $paidAmount);
+        // Financial metrics
+        $paidAmount = $project->paid_amount;
+        $outstandingAmount = $project->remaining_balance;
         $totalExpenses = $project->expenses->sum('amount');
         $estimatedProfit = $project->budget - $totalExpenses;
         $actualProfit = $paidAmount - $totalExpenses;
@@ -267,7 +263,6 @@ class ProjectController extends Controller
         return view('projects.show', compact(
             'project',
             'users',
-            'invoiceAmount',
             'paidAmount',
             'outstandingAmount',
             'totalExpenses',
@@ -342,7 +337,7 @@ class ProjectController extends Controller
 
         return response()->stream(function () use ($projects) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['Project Code', 'Project Name', 'Client', 'Manager', 'Type', 'Start Date', 'Deadline', 'Priority', 'Status', 'Budget', 'Progress (%)', 'Health']);
+            fputcsv($handle, ['Project Code', 'Project Name', 'Client', 'Manager', 'Type', 'Start Date', 'Deadline', 'Priority', 'Status', 'Budget', 'Currency', 'Progress (%)', 'Health']);
 
             foreach ($projects as $project) {
                 fputcsv($handle, [
@@ -356,6 +351,7 @@ class ProjectController extends Controller
                     $project->priority,
                     $project->status,
                     $project->budget,
+                    $project->currency ?? setting('general.currency', 'PKR'),
                     $project->progress,
                     $project->health,
                 ]);
@@ -462,11 +458,11 @@ class ProjectController extends Controller
             $handle = fopen('php://output', 'w');
             fputcsv($handle, [
                 'Project Name *', 'Project Type', 'Description', 'Start Date', 'Deadline',
-                'Priority', 'Status', 'Budget', 'Estimated Hours', 'Notes'
+                'Priority', 'Status', 'Budget', 'Currency', 'Estimated Hours', 'Notes'
             ]);
             fputcsv($handle, [
                 'E-commerce Platform', 'Web Application', 'Build a modern online store', '2026-09-01', '2026-12-31',
-                'Medium', 'In Progress', '500000', '160', 'Initial phase approved.'
+                'Medium', 'In Progress', '500000', 'PKR', '160', 'Initial phase approved.'
             ]);
             fclose($handle);
         }, 'projects-import-template.csv', ['Content-Type' => 'text/csv']);
@@ -493,6 +489,7 @@ class ProjectController extends Controller
             'priority' => ['priority'],
             'status' => ['status'],
             'budget' => ['budget', 'cost'],
+            'currency' => ['currency', 'currency_code'],
             'estimated_hours' => ['estimated hours', 'estimated_hours', 'hours'],
             'notes' => ['notes', 'remarks', 'comment'],
         ];
@@ -546,6 +543,7 @@ class ProjectController extends Controller
             }
 
             $data['budget'] = is_numeric($data['budget'] ?? null) ? $data['budget'] : 0;
+            $data['currency'] = !empty($data['currency']) ? strtoupper(trim($data['currency'])) : setting('general.currency', 'PKR');
             $data['estimated_hours'] = is_numeric($data['estimated_hours'] ?? null) ? $data['estimated_hours'] : 0;
             $data['progress'] = $data['status'] === 'Completed' ? 100 : 0;
             $data['project_code'] = Project::generateCode();

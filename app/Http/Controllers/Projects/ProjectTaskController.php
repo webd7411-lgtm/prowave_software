@@ -20,6 +20,12 @@ class ProjectTaskController extends Controller
         $query = ProjectTask::with(['project', 'assignedTo', 'assignedBy'])
             ->latest();
 
+        // Filter by permissions / own tasks scoping
+        $user = auth()->user();
+        if (! $user->can('project_tasks.allstaff_task') && ! $user->hasRole(['Super Admin', 'Administrator'])) {
+            $query->where('assigned_to', $user->id);
+        }
+
         // My Tasks filter view
         if ($request->get('view') === 'my') {
             $query->where('assigned_to', auth()->id());
@@ -82,6 +88,12 @@ class ProjectTaskController extends Controller
 
         $query = ProjectTask::with(['project', 'assignedTo', 'comments', 'attachments']);
 
+        // Filter by permissions / own tasks scoping
+        $user = auth()->user();
+        if (! $user->can('project_tasks.allstaff_task') && ! $user->hasRole(['Super Admin', 'Administrator'])) {
+            $query->where('assigned_to', $user->id);
+        }
+
         if ($selectedProjectId) {
             $query->where('project_id', $selectedProjectId);
         }
@@ -92,6 +104,32 @@ class ProjectTaskController extends Controller
 
         if ($request->filled('priority')) {
             $query->where('priority', $request->priority);
+        }
+
+        if ($request->filled('filter')) {
+            $today = now()->startOfDay();
+            switch ($request->filter) {
+                case 'today':
+                    $query->whereDate('deadline', $today);
+                    break;
+                case 'this_week':
+                    $query->whereBetween('deadline', [now()->startOfWeek(), now()->endOfWeek()]);
+                    break;
+                case 'upcoming':
+                    $query->whereDate('deadline', '>', $today);
+                    break;
+                case 'overdue':
+                    $query->where('status', '!=', 'Completed')->whereDate('deadline', '<', $today);
+                    break;
+            }
+        }
+
+        if ($request->filled('date_from')) {
+            $query->whereDate('deadline', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('deadline', '<=', $request->date_to);
         }
 
         $tasks = $query->orderBy('order')->latest()->get();
@@ -112,6 +150,11 @@ class ProjectTaskController extends Controller
         $this->authorize('project_tasks.create');
 
         $validated = $request->validated();
+        if (!empty($validated['deadline']) && $request->filled('deadline_time')) {
+            $validated['deadline'] = $validated['deadline'] . ' ' . $request->deadline_time;
+        }
+        unset($validated['deadline_time']);
+
         $validated['status'] = $validated['status'] ?? 'To Do';
         $validated['task_code'] = ProjectTask::generateCode();
         $validated['assigned_by'] = auth()->id();
@@ -139,11 +182,11 @@ class ProjectTaskController extends Controller
 
         $task->project->recalculateProgress();
 
-        if ($task->assigned_to && $task->assigned_to !== auth()->id()) {
+        if ($task->assigned_to && $task->assignedTo) {
             app(NotificationService::class)->send(
                 $task->assignedTo,
-                'Task assigned to you',
-                $task->title.' — '.$task->project->name.($task->deadline ? ' (due '.$task->deadline->format('M d, Y').')' : ''),
+                'Task assigned to you: '.$task->title,
+                $task->title.' — '.$task->project->name.($task->deadline ? ' (due '.$task->deadline->format('M d, Y h:i A').')' : ''),
                 ['category' => 'task', 'url' => route('projects.tasks.show', $task), 'color' => 'info']
             );
         }
@@ -165,6 +208,7 @@ class ProjectTaskController extends Controller
             'comments.user',
             'attachments.uploader',
             'timeEntries.user',
+            'timeEntries.task',
         ]);
 
         if (request()->wantsJson()) {
@@ -179,8 +223,14 @@ class ProjectTaskController extends Controller
         $this->authorize('project_tasks.edit');
 
         $validated = $request->validated();
+        if (!empty($validated['deadline']) && $request->filled('deadline_time')) {
+            $validated['deadline'] = $validated['deadline'] . ' ' . $request->deadline_time;
+        }
+        unset($validated['deadline_time']);
+
         $validated['updated_by'] = auth()->id();
         $oldStatus = $task->status;
+        $oldAssignedTo = $task->assigned_to;
 
         $task->update($validated);
 
@@ -190,13 +240,28 @@ class ProjectTaskController extends Controller
 
         $task->project->recalculateProgress();
 
-        if ($task->status === 'Completed') {
+        if ($task->assigned_to && $task->assignedTo && $oldAssignedTo != $task->assigned_to) {
+            app(NotificationService::class)->send(
+                $task->assignedTo,
+                'Task assigned to you: '.$task->title,
+                $task->title.' — '.$task->project->name.($task->deadline ? ' (due '.$task->deadline->format('M d, Y h:i A').')' : ''),
+                ['category' => 'task', 'url' => route('projects.tasks.show', $task), 'color' => 'info']
+            );
+        }
+
+        if ($oldStatus !== $task->status) {
+            ProjectActivity::log($task->project_id, 'Task status changed', "Task '{$task->title}' status changed to {$task->status}.", 'ProjectTask', $task->id);
+        }
+
+        $task->project->recalculateProgress();
+
+        if ($oldStatus !== 'Completed' && $task->status === 'Completed') {
             $assigner = $task->assignedBy;
-            if ($assigner && $assigner->id !== auth()->id()) {
+            if ($assigner) {
                 app(NotificationService::class)->send(
                     $assigner,
-                    'Task completed',
-                    $task->assignedTo?->name.' completed "'.$task->title.'" in '.$task->project->name.'.',
+                    'Task completed: ' . $task->title,
+                    ($task->assignedTo?->name ?? 'User') . ' completed task "' . $task->title . '" in ' . $task->project->name . '.',
                     ['category' => 'task', 'url' => route('projects.tasks.show', $task), 'color' => 'success']
                 );
             }
@@ -223,6 +288,18 @@ class ProjectTaskController extends Controller
         ProjectActivity::log($task->project_id, 'Task status changed', "Task '{$task->title}' moved from {$oldStatus} to {$task->status}.", 'ProjectTask', $task->id);
 
         $task->project->recalculateProgress();
+
+        if ($oldStatus !== 'Completed' && $task->status === 'Completed') {
+            $assigner = $task->assignedBy;
+            if ($assigner) {
+                app(NotificationService::class)->send(
+                    $assigner,
+                    'Task completed: ' . $task->title,
+                    ($task->assignedTo?->name ?? 'User') . ' completed task "' . $task->title . '" in ' . $task->project->name . '.',
+                    ['category' => 'task', 'url' => route('projects.tasks.show', $task), 'color' => 'success']
+                );
+            }
+        }
 
         if ($request->wantsJson()) {
             return response()->json([

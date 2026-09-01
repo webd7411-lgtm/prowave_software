@@ -4,8 +4,48 @@
 
 @push('styles')
 <style>
-    .client-form .form-label {
-        color: #64748b;
+    .form-label, label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.35rem;
+    }
+    html[data-theme="dark"] .form-label,
+    html[data-theme="dark"] label,
+    html[data-bs-theme="dark"] .form-label,
+    html[data-bs-theme="dark"] label,
+    body[data-user-theme="dark"] .form-label,
+    body[data-user-theme="dark"] label,
+    .client-form .form-label,
+    .client-form label {
+        color: #ffffff !important;
+    }
+    html[data-theme="light"] .form-label,
+    html[data-theme="light"] label {
+        color: #1e293b !important;
+    }
+    html[data-theme="dark"] .form-control,
+    html[data-theme="dark"] .form-select,
+    html[data-bs-theme="dark"] .form-control,
+    html[data-bs-theme="dark"] .form-select,
+    body[data-user-theme="dark"] .form-control,
+    body[data-user-theme="dark"] .form-select,
+    body[data-user-theme="dark"] input,
+    body[data-user-theme="dark"] textarea,
+    body[data-user-theme="dark"] select {
+        color: #ffffff !important;
+        background-color: #1a233a !important;
+        border-color: #2e3e62 !important;
+    }
+    html[data-theme="dark"] .form-control::placeholder,
+    html[data-bs-theme="dark"] .form-control::placeholder,
+    body[data-user-theme="dark"] .form-control::placeholder {
+        color: #94a3b8 !important;
+    }
+    html[data-theme="dark"] select option,
+    html[data-bs-theme="dark"] select option,
+    body[data-user-theme="dark"] select option {
+        background-color: #1a233a !important;
+        color: #ffffff !important;
     }
 </style>
 @endpush

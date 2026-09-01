@@ -13,23 +13,34 @@ export function initForms() {
     initSelect2();
     initFlatpickr();
     initModalSelect2();
+    initParticipantCheckboxes();
+    initDepartmentDesignationFilter();
 }
 
 function initModalSelect2() {
-    const modal = document.getElementById('meetingModal');
-    if (!modal) return;
+    // Prevent Bootstrap modal from trapping focus away from Select2 search inputs
+    document.addEventListener('focusin', (e) => {
+        if (e.target.closest && e.target.closest('.select2-container')) {
+            e.stopPropagation();
+        }
+    }, true);
 
-    modal.addEventListener('shown.bs.modal', () => {
-        $(modal).find('.meeting-select2').each(function () {
-            if (!$(this).hasClass('select2-hidden-accessible')) {
-                $(this).select2({
-                    theme: 'bootstrap-5',
-                    width: '100%',
-                    allowClear: true,
-                    placeholder: $(this).data('placeholder') || 'Select an option',
-                    dropdownParent: $(modal),
-                });
-            }
+    document.querySelectorAll('.modal').forEach((modal) => {
+        modal.addEventListener('shown.bs.modal', () => {
+            $(modal).find('.select2, .meeting-select2').each(function () {
+                if (!$(this).hasClass('select2-hidden-accessible')) {
+                    const isMultiple = $(this).prop('multiple');
+                    $(this).select2({
+                        theme: 'bootstrap-5',
+                        width: '100%',
+                        allowClear: !isMultiple,
+                        placeholder: $(this).data('placeholder') || 'Select an option',
+                        dropdownParent: $(modal),
+                        closeOnSelect: !isMultiple,
+                        minimumResultsForSearch: 0,
+                    });
+                }
+            });
         });
     });
 }
@@ -80,8 +91,6 @@ function initLoadingButtons() {
             button.innerHTML = '';
             button.append(spinner, button.dataset.loadingText || 'Processing...');
 
-            // Defer disabling until after the submit event so the form
-            // actually fires — disabling synchronously can cancel submission.
             setTimeout(() => { button.disabled = true; }, 0);
         });
     });
@@ -103,12 +112,25 @@ function initAutoDismissErrors() {
 }
 
 function initSelect2() {
-    $(document).find('select.select2').each(function () {
+    // Prevent Enter key in Select2 search input from submitting the form unexpectedly
+    $(document).on('keydown', '.select2-search__field', function (e) {
+        if (e.which === 13) {
+            e.stopPropagation();
+        }
+    });
+
+    $(document).find('select.select2:not(.select2-hidden-accessible)').each(function () {
+        if ($(this).closest('.modal').length) {
+            return;
+        }
+        const isMultiple = $(this).prop('multiple');
         $(this).select2({
             theme: 'bootstrap-5',
             width: '100%',
-            allowClear: true,
+            allowClear: !isMultiple,
             placeholder: $(this).data('placeholder') || 'Select an option',
+            closeOnSelect: !isMultiple,
+            minimumResultsForSearch: 0,
         });
     });
 }
@@ -126,4 +148,83 @@ function initFlatpickr() {
             enableTime: element.dataset.flatpickrTime === 'true',
         });
     });
+}
+
+function initParticipantCheckboxes() {
+    document.addEventListener('input', (e) => {
+        if (e.target.matches('.participant-search-input')) {
+            const query = e.target.value.toLowerCase().trim();
+            const container = document.querySelector(e.target.dataset.target);
+            if (!container) return;
+
+            container.querySelectorAll('.participant-item').forEach((item) => {
+                const name = item.dataset.name || '';
+                item.style.display = name.includes(query) ? 'flex' : 'none';
+            });
+        }
+    });
+
+    document.addEventListener('change', (e) => {
+        if (e.target.matches('.participant-checkbox')) {
+            const counterSel = e.target.dataset.counter;
+            if (!counterSel) return;
+            const counterEl = document.querySelector(counterSel);
+            if (!counterEl) return;
+
+            const container = e.target.closest('.card');
+            const checkedCount = container ? container.querySelectorAll('.participant-checkbox:checked').length : 0;
+            counterEl.textContent = `${checkedCount} selected`;
+        }
+    });
+}
+
+function initDepartmentDesignationFilter() {
+    const $departmentSelect = $('#department_id');
+    const $designationSelect = $('#designation');
+
+    if ($departmentSelect.length && $designationSelect.length) {
+        // Keep a copy of all original designation options
+        const originalOptions = $designationSelect.find('option').clone();
+
+        function filterDesignations() {
+            const deptId = $departmentSelect.val();
+            
+            // Destroy Select2 before modifying options
+            if ($designationSelect.hasClass('select2-hidden-accessible')) {
+                $designationSelect.select2('destroy');
+            }
+
+            // Clear designation select
+            $designationSelect.empty();
+
+            // Re-append options
+            originalOptions.each(function() {
+                const optionDeptId = $(this).attr('data-department-id');
+                // Always append the empty option/placeholder
+                if (!$(this).val()) {
+                    $designationSelect.append($(this).clone());
+                } else if (!deptId || optionDeptId == deptId) {
+                    $designationSelect.append($(this).clone());
+                }
+            });
+
+            // Re-initialize Select2
+            $designationSelect.select2({
+                theme: 'bootstrap-5',
+                width: '100%',
+                placeholder: $designationSelect.data('placeholder') || 'Select designation',
+                allowClear: true,
+                minimumResultsForSearch: 0
+            });
+        }
+
+        // Run filter on load to handle pre-selected values
+        filterDesignations();
+
+        // Listen for changes on department select
+        $departmentSelect.on('change', function() {
+            filterDesignations();
+            $designationSelect.val('').trigger('change.select2');
+        });
+    }
 }

@@ -88,14 +88,44 @@ export function initDataTables() {
                     pageSize: 'A4',
                     exportOptions: { columns: ':visible' },
                     customize(doc) {
-                        doc.defaultStyle.fontSize = 8;
+                        doc.defaultStyle.fontSize = 9;
                         doc.styles.tableHeader = {
                             fillColor: '#2563EB',
                             color: '#ffffff',
                             bold: true,
-                            fontSize: 8,
+                            fontSize: 10,
+                            alignment: 'left',
+                            margin: [4, 4, 4, 4],
                         };
-                        doc.defaultStyle = { ...doc.defaultStyle, fontSize: 8 };
+                        // Ensure title is styled and centered
+                        if (doc.content[0] && doc.content[0].text) {
+                            doc.content[0].alignment = 'center';
+                            doc.content[0].fontSize = 16;
+                            doc.content[0].bold = true;
+                            doc.content[0].margin = [0, 0, 0, 20];
+                        }
+                        // Make table 100% width
+                        if (doc.content[1] && doc.content[1].table) {
+                            const colCount = doc.content[1].table.body[0].length;
+                            doc.content[1].table.widths = Array(colCount).fill('*');
+                            
+                            // Apply subtle padding to all table cells
+                            doc.content[1].table.body.forEach(row => {
+                                row.forEach(cell => {
+                                    if (typeof cell === 'object' && cell !== null) {
+                                        cell.margin = [4, 4, 4, 4];
+                                    }
+                                });
+                            });
+                        }
+                        
+                        // Add alternate row shading
+                        doc.styles.tableBodyOdd = {
+                            fillColor: '#f8f9fa'
+                        };
+                        doc.styles.tableBodyEven = {
+                            fillColor: '#ffffff'
+                        };
                     },
                 },
                 {

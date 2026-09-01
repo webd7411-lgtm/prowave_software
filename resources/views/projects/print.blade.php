@@ -31,7 +31,7 @@
 
     <div class="report-header">
         <h2>Projects Report</h2>
-        <p>Prowave ERP — Generated {{ now('Asia/Karachi')->format('M d, Y h:i A') }}</p>
+        <p>{{ setting('general.company_name', 'Prowave Technologies') }} — Generated {{ now('Asia/Karachi')->format('M d, Y h:i A') }}</p>
     </div>
 
     <div class="row g-3 mb-3">

@@ -26,7 +26,10 @@
                             <i class="bi bi-volume-up"></i>
                         </button>
                         @if ($unreadNotifications > 0)
-                            <a href="{{ route('notifications.read-all') }}" class="fs-xs text-primary text-decoration-none">Mark all read</a>
+                            <a href="#" onclick="event.preventDefault(); document.getElementById('navbar-mark-all-read-form').submit();" class="fs-xs text-primary text-decoration-none">Mark all read</a>
+                            <form id="navbar-mark-all-read-form" action="{{ route('notifications.read-all') }}" method="POST" class="d-none">
+                                @csrf
+                            </form>
                         @endif
                     </div>
                 </div>

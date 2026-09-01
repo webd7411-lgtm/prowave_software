@@ -13,7 +13,6 @@ class UserRepository
     {
         $query = User::query()
             ->with(['roles', 'department'])
-            ->withTrashed()
             ->latest();
 
         $this->applyFilters($query, $filters);
@@ -69,8 +68,11 @@ class UserRepository
             $query->role($filters['role']);
         }
 
-        if (! empty($filters['trashed'])) {
+        $isTrashed = isset($filters['trashed']) && ($filters['trashed'] === '1' || $filters['trashed'] === 1 || $filters['trashed'] === true || $filters['trashed'] === 'true');
+        if ($isTrashed) {
             $query->onlyTrashed();
+        } else {
+            $query->withoutTrashed();
         }
     }
 

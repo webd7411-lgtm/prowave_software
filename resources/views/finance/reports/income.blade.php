@@ -23,7 +23,7 @@
 </div>
 
 {{-- Date filter --}}
-<div class="card mb-4">
+<div class="card mb-4 d-print-none">
     <div class="card-body py-2">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-6 col-sm-4 col-md-3 col-lg-2">
@@ -42,7 +42,7 @@
 </div>
 
 {{-- Summary --}}
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-4 d-print-none">
     <div class="col-6 col-md-4">
         <div class="fin-kpi-card fin-income">
             <div class="fin-kpi-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
@@ -70,7 +70,7 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-lg-4">
+    <div class="col-12 col-lg-4 d-print-none">
         <div class="card h-100">
             <div class="card-header"><h5 class="mb-0"><i class="bi bi-pie-chart me-2 text-success"></i>By Source</h5></div>
             <div class="card-body d-flex align-items-center justify-content-center">
@@ -85,7 +85,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-8">
+    <div class="col-12 col-lg-8 col-print-12">
         <div class="card">
             <div class="table-responsive">
                 <table class="table table-hover mb-0 fin-table">

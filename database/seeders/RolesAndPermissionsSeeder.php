@@ -13,9 +13,24 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
+        // Delete obsolete permissions
+        Permission::whereIn('name', [
+            'milestones.view', 'milestones.create', 'milestones.edit', 'milestones.delete',
+            'documents.view', 'documents.upload', 'documents.edit', 'documents.delete',
+            'employee_documents.view', 'employee_documents.upload', 'employee_documents.delete',
+        ])->delete();
+
         $permissionGroups = [
-            'Dashboard' => [
+            'Dashboards' => [
                 'dashboard.view',
+                'crm_dashboard.view',
+                'hr_dashboard.view',
+                'projects_dashboard.view',
+                'finance_dashboard.view',
+            ],
+            'Profile' => [
+                'profile.view',
+                'profile.edit',
             ],
             'Users' => [
                 'users.view',
@@ -46,9 +61,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'departments.create',
                 'departments.edit',
                 'departments.delete',
-            ],
-            'HR Dashboard' => [
-                'hr_dashboard.view',
             ],
             'Staff' => [
                 'staff.view',
@@ -93,6 +105,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'project_team.view',
                 'project_team.manage',
                 'project_tasks.view',
+                'project_tasks.allstaff_task',
+                'project_tasks.own_task',
                 'project_tasks.create',
                 'project_tasks.assign',
                 'project_tasks.edit',
@@ -129,11 +143,39 @@ class RolesAndPermissionsSeeder extends Seeder
                 'clients.delete',
                 'clients.export',
             ],
-            'CRM Leads' => ['leads.view', 'leads.create', 'leads.edit', 'leads.delete', 'leads.import', 'leads.export', 'leads.convert'],
-            'Follow-ups' => ['followups.view', 'followups.create', 'followups.edit', 'followups.delete'],
-            'Quotations' => ['quotations.view', 'quotations.create', 'quotations.edit', 'quotations.delete', 'quotations.export'],
-            'Payments' => ['payments.view', 'payments.create', 'payments.edit', 'payments.delete'],
-            'Client Ledger' => ['ledger.view', 'ledger.export'],
+            'CRM Leads' => [
+                'leads.view',
+                'leads.view_all',
+                'leads.create',
+                'leads.edit',
+                'leads.delete',
+                'leads.import',
+                'leads.export',
+                'leads.convert',
+            ],
+            'Follow-ups' => [
+                'followups.view',
+                'followups.create',
+                'followups.edit',
+                'followups.delete',
+            ],
+            'Quotations' => [
+                'quotations.view',
+                'quotations.create',
+                'quotations.edit',
+                'quotations.delete',
+                'quotations.export',
+            ],
+            'Payments' => [
+                'payments.view',
+                'payments.create',
+                'payments.edit',
+                'payments.delete',
+            ],
+            'Client Ledger' => [
+                'ledger.view',
+                'ledger.export',
+            ],
             'Invoices' => [
                 'invoices.view',
                 'invoices.create',
@@ -141,11 +183,34 @@ class RolesAndPermissionsSeeder extends Seeder
                 'invoices.delete',
                 'invoices.export',
             ],
-            'Expenses' => [
+            'Finance' => [
+                'finance.view',
+                'finance_dashboard.view',
                 'expenses.view',
                 'expenses.create',
                 'expenses.edit',
                 'expenses.delete',
+                'expenses.export',
+                'expenses.approve',
+                'income.view',
+                'income.create',
+                'income.edit',
+                'income.delete',
+                'income.export',
+                'accounts.view',
+                'accounts.create',
+                'accounts.edit',
+                'transactions.view',
+                'transactions.create',
+                'transactions.edit',
+                'transactions.delete',
+                'receivables.view',
+                'vendors.view',
+                'vendors.create',
+                'vendors.edit',
+                'vendors.delete',
+                'financial_reports.view',
+                'financial_data.manage',
             ],
             'Attendance' => [
                 'attendance.view',
@@ -170,12 +235,6 @@ class RolesAndPermissionsSeeder extends Seeder
                 'meetings.create',
                 'meetings.edit',
                 'meetings.delete',
-            ],
-            'Company Documents' => [
-                'documents.view',
-                'documents.upload',
-                'documents.edit',
-                'documents.delete',
             ],
             'Management' => [
                 'management.view',
@@ -205,6 +264,7 @@ class RolesAndPermissionsSeeder extends Seeder
             'HR Manager' => [
                 'dashboard.view',
                 'hr_dashboard.view',
+                'profile.view', 'profile.edit',
                 'users.view', 'users.show', 'users.create', 'users.edit', 'users.delete',
                 'users.restore', 'users.import', 'users.export', 'users.activate',
                 'users.suspend', 'users.reset-password',
@@ -222,14 +282,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'reports.view', 'audit.view', 'settings.view',
                 'calendar.view',
                 'meetings.view', 'meetings.create', 'meetings.edit', 'meetings.delete',
-                'documents.view', 'documents.upload', 'documents.edit', 'documents.delete',
                 'management.view',
             ],
             'Project Manager' => [
                 'dashboard.view',
+                'projects_dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view', 'projects.create', 'projects.edit', 'projects.delete', 'projects.export', 'projects.assign',
                 'project_team.view', 'project_team.manage',
-                'project_tasks.view', 'project_tasks.create', 'project_tasks.assign', 'project_tasks.edit', 'project_tasks.delete', 'project_tasks.complete',
+                'project_tasks.view', 'project_tasks.allstaff_task', 'project_tasks.create', 'project_tasks.assign', 'project_tasks.edit', 'project_tasks.delete', 'project_tasks.complete',
                 'task_comments.view', 'task_comments.create', 'task_comments.edit', 'task_comments.delete',
                 'project_files.view', 'project_files.upload', 'project_files.delete',
                 'time_tracking.view', 'time_tracking.create', 'time_tracking.edit',
@@ -245,14 +306,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'reports.view',
                 'calendar.view',
                 'meetings.view', 'meetings.create', 'meetings.edit',
-                'documents.view', 'documents.upload',
                 'management.view',
             ],
             'Team Lead' => [
                 'dashboard.view',
+                'projects_dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view', 'projects.edit',
                 'project_team.view',
-                'project_tasks.view', 'project_tasks.create', 'project_tasks.assign', 'project_tasks.edit', 'project_tasks.complete',
+                'project_tasks.view', 'project_tasks.own_task', 'project_tasks.create', 'project_tasks.assign', 'project_tasks.edit', 'project_tasks.complete',
                 'task_comments.view', 'task_comments.create', 'task_comments.edit',
                 'project_files.view', 'project_files.upload',
                 'time_tracking.view', 'time_tracking.create',
@@ -262,13 +324,13 @@ class RolesAndPermissionsSeeder extends Seeder
                 'daily_reports.view', 'daily_reports.review',
                 'calendar.view',
                 'meetings.view', 'meetings.create',
-                'documents.view', 'documents.upload',
             ],
             'Developer' => [
                 'dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view',
                 'project_team.view',
-                'project_tasks.view', 'project_tasks.edit', 'project_tasks.complete',
+                'project_tasks.view', 'project_tasks.own_task', 'project_tasks.edit', 'project_tasks.complete',
                 'task_comments.view', 'task_comments.create',
                 'project_files.view', 'project_files.upload',
                 'time_tracking.view', 'time_tracking.create',
@@ -281,9 +343,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ],
             'Designer' => [
                 'dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view',
                 'project_team.view',
-                'project_tasks.view', 'project_tasks.edit', 'project_tasks.complete',
+                'project_tasks.view', 'project_tasks.own_task', 'project_tasks.edit', 'project_tasks.complete',
                 'task_comments.view', 'task_comments.create',
                 'project_files.view', 'project_files.upload',
                 'time_tracking.view', 'time_tracking.create',
@@ -296,9 +359,10 @@ class RolesAndPermissionsSeeder extends Seeder
             ],
             'QA' => [
                 'dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view',
                 'project_team.view',
-                'project_tasks.view', 'project_tasks.edit', 'project_tasks.complete',
+                'project_tasks.view', 'project_tasks.own_task', 'project_tasks.edit', 'project_tasks.complete',
                 'task_comments.view', 'task_comments.create',
                 'project_files.view', 'project_files.upload',
                 'time_tracking.view', 'time_tracking.create',
@@ -310,31 +374,40 @@ class RolesAndPermissionsSeeder extends Seeder
                 'meetings.view',
             ],
             'Sales Executive' => [
-                'dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view',
+                'leads.view', 'leads.create', 'leads.edit', 'leads.convert', 'leads.export', 'leads.import',
                 'clients.view', 'clients.create', 'clients.edit',
+                'followups.view', 'followups.create', 'followups.edit',
+                'quotations.view', 'quotations.create', 'quotations.edit',
                 'invoices.view',
                 'reports.view',
                 'calendar.view',
                 'meetings.view', 'meetings.create',
-                'documents.view',
             ],
             'Accountant' => [
                 'dashboard.view',
+                'finance_dashboard.view',
+                'profile.view', 'profile.edit',
+                'finance.view',
                 'projects.view',
                 'project_expenses.view', 'project_expenses.create', 'project_expenses.edit',
                 'project_finance.view',
                 'invoices.view', 'invoices.create', 'invoices.edit',
                 'expenses.view', 'expenses.create', 'expenses.edit',
+                'income.view', 'income.create', 'income.edit',
+                'accounts.view', 'accounts.create', 'accounts.edit',
+                'transactions.view', 'transactions.create',
+                'receivables.view', 'vendors.view', 'financial_reports.view',
                 'payroll.view',
                 'reports.view',
                 'calendar.view',
                 'meetings.view',
-                'documents.view',
                 'management.view',
             ],
             'Client' => [
                 'dashboard.view',
+                'profile.view', 'profile.edit',
                 'projects.view',
                 'project_tasks.view',
                 'project_files.view',
@@ -344,7 +417,7 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($roles as $roleName => $rolePermissions) {
             $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
 
-            if ($roleName === 'Super Admin') {
+            if ($roleName === 'Super Admin' || $roleName === 'Administrator') {
                 $role->syncPermissions($permissions);
             } else {
                 $role->syncPermissions($rolePermissions);

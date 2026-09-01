@@ -30,7 +30,8 @@ class UserService
 
         $user = $this->repository->create($data);
 
-        $user->syncRoles(Role::whereIn('id', $roles)->get());
+        $roleModels = ! empty($roles) ? Role::query()->whereIn('id', $roles)->orWhereIn('name', $roles)->get() : collect();
+        $user->syncRoles($roleModels);
 
         $this->audit->log('User created', 'user', $user, properties: [
             'email' => $user->email,
@@ -55,7 +56,8 @@ class UserService
 
         $user = $this->repository->update($user, $data);
 
-        $user->syncRoles(Role::whereIn('id', $roles)->get());
+        $roleModels = ! empty($roles) ? Role::query()->whereIn('id', $roles)->orWhereIn('name', $roles)->get() : collect();
+        $user->syncRoles($roleModels);
 
         $this->audit->log('User updated', 'user', $user, properties: [
             'email' => $user->email,

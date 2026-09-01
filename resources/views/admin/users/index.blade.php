@@ -52,15 +52,15 @@
     </div>
 
     <x-card body-class="p-3" id="usersCard">
-        <form id="usersFilterForm" class="row g-2 align-items-end">
+        <form id="usersFilterForm" class="row g-2 align-items-end" method="GET" action="{{ route('admin.users.index') }}">
             <div class="col-12 col-md-3">
                 <label class="form-label fs-xs text-muted mb-1">Search</label>
-                <input type="search" class="form-control" id="filter-search" value="{{ $filters['search'] ?? '' }}" placeholder="Name, email, employee ID...">
+                <input type="search" name="search" class="form-control" id="filter-search" value="{{ $filters['search'] ?? '' }}" placeholder="Name, email, employee ID...">
             </div>
             <div class="col-6 col-md-2">
                 <label class="form-label fs-xs text-muted mb-1">Status</label>
-                <select class="form-select" id="filter-status">
-                    <option value="">All</option>
+                <select name="status" class="form-select" id="filter-status">
+                    <option value="">All Statuses</option>
                     @foreach ($statuses as $value => $label)
                         <option value="{{ $value }}" @selected(($filters['status'] ?? '') === $value)>{{ $label }}</option>
                     @endforeach
@@ -68,8 +68,8 @@
             </div>
             <div class="col-6 col-md-2">
                 <label class="form-label fs-xs text-muted mb-1">Department</label>
-                <select class="form-select" id="filter-department">
-                    <option value="">All</option>
+                <select name="department_id" class="form-select" id="filter-department">
+                    <option value="">All Departments</option>
                     @foreach ($departments as $id => $name)
                         <option value="{{ $id }}" @selected(($filters['department_id'] ?? '') == $id)>{{ $name }}</option>
                     @endforeach
@@ -77,21 +77,20 @@
             </div>
             <div class="col-6 col-md-2">
                 <label class="form-label fs-xs text-muted mb-1">Role</label>
-                <select class="form-select" id="filter-role">
-                    <option value="">All</option>
+                <select name="role" class="form-select" id="filter-role">
+                    <option value="">All Roles</option>
                     @foreach ($roles as $name => $label)
                         <option value="{{ $name }}" @selected(($filters['role'] ?? '') === $name)>{{ $name }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-6 col-md-2 d-flex align-items-center gap-3">
+            <div class="col-12 col-md-3 d-flex align-items-center justify-content-md-end gap-2 pt-2 pt-md-0">
                 <div class="form-check form-switch mb-0">
-                    <input class="form-check-input" type="checkbox" id="filter-trashed" @checked(! empty($filters['trashed']))>
-                    <label class="form-check-label" for="filter-trashed">Trashed only</label>
+                    <input class="form-check-input me-2 cursor-pointer" type="checkbox" name="trashed" value="1" id="filter-trashed" @checked(! empty($filters['trashed']))>
+                    <label class="form-check-label text-muted fs-sm cursor-pointer mb-0" for="filter-trashed">Trashed</label>
                 </div>
-            </div>
-            <div class="col-12 col-md-1 d-flex justify-content-end gap-2">
-                <button type="button" class="btn btn-soft-primary w-100" id="filter-apply"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <button type="submit" class="btn btn-soft-primary btn-sm" id="filter-apply" title="Apply filters"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <a href="{{ route('admin.users.index') }}" class="btn btn-soft-secondary btn-sm" id="filter-reset" title="Reset all filters"><i class="bi bi-x-circle me-1"></i>Reset</a>
             </div>
         </form>
 
@@ -141,18 +140,24 @@
                 setTimeout(initUsersTable, 50);
                 return;
             }
+
+            if ($.fn.DataTable.isDataTable('#usersTable')) {
+                $('#usersTable').DataTable().destroy();
+            }
+
             const table = $('#usersTable').DataTable({
                 processing: true,
                 serverSide: true,
                 responsive: true,
                 autoWidth: false,
+                searching: false,
                 pageLength: 15,
                 lengthMenu: [10, 15, 25, 50, 100],
                 order: [[7, 'desc']],
                 ajax: {
                     url: '{{ route('admin.users.data') }}',
                     data: function (d) {
-                        d.search = $('#filter-search').val();
+                        d.search_query = $('#filter-search').val();
                         d.status = $('#filter-status').val();
                         d.department_id = $('#filter-department').val();
                         d.role = $('#filter-role').val();
@@ -174,11 +179,8 @@
                 ],
                 error: function (xhr, error, thrown) {
                     console.error('DataTables AJAX error:', error, thrown);
-                    console.error('Response:', xhr.responseText);
                 },
                 language: {
-                    search: '',
-                    searchPlaceholder: 'Search records...',
                     lengthMenu: 'Show _MENU_ entries',
                     info: 'Showing _START_ to _END_ of _TOTAL_ records',
                     infoEmpty: 'No records found',
@@ -204,16 +206,6 @@
                 toggleBulk(checked);
             });
 
-            $('#filter-apply').on('click', function () {
-                table.ajax.reload();
-            });
-
-            $('#filter-search').on('keydown', function (e) {
-                if (e.key === 'Enter') {
-                    table.ajax.reload();
-                }
-            });
-
             function toggleBulk(count) {
                 const btn = $('#bulkSubmit');
                 if (count > 0) {
@@ -229,12 +221,7 @@
                     return $(this).val();
                 }).get();
 
-                if (ids.length === 0) {
-                    e.preventDefault();
-                    return;
-                }
-
-                if (! $(this).find('select').val()) {
+                if (ids.length === 0 || !$(this).find('select').val()) {
                     e.preventDefault();
                     return;
                 }
@@ -242,6 +229,11 @@
                 $('#bulkIds').val(ids.join(','));
             });
         }
-        initUsersTable();
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initUsersTable);
+        } else {
+            initUsersTable();
+        }
     </script>
 @endpush

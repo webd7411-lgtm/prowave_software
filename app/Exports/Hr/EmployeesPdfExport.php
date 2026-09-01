@@ -29,9 +29,9 @@ class EmployeesPdfExport
 
         $summary = [
             'total' => $employees->count(),
-            'active' => $employees->where('employee_status', 'active')->count(),
-            'on_leave' => $employees->where('employee_status', 'on_leave')->count(),
-            'terminated' => $employees->where('employee_status', 'terminated')->count(),
+            'active' => $employees->where('employee_status', \App\Enums\EmployeeStatus::Active)->count(),
+            'on_leave' => $employees->where('employee_status', \App\Enums\EmployeeStatus::OnLeave)->count(),
+            'terminated' => $employees->where('employee_status', \App\Enums\EmployeeStatus::Terminated)->count(),
         ];
 
         $pdf = Pdf::loadView('exports.hr.employees-pdf', compact('employees', 'summary'))

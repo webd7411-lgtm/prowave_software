@@ -11,9 +11,26 @@ use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(): View|\Illuminate\Http\RedirectResponse
     {
-        $this->authorize('dashboard.view');
+        if (! auth()->user()->can('dashboard.view')) {
+            if (auth()->user()->can('crm_dashboard.view')) {
+                return redirect()->route('crm.dashboard');
+            }
+            if (auth()->user()->can('hr_dashboard.view')) {
+                return redirect()->route('hr.dashboard');
+            }
+            if (auth()->user()->can('finance_dashboard.view')) {
+                return redirect()->route('finance.dashboard');
+            }
+            if (auth()->user()->can('leads.view')) {
+                return redirect()->route('crm.leads.index');
+            }
+            if (auth()->user()->can('projects.view')) {
+                return redirect()->route('projects.index');
+            }
+            return redirect()->route('profile.show')->with('toast', ['type' => 'info', 'message' => 'Welcome! You have been redirected to your profile.']);
+        }
 
         $now = now();
 

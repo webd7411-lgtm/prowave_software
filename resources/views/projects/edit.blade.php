@@ -124,9 +124,22 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold fs-sm">Currency</label>
+                            <select name="currency" class="form-select" id="currencySelect">
+                                @php
+                                    $currencies = ['PKR','USD','EUR','GBP','AED','SAR','INR','CAD','AUD','JPY','CNY','CHF'];
+                                    $selectedCurrency = old('currency', $project->currency ?? setting('general.currency', 'PKR'));
+                                @endphp
+                                @foreach($currencies as $cur)
+                                    <option value="{{ $cur }}" {{ $selectedCurrency === $cur ? 'selected' : '' }}>{{ $cur }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="row g-2 mb-3">
                             <div class="col-6">
-                                <label class="form-label fw-semibold fs-sm">Budget ($)</label>
+                                <label class="form-label fw-semibold fs-sm">Budget <span class="text-muted fs-xs" id="budgetCurrencyLabel">({{ old('currency', $project->currency ?? setting('general.currency','PKR')) }})</span></label>
                                 <input type="number" step="0.01" min="0" name="budget" class="form-control" value="{{ old('budget', $project->budget) }}">
                             </div>
                             <div class="col-6">
@@ -149,4 +162,18 @@
         </div>
     </form>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const currencySelect = document.getElementById('currencySelect');
+        const budgetCurrencyLabel = document.getElementById('budgetCurrencyLabel');
+        if (currencySelect && budgetCurrencyLabel) {
+            currencySelect.addEventListener('change', function () {
+                budgetCurrencyLabel.textContent = '(' + this.value + ')';
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

@@ -70,7 +70,7 @@
     {{-- Printable Document Header --}}
     <div class="d-none d-print-block text-center mb-4 pb-2 border-bottom">
         <h2 class="fw-bold mb-1 text-dark">Project Analytics & Financial Report</h2>
-        <p class="text-muted small mb-0">Generated on {{ now('Asia/Karachi')->format('M d, Y h:i A') }} — Prowave ERP</p>
+        <p class="text-muted small mb-0">Generated on {{ now('Asia/Karachi')->format('M d, Y h:i A') }} — {{ setting('general.company_name', 'Prowave Technologies') }}</p>
     </div>
 
     {{-- Screen Header --}}
@@ -220,9 +220,9 @@
                                 </div>
                             </td>
                             @can('project_finance.view')
-                                <td class="fw-bold text-end">{{ number_format($project->budget, 2) }}</td>
-                                <td class="text-danger text-end">{{ number_format($expenses, 2) }}</td>
-                                <td class="fw-bold text-success text-end">{{ number_format($project->budget - $expenses, 2) }}</td>
+                                <td class="fw-bold text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</td>
+                                <td class="text-danger text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expenses, 2) }}</td>
+                                <td class="fw-bold text-success text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget - $expenses, 2) }}</td>
                             @endcan
                             <td>{{ $project->deadline ? $project->deadline->format('M d, Y') : 'N/A' }}</td>
                             <td><span class="badge {{ $project->health_badge_class }} fs-xs">{{ $project->health }}</span></td>

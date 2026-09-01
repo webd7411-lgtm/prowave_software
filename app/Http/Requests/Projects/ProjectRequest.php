@@ -24,6 +24,7 @@ class ProjectRequest extends FormRequest
             'priority' => 'nullable|string|in:Low,Medium,High,Urgent',
             'status' => 'required|string|in:Planning,Not Started,In Progress,On Hold,Completed,Cancelled,Overdue',
             'budget' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|max:10',
             'estimated_hours' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             // Optional initial creation inputs

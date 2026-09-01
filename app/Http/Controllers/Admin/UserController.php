@@ -226,11 +226,24 @@ class UserController extends Controller
 
     public function data(Request $request): JsonResponse
     {
-        $filters = $request->only(['search', 'status', 'department_id', 'role', 'trashed']);
+        $search = $request->input('search_query');
+        if (blank($search)) {
+            $rawSearch = $request->input('search');
+            $search = is_array($rawSearch) ? ($rawSearch['value'] ?? '') : $rawSearch;
+        }
+
+        $filters = [
+            'search' => is_string($search) ? trim($search) : '',
+            'status' => $request->input('status'),
+            'department_id' => $request->input('department_id'),
+            'role' => $request->input('role'),
+            'trashed' => $request->boolean('trashed') || $request->input('trashed') === '1' || $request->input('trashed') === 1,
+        ];
 
         $query = $this->repository->query($filters);
 
-        $total = (clone $query)->count();
+        $recordsFiltered = (clone $query)->count();
+        $recordsTotal = User::count();
 
         $rows = $query
             ->skip($request->integer('start', 0))
@@ -241,8 +254,8 @@ class UserController extends Controller
 
         return response()->json([
             'draw' => $request->integer('draw', 0),
-            'recordsTotal' => $total,
-            'recordsFiltered' => $total,
+            'recordsTotal' => $recordsTotal,
+            'recordsFiltered' => $recordsFiltered,
             'data' => $rows->map(function (User $user) use ($me) {
                 $avatar = $user->avatar_url
                     ? '<img src="'.$user->avatar_url.'" class="avatar-sm rounded-circle" alt="">'

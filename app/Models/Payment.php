@@ -11,7 +11,7 @@ class Payment extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'payment_number', 'client_id', 'invoice_id', 'payment_date', 'amount',
+        'payment_number', 'client_id', 'project_id', 'invoice_id', 'payment_date', 'amount',
         'method', 'reference_number', 'notes', 'created_by',
     ];
 
@@ -25,8 +25,18 @@ class Payment extends Model
         return $this->belongsTo(Client::class);
     }
 
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
     public function invoice(): BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

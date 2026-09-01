@@ -12,7 +12,7 @@ class Lead extends Model
 
     protected $fillable = [
         'lead_number', 'company_name', 'contact_person', 'phone', 'email',
-        'website', 'address', 'city', 'country', 'source', 'service_interested',
+        'website', 'address', 'city', 'country', 'service_interested',
         'estimated_budget', 'owner_id', 'status', 'stage', 'priority',
         'expected_closing_date', 'notes', 'converted_client_id', 'converted_at',
         'created_by', 'updated_by',
@@ -58,9 +58,24 @@ class Lead extends Model
             $num = 1;
             if ($last && preg_match('/(\d+)$/', $last, $matches)) {
                 $num = ((int) $matches[1]) + 1;
+            } elseif ($record) {
+                $num = $record->id + 1;
             }
 
-            return str_pad((string) $num, 4, '0', STR_PAD_LEFT);
+            return 'Ld-' . str_pad((string) $num, 4, '0', STR_PAD_LEFT);
         });
     }
+
+    public function getLeadNumberAttribute($value): string
+    {
+        if (empty($value)) {
+            return 'Ld-' . str_pad((string) $this->id, 4, '0', STR_PAD_LEFT);
+        }
+        if (str_starts_with($value, 'Ld-')) {
+            return $value;
+        }
+        $num = preg_replace('/\D/', '', $value);
+        return 'Ld-' . str_pad($num ?: (string) $this->id, 4, '0', STR_PAD_LEFT);
+    }
 }
+

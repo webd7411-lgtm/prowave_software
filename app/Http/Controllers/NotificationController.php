@@ -73,11 +73,25 @@ class NotificationController extends Controller
 
     public function unreadCount(): JsonResponse
     {
+        if (session()->isStarted()) {
+            session()->save();
+        }
+
         return response()->json(['count' => auth()->user()->unreadNotifications()->count()]);
     }
 
     public function recent(): JsonResponse
     {
+        if (session()->isStarted()) {
+            session()->save();
+        }
+
+        try {
+            \Illuminate\Support\Facades\Artisan::call('leads:meeting-reminders');
+        } catch (\Throwable $e) {
+            // best-effort reminder check
+        }
+
         $notifications = auth()->user()->notifications()
             ->latest()
             ->limit(10)

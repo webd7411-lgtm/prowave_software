@@ -51,6 +51,7 @@ class Meeting extends Model
 
     protected $casts = [
         'meeting_date' => 'date',
+        'follow_up_date' => 'date',
         'participant_ids' => 'array',
         'reminder_sent' => 'boolean',
     ];

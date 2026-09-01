@@ -21,15 +21,16 @@
         @endcan
     </div>
 
-    <form class="row g-2 mb-3" method="GET" action="{{ route('admin.departments.index') }}">
+    <form class="row g-2 mb-3" method="GET" action="{{ route('admin.departments.index') }}" id="deptFilterForm">
         <div class="col-12 col-md-4">
             <div class="position-relative">
                 <i class="bi bi-search position-absolute" style="left: 0.875rem; top: 50%; transform: translateY(-50%); color: var(--pw-text-muted); pointer-events: none; z-index: 2;"></i>
-                <input type="search" class="form-control ps-5" name="search" value="{{ $filters['search'] ?? '' }}" placeholder="Search departments...">
+                <input type="search" class="form-control ps-5" name="search" id="dept-search-input" value="{{ $filters['search'] ?? '' }}" placeholder="Search departments...">
             </div>
         </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-soft-primary w-100"><i class="bi bi-funnel me-1"></i>Filter</button>
+        <div class="col-12 col-md-3 d-flex gap-2">
+            <button type="submit" class="btn btn-soft-primary"><i class="bi bi-funnel me-1"></i>Filter</button>
+            <a href="{{ route('admin.departments.index') }}" class="btn btn-soft-secondary" title="Reset Filter"><i class="bi bi-x-circle me-1"></i>Reset Filter</a>
         </div>
     </form>
 
@@ -102,3 +103,18 @@
         </div>
     </x-card>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('dept-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('search', function () {
+                    if (!this.value) {
+                        window.location.href = "{{ route('admin.departments.index') }}";
+                    }
+                });
+            }
+        });
+    </script>
+@endpush

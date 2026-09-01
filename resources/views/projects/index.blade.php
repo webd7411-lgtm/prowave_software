@@ -273,6 +273,22 @@
                     <div class="modal-body">
                         <p class="text-muted fs-sm mb-3">Upload a CSV file containing project details. Make sure your CSV file matches the sample template format.</p>
                         
+                        {{-- Required & Optional Fields Guidance --}}
+                        <div class="alert alert-info py-2.5 px-3 mb-3 border-0 shadow-sm rounded-3">
+                            <div class="fw-semibold fs-xs text-primary mb-1">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i>Required Field (Must be filled in CSV):
+                            </div>
+                            <div class="fs-xs text-dark ms-3 mb-2">
+                                • <strong class="text-danger">Project Name</strong> <span class="text-muted">(Headers: <code>Project Name</code>, <code>name</code>, <code>title</code>)</span>
+                            </div>
+                            <div class="fw-semibold fs-xs text-secondary mb-1">
+                                <i class="bi bi-info-circle me-1"></i>Optional Fields (Will use defaults if empty):
+                            </div>
+                            <div class="fs-xs text-muted ms-3">
+                                • <strong>Project Type</strong>, <strong>Description</strong>, <strong>Start Date</strong>, <strong>Deadline</strong>, <strong>Priority</strong>, <strong>Status</strong>, <strong>Budget</strong>, <strong>Currency</strong>, <strong>Estimated Hours</strong>, <strong>Notes</strong>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-semibold fs-sm">CSV File <span class="text-danger">*</span></label>
                             <input type="file" name="file" class="form-control" accept=".csv, .txt" required>

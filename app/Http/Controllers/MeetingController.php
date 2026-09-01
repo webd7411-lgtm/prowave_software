@@ -47,7 +47,7 @@ class MeetingController extends Controller
             'filters' => $request->all(),
             'clients' => Client::query()->where('status', 'active')->orderBy('company_name')->get(['id', 'company_name']),
             'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
-            'users' => User::query()->active()->orderBy('name')->get(['id', 'name']),
+            'users' => User::query()->with('roles')->active()->orderBy('name')->get(['id', 'name', 'job_title']),
         ]);
     }
 
@@ -56,7 +56,7 @@ class MeetingController extends Controller
         $this->authorize('meetings.create');
 
         $data = $this->validateData($request);
-        $data['participant_ids'] = array_map('intval', (array) ($data['participant_ids'] ?? []));
+        $data['participant_ids'] = array_values(array_filter(array_map('intval', (array) ($data['participant_ids'] ?? []))));
         $data['created_by'] = auth()->id();
         $data['updated_by'] = auth()->id();
 
@@ -83,7 +83,7 @@ class MeetingController extends Controller
             'participants' => $meeting->participants(),
             'clients' => Client::query()->where('status', 'active')->orderBy('company_name')->get(['id', 'company_name']),
             'projects' => Project::query()->orderBy('name')->get(['id', 'name']),
-            'users' => User::query()->active()->orderBy('name')->get(['id', 'name']),
+            'users' => User::query()->with('roles')->active()->orderBy('name')->get(['id', 'name', 'job_title']),
         ]);
     }
 
@@ -92,7 +92,7 @@ class MeetingController extends Controller
         $this->authorize('meetings.edit');
 
         $data = $this->validateData($request);
-        $data['participant_ids'] = array_map('intval', (array) ($data['participant_ids'] ?? []));
+        $data['participant_ids'] = array_values(array_filter(array_map('intval', (array) ($data['participant_ids'] ?? []))));
         $data['updated_by'] = auth()->id();
 
         $oldParticipants = (array) ($meeting->participant_ids ?? []);
@@ -173,7 +173,7 @@ class MeetingController extends Controller
     protected function notifyParticipants(Meeting $meeting, string $title, string $message, ?array $onlyIds = null): void
     {
         $ids = $onlyIds ?? (array) ($meeting->participant_ids ?? []);
-        $ids = array_diff($ids, [auth()->id()]);
+        $ids = array_values(array_filter(array_map('intval', $ids)));
 
         if (! $ids) {
             return;
@@ -185,6 +185,7 @@ class MeetingController extends Controller
             'category' => 'meeting',
             'url' => route('meetings.show', $meeting),
             'color' => 'info',
+            'include_self' => true,
         ]);
     }
 }

@@ -80,7 +80,7 @@
                 @can('project_finance.view')
                     <div class="col-6 col-md-2 col-lg-3">
                         <div class="fs-xs text-muted fw-semibold">Budget & Profit</div>
-                        <div class="fw-bold text-success fs-6">${{ number_format($project->budget, 2) }} <span class="fs-xs text-muted">(Est. Profit: ${{ number_format($estimatedProfit, 2) }})</span></div>
+                        <div class="fw-bold text-success fs-6">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }} <span class="fs-xs text-muted">(Est. Profit: {{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($estimatedProfit, 2) }})</span></div>
                     </div>
                 @endcan
             </div>
@@ -109,11 +109,7 @@
                 <i class="bi bi-paperclip me-1"></i> Files ({{ $project->files->count() }})
             </button>
         </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link btn-sm" id="time-tab" data-bs-toggle="tab" data-bs-target="#tab-time" type="button" role="tab">
-                <i class="bi bi-stopwatch me-1"></i> Time Logs
-            </button>
-        </li>
+
         @can('project_expenses.view')
             <li class="nav-item" role="presentation">
                 <button class="nav-link btn-sm" id="expenses-tab" data-bs-toggle="tab" data-bs-target="#tab-expenses" type="button" role="tab">
@@ -268,7 +264,6 @@
                                 <th>Priority</th>
                                 <th>Status</th>
                                 <th>Deadline</th>
-                                <th>Est / Act Hours</th>
                                 <th class="text-end">Actions</th>
                             </tr>
                         </thead>
@@ -297,8 +292,7 @@
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>{{ $task->deadline ? $task->deadline->format('M d, Y') : 'N/A' }}</td>
-                                    <td>{{ $task->estimated_hours }} / {{ $task->actual_hours }} hrs</td>
+                                    <td>{{ $task->deadline ? $task->deadline->format('M d, Y — h:i A') : 'N/A' }}</td>
                                     <td class="text-end">
                                         <a href="{{ route('projects.tasks.show', $task) }}" class="btn btn-sm btn-light" title="View Task"><i class="bi bi-eye"></i></a>
                                         @can('project_tasks.delete')
@@ -426,48 +420,7 @@
             </div>
         </div>
 
-        {{-- 6. TIME LOGS TAB --}}
-        <div class="tab-pane fade" id="tab-time" role="tabpanel">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold text-dark mb-0">Time Tracking & Logs</h5>
-                @can('time_tracking.create')
-                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#manualTimeModal">
-                        <i class="bi bi-clock me-1"></i> Log Manual Hours
-                    </button>
-                @endcan
-            </div>
 
-            <div class="card border-0 shadow-sm">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light fs-xs text-uppercase text-muted">
-                            <tr>
-                                <th>User</th>
-                                <th>Task</th>
-                                <th>Description</th>
-                                <th>Date / Time</th>
-                                <th>Duration</th>
-                            </tr>
-                        </thead>
-                        <tbody class="fs-sm">
-                            @forelse($project->timeEntries as $time)
-                                <tr>
-                                    <td class="fw-semibold">{{ $time->user?->name }}</td>
-                                    <td>{{ $time->task?->title ?? 'General Project Work' }}</td>
-                                    <td class="text-muted">{{ $time->description }}</td>
-                                    <td>{{ $time->start_time ? $time->start_time->format('M d, Y H:i') : $time->created_at->format('M d, Y') }}</td>
-                                    <td><span class="badge bg-info-subtle text-info fw-bold fs-xs">{{ $time->formatted_duration }}</span></td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">No time entries recorded for this project yet.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
         {{-- 7. EXPENSES TAB --}}
         @can('project_expenses.view')
@@ -498,7 +451,7 @@
                                 @forelse($project->expenses as $expense)
                                     <tr>
                                         <td><span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $expense->category }}</span></td>
-                                        <td class="fw-bold text-danger">${{ number_format($expense->amount, 2) }}</td>
+                                        <td class="fw-bold text-danger">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expense->amount, 2) }}</td>
                                         <td>{{ $expense->expense_date->format('M d, Y') }}</td>
                                         <td class="text-muted">{{ $expense->description }}</td>
                                         <td>{{ $expense->addedBy?->name ?? 'N/A' }}</td>
@@ -527,50 +480,106 @@
         {{-- 8. FINANCIALS TAB --}}
         @can('project_finance.view')
             <div class="tab-pane fade" id="tab-financials" role="tabpanel">
-                <div class="row g-4">
+                <div class="row g-4 mb-4">
                     <div class="col-12 col-md-6 col-xl-3">
                         <div class="card border-0 shadow-sm p-3">
                             <div class="text-muted fs-xs text-uppercase">Project Budget</div>
-                            <div class="h3 fw-bold text-dark mt-1 mb-0">${{ number_format($project->budget, 2) }}</div>
+                            <div class="h3 fw-bold text-dark mt-1 mb-0">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-xl-3">
                         <div class="card border-0 shadow-sm p-3">
-                            <div class="text-muted fs-xs text-uppercase">Invoiced Amount</div>
-                            <div class="h3 fw-bold text-primary mt-1 mb-0">${{ number_format($invoiceAmount, 2) }}</div>
+                            <div class="text-muted fs-xs text-uppercase">Total Received / Paid</div>
+                            <div class="h3 fw-bold text-success mt-1 mb-0">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->paid_amount, 2) }}</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-xl-3">
                         <div class="card border-0 shadow-sm p-3">
-                            <div class="text-muted fs-xs text-uppercase">Paid Amount</div>
-                            <div class="h3 fw-bold text-success mt-1 mb-0">${{ number_format($paidAmount, 2) }}</div>
+                            <div class="text-muted fs-xs text-uppercase">Remaining Balance</div>
+                            <div class="h3 fw-bold text-danger mt-1 mb-0">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->remaining_balance, 2) }}</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6 col-xl-3">
                         <div class="card border-0 shadow-sm p-3">
-                            <div class="text-muted fs-xs text-uppercase">Outstanding</div>
-                            <div class="h3 fw-bold text-danger mt-1 mb-0">${{ number_format($outstandingAmount, 2) }}</div>
+                            <div class="text-muted fs-xs text-uppercase">Realized Profit</div>
+                            <div class="h3 fw-bold text-info mt-1 mb-0">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($actualProfit, 2) }}</div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="col-12 col-md-6">
+                <div class="row g-4">
+                    <div class="col-12 col-lg-8">
+                        <div class="card border-0 shadow-sm p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cash-stack text-success me-2"></i>Client Payment Receipts Breakdown</h5>
+                                    <span class="fs-xs text-muted">History of installments received for this project</span>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0 fs-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Date</th>
+                                            <th>Receipt #</th>
+                                            <th>Method</th>
+                                            <th>Ref / Trx ID</th>
+                                            <th>Notes</th>
+                                            <th class="text-end">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($project->payments as $idx => $payment)
+                                            <tr>
+                                                <td>{{ $idx + 1 }}</td>
+                                                <td class="fw-semibold">{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '—' }}</td>
+                                                <td class="fw-bold text-primary">{{ $payment->payment_number }}</td>
+                                                <td class="text-capitalize"><span class="badge bg-light text-dark border">{{ str_replace('_', ' ', $payment->method) }}</span></td>
+                                                <td>{{ $payment->reference_number ?: '—' }}</td>
+                                                <td class="text-muted">{{ $payment->notes ?: '—' }}</td>
+                                                <td class="text-end fw-bold text-success">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($payment->amount, 2) }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="7" class="text-center py-4 text-muted">
+                                                    <i class="bi bi-info-circle me-1"></i> No payments recorded yet. Record payments against this client's invoices to see them here.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="fw-bold table-light">
+                                            <td colspan="6" class="text-end text-uppercase">Total Received:</td>
+                                            <td class="text-end text-success fs-6">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->paid_amount, 2) }}</td>
+                                        </tr>
+                                        <tr class="fw-bold bg-danger-subtle text-danger">
+                                            <td colspan="6" class="text-end text-uppercase">Remaining Balance:</td>
+                                            <td class="text-end fs-6">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->remaining_balance, 2) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
                         <div class="card border-0 shadow-sm p-4 h-100">
-                            <h5 class="fw-bold text-dark mb-3">Profitability Analysis</h5>
+                            <h5 class="fw-bold text-dark mb-3"><i class="bi bi-calculator text-primary me-2"></i>Profitability Analysis</h5>
                             <div class="d-flex justify-content-between py-2 border-bottom">
                                 <span>Project Budget</span>
-                                <span class="fw-bold">${{ number_format($project->budget, 2) }}</span>
+                                <span class="fw-bold">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between py-2 border-bottom">
                                 <span>Total Project Expenses</span>
-                                <span class="fw-bold text-danger">-${{ number_format($totalExpenses, 2) }}</span>
+                                <span class="fw-bold text-danger">-{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($totalExpenses, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between py-2 border-bottom">
                                 <span>Estimated Profit</span>
-                                <span class="fw-bold text-success">${{ number_format($estimatedProfit, 2) }}</span>
+                                <span class="fw-bold text-success">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($estimatedProfit, 2) }}</span>
                             </div>
                             <div class="d-flex justify-content-between py-2 pt-3">
                                 <span class="fw-bold">Actual Realized Profit</span>
-                                <span class="fw-bold fs-5 text-success">${{ number_format($actualProfit, 2) }}</span>
+                                <span class="fw-bold fs-5 text-success">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($actualProfit, 2) }}</span>
                             </div>
                         </div>
                     </div>
@@ -655,9 +664,14 @@
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-4">
-                        <label class="form-label fw-semibold fs-sm">Deadline</label>
+                    <div class="col-6 col-md-3">
+                        <label class="form-label fw-semibold fs-sm">Deadline Date</label>
                         <input type="date" name="deadline" class="form-control">
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <label class="form-label fw-semibold fs-sm">Deadline Time</label>
+                        <input type="time" name="deadline_time" class="form-control" value="18:00">
                     </div>
 
                     <div class="col-6">
@@ -850,6 +864,7 @@
     </div>
 </div>
 @endcan
+
 
 @push('scripts')
 <script>

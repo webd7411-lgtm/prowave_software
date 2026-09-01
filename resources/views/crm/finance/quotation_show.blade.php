@@ -14,6 +14,9 @@
             <p class="text-muted mb-0">Created {{ $quotation->created_at->format('M d, Y') }}</p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('crm.quotations.print', $quotation) }}" class="btn btn-outline-success" target="_blank">
+                <i class="bi bi-printer me-1"></i>Print Slip
+            </a>
             <a href="{{ route('crm.quotations.edit', $quotation) }}" class="btn btn-outline-primary">
                 <i class="bi bi-pencil me-1"></i>Edit
             </a>

@@ -5,12 +5,13 @@
 import toastr from 'toastr';
 
 let pollTimer = null;
-let lastSeenId = null;
 let soundEnabled = true;
 let browserNotifPerm = 'default';
 let audioCtx = null;
 
-const POLL_INTERVAL = 25000; // 25s
+const seenNotifIds = new Set();
+let initialized = false;
+const POLL_INTERVAL = 45000; // 45s
 
 function playSound() {
     if (!soundEnabled) return;
@@ -45,7 +46,7 @@ function showToast(n) {
         ${n.message ? `<div style="font-size:.82rem;color:#94a3b8;margin-left:2.1rem">${n.message}</div>` : ''}
     </div>`;
     const t = toastr.info(html, '', { timeOut: 6000, extendedTimeOut: 2000, closeButton: true, positionClass: 'toast-top-right' });
-    if (t) t.css('background', '#141e3a').css('color', '#eaeeff');
+    if (t) t.css('background-color', '#141e3a').css('color', '#eaeeff');
     if (n.url) {
         $(t).css('cursor', 'pointer').on('click', () => { window.location.href = n.url; });
     }
@@ -90,7 +91,8 @@ function updateBadge(count) {
 
 async function poll() {
     try {
-        const res = await fetch(route('notifications.recent'), {
+        const url = window.Prowave?.url ? `${window.Prowave.url}/notifications/recent` : '/notifications/recent';
+        const res = await fetch(url, {
             headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
         });
         if (!res.ok) return;
@@ -98,21 +100,23 @@ async function poll() {
 
         updateBadge(data.unread);
 
-        if (!data.notifications?.length) return;
+        const list = data.notifications || [];
 
-        const newest = data.notifications[0];
-        if (lastSeenId === null) {
-            lastSeenId = newest.id;
+        if (!initialized) {
+            list.forEach(n => seenNotifIds.add(n.id));
+            initialized = true;
             return;
         }
-        if (newest.id !== lastSeenId) {
-            const fresh = data.notifications.filter((n) => n.id !== lastSeenId && !n.read);
+
+        const fresh = list.filter(n => !seenNotifIds.has(n.id) && !n.read);
+        list.forEach(n => seenNotifIds.add(n.id));
+
+        if (fresh.length > 0) {
             fresh.reverse().forEach((n) => {
                 playSound();
                 showToast(n);
                 showBrowserNotif(n);
             });
-            lastSeenId = newest.id;
         }
     } catch (e) {
         // polling is best-effort

@@ -31,9 +31,17 @@ class Client extends Model
         return $this->hasMany(Payment::class);
     }
 
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
+
     public function ledger()
     {
-        return $this->hasMany(ClientLedger::class)->orderBy('transaction_date');
+        return $this->hasMany(ClientLedger::class)
+            ->orderBy('transaction_date', 'asc')
+            ->orderByRaw("CASE WHEN type = 'project_budget' THEN 1 WHEN debit > 0 THEN 2 ELSE 3 END")
+            ->orderBy('id', 'asc');
     }
 
     public function quotations()
@@ -43,6 +51,10 @@ class Client extends Model
 
     public function outstanding(): float
     {
+        if ($this->ledger()->exists()) {
+            return (float) $this->ledger()->sum('debit') - (float) $this->ledger()->sum('credit');
+        }
+
         return (float) $this->invoices()->sum('total') - (float) $this->payments()->sum('amount');
     }
 
@@ -51,9 +63,15 @@ class Client extends Model
         return DB::transaction(function () {
             $record = static::withTrashed()->lockForUpdate()->latest('id')->first();
             $last = $record?->client_number;
-            $num = $last ? ((int) substr($last, 4)) + 1 : 1;
 
-            return 'CL-' . str_pad($num, 4, '0', STR_PAD_LEFT);
+            $num = 1;
+            if ($last && preg_match('/(\d+)$/', $last, $matches)) {
+                $num = ((int) $matches[1]) + 1;
+            } elseif ($record) {
+                $num = $record->id + 1;
+            }
+
+            return 'CL-' . str_pad((string) $num, 4, '0', STR_PAD_LEFT);
         });
     }
 }

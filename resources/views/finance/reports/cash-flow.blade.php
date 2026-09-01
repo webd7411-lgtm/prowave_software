@@ -23,7 +23,7 @@
 </div>
 
 {{-- Date filter --}}
-<div class="card mb-4">
+<div class="card mb-4 d-print-none">
     <div class="card-body py-2">
         <form method="GET" class="row g-2 align-items-end">
             <div class="col-6 col-sm-4 col-md-3 col-lg-2">
@@ -42,7 +42,7 @@
 </div>
 
 {{-- Summary --}}
-<div class="row g-3 mb-4">
+<div class="row g-3 mb-4 d-print-none">
     <div class="col-6 col-md-4 col-xl-2">
         <div class="fin-kpi-card fin-income">
             <div class="fin-kpi-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
@@ -94,7 +94,7 @@
 </div>
 
 <div class="row g-3">
-    <div class="col-12 col-lg-5">
+    <div class="col-12 col-lg-5 d-print-none">
         <div class="card h-100">
             <div class="card-header"><h5 class="mb-0"><i class="bi bi-bar-chart me-2 text-primary"></i>Monthly In vs Out</h5></div>
             <div class="card-body">

@@ -26,6 +26,7 @@ class Project extends Model
         'priority',
         'status',
         'budget',
+        'currency',
         'estimated_hours',
         'actual_hours',
         'progress',
@@ -97,6 +98,32 @@ class Project extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(ProjectExpense::class)->latest();
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderBy('payment_date', 'desc');
+    }
+
+    public function getPaidAmountAttribute(): float
+    {
+        $direct = (float) $this->payments()->sum('amount');
+        $invoicePayments = (float) Payment::whereHas('invoice', function ($q) {
+            $q->where('project_id', $this->id);
+        })->whereNotIn('id', $this->payments()->pluck('id'))->sum('amount');
+
+        $totalPaid = $direct + $invoicePayments;
+
+        if ($this->budget > 0) {
+            return min((float) $this->budget, $totalPaid);
+        }
+
+        return $totalPaid;
+    }
+
+    public function getRemainingBalanceAttribute(): float
+    {
+        return max(0, (float) $this->budget - $this->paid_amount);
     }
 
     public function activities(): HasMany
@@ -185,16 +212,17 @@ class Project extends Model
 
     public function recalculateProgress(): void
     {
-        if ($this->status === 'Completed') {
-            $this->update(['progress' => 100]);
-            return;
-        }
-
         $totalTasks = $this->tasks()->count();
         if ($totalTasks > 0) {
             $completedTasks = $this->tasks()->where('status', 'Completed')->count();
             $avgProgress = (int) round(($completedTasks / $totalTasks) * 100);
-            $this->update(['progress' => $avgProgress]);
+            $data = ['progress' => $avgProgress];
+            if ($avgProgress === 100 && $this->status !== 'Cancelled') {
+                $data['status'] = 'Completed';
+            }
+            $this->update($data);
+        } elseif ($this->status === 'Completed') {
+            $this->update(['progress' => 100]);
         }
     }
 }
