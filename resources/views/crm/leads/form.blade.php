@@ -119,7 +119,7 @@
                                                 </div>
                                                 <div class="col-12 col-md-6">
                                                     <label class="form-label">Assigned To</label>
-                                                    @can('leads.view_all')
+                                                    @if(auth()->user()->can('leads.assign') || auth()->user()->can('leads.view_all'))
                                                     <select name="owner_id" class="form-select">
                                                         <option value="">Unassigned</option>
                                                         @foreach ($owners as $owner)

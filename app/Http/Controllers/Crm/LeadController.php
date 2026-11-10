@@ -35,7 +35,11 @@ class LeadController extends Controller
         }
 
         if ($request->filled('owner_id')) {
-            $query->where('owner_id', $request->owner_id);
+            if ($request->owner_id === 'unassigned') {
+                $query->whereNull('owner_id');
+            } else {
+                $query->where('owner_id', $request->owner_id);
+            }
         }
 
         if ($request->filled('from_date')) {
@@ -59,12 +63,20 @@ class LeadController extends Controller
             $perPage = 10;
         }
 
+        $canAssign = $this->canAssignLeads();
+        $salesTeam = $canAssign ? $this->salesTeamUsers() : collect();
+
         return view('crm.leads.index', [
             'leads' => $query->paginate($perPage)->withQueryString(),
             'filters' => $request->all(),
             'owners' => User::orderBy('name')->pluck('name', 'id'),
             'statuses' => $statusList,
             'statusColors' => $statusList->pluck('color', 'slug')->all(),
+            'canAssign' => $canAssign,
+            'salesTeam' => $salesTeam,
+            'unassignedCount' => Lead::whereNull('owner_id')->count(),
+            'myLeadsCount' => Lead::where('owner_id', auth()->id())->count(),
+            'totalLeadsCount' => Lead::count(),
         ]);
     }
 
@@ -139,6 +151,8 @@ class LeadController extends Controller
         return view('crm.leads.show', [
             'lead' => $lead,
             'statusColors' => $this->statusList()->pluck('color', 'slug')->all(),
+            'canAssign' => $this->canAssignLeads(),
+            'salesTeam' => $this->canAssignLeads() ? $this->salesTeamUsers() : collect(),
         ]);
     }
 
@@ -457,6 +471,374 @@ class LeadController extends Controller
             'type' => 'success',
             'message' => "{$count} lead(s) deleted successfully.",
         ]);
+    }
+
+    public function bulkAssign(Request $request): RedirectResponse
+    {
+        if (! $this->canAssignLeads()) {
+            abort(403, 'You do not have permission to assign leads.');
+        }
+
+        $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['exists:leads,id'],
+            'assign_type' => ['required', 'in:single,equal,unassign'],
+            'salesman_id' => ['nullable', 'required_if:assign_type,single', 'exists:users,id'],
+            'salesmen_ids' => ['nullable', 'required_if:assign_type,equal', 'array', 'min:1'],
+            'salesmen_ids.*' => ['exists:users,id'],
+        ]);
+
+        $leadIds = $request->input('ids', []);
+        $total = count($leadIds);
+        $type = $request->input('assign_type');
+        $actor = auth()->user();
+
+        DB::transaction(function () use ($leadIds, $type, $request, $actor, &$total) {
+            if ($type === 'unassign') {
+                Lead::whereIn('id', $leadIds)->update([
+                    'owner_id' => null,
+                    'updated_by' => $actor->id,
+                ]);
+
+                $activities = [];
+                $now = now();
+                foreach ($leadIds as $id) {
+                    $activities[] = [
+                        'lead_id' => $id,
+                        'type' => 'assigned',
+                        'subject' => 'Lead unassigned by ' . $actor->name,
+                        'created_by' => $actor->id,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+                foreach (array_chunk($activities, 500) as $chunk) {
+                    LeadActivity::insert($chunk);
+                }
+
+                return;
+            }
+
+            if ($type === 'single') {
+                $salesmanId = (int) $request->input('salesman_id');
+                $salesman = User::findOrFail($salesmanId);
+
+                Lead::whereIn('id', $leadIds)->update([
+                    'owner_id' => $salesmanId,
+                    'updated_by' => $actor->id,
+                ]);
+
+                $activities = [];
+                $now = now();
+                foreach ($leadIds as $id) {
+                    $activities[] = [
+                        'lead_id' => $id,
+                        'type' => 'assigned',
+                        'subject' => "Assigned to {$salesman->name} by {$actor->name}",
+                        'created_by' => $actor->id,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+                foreach (array_chunk($activities, 500) as $chunk) {
+                    LeadActivity::insert($chunk);
+                }
+
+                app(NotificationService::class)->send(
+                    $salesman,
+                    'Leads Assigned',
+                    "{$total} lead(s) have been assigned to you by {$actor->name}.",
+                    ['category' => 'lead', 'url' => route('crm.leads.index', ['owner_id' => $salesmanId]), 'color' => 'success']
+                );
+
+                return;
+            }
+
+            if ($type === 'equal') {
+                $salesmenIds = array_values(array_unique($request->input('salesmen_ids', [])));
+                $numSalesmen = count($salesmenIds);
+
+                $salesmen = User::whereIn('id', $salesmenIds)->get()->keyBy('id');
+                $distribution = [];
+                foreach ($salesmenIds as $sId) {
+                    $distribution[$sId] = [];
+                }
+
+                foreach ($leadIds as $idx => $leadId) {
+                    $assignedSalesmanId = $salesmenIds[$idx % $numSalesmen];
+                    $distribution[$assignedSalesmanId][] = $leadId;
+                }
+
+                $now = now();
+                $allActivities = [];
+
+                foreach ($distribution as $sId => $assignedIds) {
+                    if (empty($assignedIds)) {
+                        continue;
+                    }
+
+                    $sUser = $salesmen->get($sId);
+                    $salesmanName = $sUser?->name ?? 'Sales Person';
+
+                    Lead::whereIn('id', $assignedIds)->update([
+                        'owner_id' => $sId,
+                        'updated_by' => $actor->id,
+                    ]);
+
+                    foreach ($assignedIds as $leadId) {
+                        $allActivities[] = [
+                            'lead_id' => $leadId,
+                            'type' => 'assigned',
+                            'subject' => "Assigned to {$salesmanName} by {$actor->name}",
+                            'created_by' => $actor->id,
+                            'created_at' => $now,
+                            'updated_at' => $now,
+                        ];
+                    }
+
+                    if ($sUser) {
+                        $countAssigned = count($assignedIds);
+                        app(NotificationService::class)->send(
+                            $sUser,
+                            'Leads Assigned',
+                            "{$countAssigned} lead(s) have been assigned to you by {$actor->name}.",
+                            ['category' => 'lead', 'url' => route('crm.leads.index', ['owner_id' => $sId]), 'color' => 'success']
+                        );
+                    }
+                }
+
+                if (! empty($allActivities)) {
+                    foreach (array_chunk($allActivities, 500) as $chunk) {
+                        LeadActivity::insert($chunk);
+                    }
+                }
+            }
+        });
+
+        $message = "Successfully updated {$total} lead(s).";
+        if ($type === 'single') {
+            $salesman = User::find($request->input('salesman_id'));
+            $message = "Successfully assigned {$total} lead(s) to {$salesman?->name}.";
+        } elseif ($type === 'equal') {
+            $countSalesmen = count((array) $request->input('salesmen_ids'));
+            $message = "Successfully distributed {$total} lead(s) equally across {$countSalesmen} salesmen.";
+        } elseif ($type === 'unassign') {
+            $message = "Successfully unassigned {$total} lead(s).";
+        }
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => $message,
+        ]);
+    }
+
+    public function distribute(Request $request): RedirectResponse
+    {
+        if (! $this->canAssignLeads()) {
+            abort(403, 'You do not have permission to distribute leads.');
+        }
+
+        $request->validate([
+            'source_pool' => ['required', 'in:unassigned,my_leads,all,status'],
+            'status' => ['nullable', 'string'],
+            'total_limit' => ['nullable', 'integer', 'min:1'],
+            'distribution_mode' => ['required', 'in:equal,custom'],
+            'salesmen_ids' => ['nullable', 'required_if:distribution_mode,equal', 'array', 'min:1'],
+            'salesmen_ids.*' => ['exists:users,id'],
+            'custom_counts' => ['nullable', 'required_if:distribution_mode,custom', 'array'],
+        ]);
+
+        $sourcePool = $request->input('source_pool');
+        $query = Lead::query();
+
+        if ($sourcePool === 'unassigned') {
+            $query->whereNull('owner_id');
+        } elseif ($sourcePool === 'my_leads') {
+            $query->where('owner_id', auth()->id());
+        } elseif ($sourcePool === 'status' && $request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('status') && $sourcePool !== 'status') {
+            $query->where('status', $request->status);
+        }
+
+        $query->orderBy('id', 'asc');
+
+        if ($request->filled('total_limit') && (int) $request->total_limit > 0) {
+            $query->limit((int) $request->total_limit);
+        }
+
+        $leads = $query->get(['id', 'owner_id']);
+        $totalAvailable = $leads->count();
+
+        if ($totalAvailable === 0) {
+            return back()->with('toast', [
+                'type' => 'warning',
+                'message' => 'No matching leads found in the selected pool to distribute.',
+            ]);
+        }
+
+        $mode = $request->input('distribution_mode');
+        $distribution = [];
+        $actor = auth()->user();
+
+        if ($mode === 'equal') {
+            $salesmenIds = array_values(array_unique($request->input('salesmen_ids', [])));
+            $numSalesmen = count($salesmenIds);
+
+            if ($numSalesmen === 0) {
+                return back()->with('toast', [
+                    'type' => 'error',
+                    'message' => 'Please select at least one salesman for distribution.',
+                ]);
+            }
+
+            foreach ($salesmenIds as $sId) {
+                $distribution[$sId] = [];
+            }
+
+            foreach ($leads as $idx => $lead) {
+                $assignedId = $salesmenIds[$idx % $numSalesmen];
+                $distribution[$assignedId][] = $lead->id;
+            }
+        } else {
+            $customCounts = (array) $request->input('custom_counts', []);
+            $leadIndex = 0;
+
+            foreach ($customCounts as $salesmanId => $count) {
+                $count = (int) $count;
+                if ($count <= 0) {
+                    continue;
+                }
+
+                $distribution[$salesmanId] = [];
+                for ($i = 0; $i < $count && $leadIndex < $totalAvailable; $i++) {
+                    $distribution[$salesmanId][] = $leads[$leadIndex]->id;
+                    $leadIndex++;
+                }
+            }
+        }
+
+        $totalDistributed = 0;
+        $salesmen = User::whereIn('id', array_keys($distribution))->get()->keyBy('id');
+        $now = now();
+        $allActivities = [];
+
+        DB::transaction(function () use (&$distribution, $salesmen, $actor, $now, &$allActivities, &$totalDistributed) {
+            foreach ($distribution as $salesmanId => $assignedIds) {
+                if (empty($assignedIds)) {
+                    continue;
+                }
+
+                $totalDistributed += count($assignedIds);
+                $sUser = $salesmen->get($salesmanId);
+                $salesmanName = $sUser?->name ?? 'Sales Person';
+
+                Lead::whereIn('id', $assignedIds)->update([
+                    'owner_id' => $salesmanId,
+                    'updated_by' => $actor->id,
+                ]);
+
+                foreach ($assignedIds as $leadId) {
+                    $allActivities[] = [
+                        'lead_id' => $leadId,
+                        'type' => 'assigned',
+                        'subject' => "Lead distributed and assigned to {$salesmanName} by {$actor->name}",
+                        'created_by' => $actor->id,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ];
+                }
+
+                if ($sUser) {
+                    $c = count($assignedIds);
+                    app(NotificationService::class)->send(
+                        $sUser,
+                        'New Leads Assigned',
+                        "{$c} lead(s) have been distributed and assigned to you by {$actor->name}.",
+                        ['category' => 'lead', 'url' => route('crm.leads.index', ['owner_id' => $salesmanId]), 'color' => 'success']
+                    );
+                }
+            }
+
+            if (! empty($allActivities)) {
+                foreach (array_chunk($allActivities, 500) as $chunk) {
+                    LeadActivity::insert($chunk);
+                }
+            }
+        });
+
+        $numSalesmen = count(array_filter($distribution, fn ($arr) => ! empty($arr)));
+        $avg = $numSalesmen > 0 ? round($totalDistributed / $numSalesmen) : 0;
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => "Successfully distributed {$totalDistributed} lead(s) among {$numSalesmen} salesmen (approx. {$avg} each).",
+        ]);
+    }
+
+    public function assignSingle(Request $request, Lead $lead): RedirectResponse
+    {
+        if (! $this->canAssignLeads()) {
+            abort(403, 'You do not have permission to assign leads.');
+        }
+
+        $request->validate([
+            'owner_id' => ['nullable', 'exists:users,id'],
+        ]);
+
+        $ownerId = $request->input('owner_id') ?: null;
+        $actor = auth()->user();
+
+        $lead->update([
+            'owner_id' => $ownerId,
+            'updated_by' => $actor->id,
+        ]);
+
+        $ownerName = $ownerId ? User::find($ownerId)?->name : 'Unassigned';
+
+        LeadActivity::create([
+            'lead_id' => $lead->id,
+            'type' => 'assigned',
+            'subject' => $ownerId ? "Assigned to {$ownerName} by {$actor->name}" : "Unassigned by {$actor->name}",
+            'created_by' => $actor->id,
+        ]);
+
+        if ($ownerId && $newOwner = User::find($ownerId)) {
+            app(NotificationService::class)->send(
+                $newOwner,
+                'Lead Assigned',
+                "Lead '{$lead->company_name}' has been assigned to you by {$actor->name}.",
+                ['category' => 'lead', 'url' => route('crm.leads.show', $lead), 'color' => 'info']
+            );
+        }
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => "Lead owner updated to {$ownerName}.",
+        ]);
+    }
+
+    private function canAssignLeads(): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        return $user->can('leads.assign')
+            || $user->can('leads.view_all')
+            || $user->hasRole(['Super Admin', 'Administrator', 'Sales Manager']);
+    }
+
+    private function salesTeamUsers()
+    {
+        return User::where('status', 'active')
+            ->with('roles')
+            ->withCount('leads')
+            ->orderBy('name')
+            ->get();
     }
 
 
@@ -800,6 +1182,17 @@ class LeadController extends Controller
             $rawHeader
         );
 
+        $assignOption = $request->input('assign_option', 'me');
+        $singleAssignId = $request->input('assign_single_id');
+        $splitSalesmenIds = array_values(array_filter((array) $request->input('assign_split_ids', [])));
+        $numSplit = count($splitSalesmenIds);
+        $assignedStats = [];
+        if ($assignOption === 'split' && $numSplit > 0) {
+            foreach ($splitSalesmenIds as $sId) {
+                $assignedStats[$sId] = 0;
+            }
+        }
+
         $aliases = [
             'company_name' => ['companyname', 'company', 'name', 'business', 'businessname', 'client', 'leadname', 'organisation', 'organization'],
             'contact_person' => ['contactperson', 'contactname', 'person', 'personname', 'fullname', 'clientperson', 'contact'],
@@ -911,7 +1304,17 @@ class LeadController extends Controller
                 unset($data['expected_closing_date']);
             }
 
-            $data['owner_id'] = auth()->id();
+            $ownerId = auth()->id();
+            if ($assignOption === 'unassigned') {
+                $ownerId = null;
+            } elseif ($assignOption === 'single' && $singleAssignId) {
+                $ownerId = (int) $singleAssignId;
+            } elseif ($assignOption === 'split' && $numSplit > 0) {
+                $ownerId = (int) $splitSalesmenIds[$created % $numSplit];
+                $assignedStats[$ownerId] = ($assignedStats[$ownerId] ?? 0) + 1;
+            }
+
+            $data['owner_id'] = $ownerId;
             $data['created_by'] = auth()->id();
             $data['updated_by'] = auth()->id();
             $data['stage'] = $this->stage($data['status']);
@@ -924,6 +1327,38 @@ class LeadController extends Controller
         $msg = "Import complete: {$created} lead(s) created.";
         if ($duplicates > 0 || $missingData > 0) {
             $msg .= " ({$duplicates} duplicate phone(s) skipped, {$missingData} empty row(s) skipped)";
+        }
+
+        if ($assignOption === 'split' && $numSplit > 0 && $created > 0) {
+            $actorName = auth()->user()->name;
+            foreach ($assignedStats as $sId => $assignedCount) {
+                if ($assignedCount > 0 && $user = User::find($sId)) {
+                    app(NotificationService::class)->send(
+                        $user,
+                        'New Leads Imported',
+                        "{$assignedCount} new lead(s) have been imported and assigned to you by {$actorName}.",
+                        ['category' => 'lead', 'url' => route('crm.leads.index', ['owner_id' => $sId]), 'color' => 'info']
+                    );
+                }
+            }
+            $breakdown = [];
+            foreach ($assignedStats as $sId => $cnt) {
+                $uName = User::find($sId)?->name ?? "User #{$sId}";
+                $breakdown[] = "{$uName}: {$cnt}";
+            }
+            $msg .= " · Auto-split: " . implode(', ', $breakdown);
+        } elseif ($assignOption === 'single' && $singleAssignId && $created > 0) {
+            if ($user = User::find($singleAssignId)) {
+                app(NotificationService::class)->send(
+                    $user,
+                    'New Leads Imported',
+                    "{$created} new lead(s) have been imported and assigned to you by " . auth()->user()->name . ".",
+                    ['category' => 'lead', 'url' => route('crm.leads.index', ['owner_id' => $singleAssignId]), 'color' => 'info']
+                );
+                $msg .= " · Assigned to {$user->name}";
+            }
+        } elseif ($assignOption === 'unassigned' && $created > 0) {
+            $msg .= " · Saved as Unassigned";
         }
 
         return back()->with('toast', [

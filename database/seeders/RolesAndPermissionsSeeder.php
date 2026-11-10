@@ -149,6 +149,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'leads.create',
                 'leads.edit',
                 'leads.delete',
+                'leads.assign',
                 'leads.import',
                 'leads.export',
                 'leads.convert',

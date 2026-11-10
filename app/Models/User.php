@@ -143,6 +143,11 @@ protected $casts = [
         return $this->hasMany(config('activitylog.activity_model'), 'causer_id');
     }
 
+    public function leads(): HasMany
+    {
+        return $this->hasMany(Lead::class, 'owner_id');
+    }
+
     public function loginLogs(): HasMany
     {
         return $this->hasMany(LoginLog::class);

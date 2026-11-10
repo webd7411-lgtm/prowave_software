@@ -53,7 +53,20 @@
                     <span class="text-muted d-block">Estimated budget</span>{{ $lead->estimated_budget ? number_format($lead->estimated_budget, 2) : '—' }}
                 </div>
                 <div class="col-6">
-                    <span class="text-muted d-block">Owner</span>{{ $lead->owner?->name ?? 'Unassigned' }}
+                    <span class="text-muted d-block">Owner</span>
+                    @if($canAssign ?? false)
+                        <form method="POST" action="{{ route('crm.leads.assign', $lead) }}" class="d-inline-flex align-items-center gap-1 mt-1">
+                            @csrf @method('PATCH')
+                            <select name="owner_id" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 140px;">
+                                <option value="">Unassigned</option>
+                                @foreach($salesTeam as $u)
+                                    <option value="{{ $u->id }}" @selected($lead->owner_id == $u->id)>{{ $u->name }}</option>
+                                @endforeach
+                            </select>
+                        </form>
+                    @else
+                        <span class="fw-semibold">{{ $lead->owner?->name ?? 'Unassigned' }}</span>
+                    @endif
                 </div>
                 <div class="col-6">
                     <span class="text-muted d-block">Expected close</span>{{ $lead->expected_closing_date?->format('M d, Y') ?? '—' }}

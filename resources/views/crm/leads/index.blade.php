@@ -95,6 +95,9 @@
     .btn-top-import { background: #e0f2fe; color: #0369a1; border: 1.5px solid #bae6fd; font-weight: 600; }
     .btn-top-import:hover { background: #bae6fd; color: #075985; }
 
+    .btn-top-distribute { background: #eef2ff; color: #4338ca; border: 1.5px solid #c7d2fe; font-weight: 600; }
+    .btn-top-distribute:hover { background: #e0e7ff; color: #3730a3; }
+
     .btn-top-statuses { background: #f3e8ff; color: #7e22ce; border: 1.5px solid #e9d5ff; font-weight: 600; }
     .btn-top-statuses:hover { background: #e9d5ff; color: #6b21a8; }
 
@@ -185,9 +188,15 @@
             <a href="{{ route('crm.leads.pipeline') }}" class="btn btn-top-pipeline px-3 rounded-3"><i class="bi bi-kanban me-1"></i>Pipeline</a>
             <a href="{{ route('crm.leads.export', request()->query()) }}" class="btn btn-top-export px-3 rounded-3"><i class="bi bi-download me-1"></i>Export</a>
             <button type="button" class="btn btn-top-print px-3 rounded-3" id="printSelectedBtn"><i class="bi bi-printer me-1"></i>Print</button>
+            @if($canAssign)
+                <button type="button" class="btn btn-primary d-none px-3 rounded-3" id="bulkAssignBtn" data-bs-toggle="modal" data-bs-target="#bulkAssignModal"><i class="bi bi-person-check-fill me-1"></i>Assign Selected (<span class="selected-assign-count">0</span>)</button>
+            @endif
             @can('leads.delete')
                 <button type="button" class="btn btn-danger d-none px-3 rounded-3" id="bulkDeleteBtn"><i class="bi bi-trash me-1"></i>Delete Selected (<span id="selectedCount">0</span>)</button>
             @endcan
+            @if($canAssign)
+                <button type="button" class="btn btn-top-distribute px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#distributeLeadsModal" title="Split & Distribute Leads among Salesmen"><i class="bi bi-diagram-3-fill me-1"></i>Distribute Leads</button>
+            @endif
             <button type="button" class="btn btn-top-import px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#importLeadsModal"><i class="bi bi-upload me-1"></i>Import</button>
             @can('leads.edit')
                 <button type="button" class="btn btn-top-statuses px-3 rounded-3" data-bs-toggle="modal" data-bs-target="#statusesModal"><i class="bi bi-tags me-1"></i>Statuses</button>
@@ -227,6 +236,7 @@
                     <label class="form-label fs-xs mb-1">Owner</label>
                     <select name="owner_id" id="filter-owner" class="form-select auto-filter">
                         <option value="">All owners</option>
+                        <option value="unassigned" @selected(($filters['owner_id']??'')==='unassigned')>⚡ Unassigned ({{ $unassignedCount }})</option>
                         @foreach($owners as $id=>$n)
                             <option value="{{ $id }}" @selected(($filters['owner_id']??'')==$id)>{{ $n }}</option>
                         @endforeach
@@ -651,7 +661,7 @@
     function updateBulkDeleteState() {
         var ids = [];
         document.querySelectorAll('.lead-checkbox:checked, .lead-checkbox-mobile:checked').forEach(function(cb) {
-            ids.push(cb.value);
+            if (!ids.includes(cb.value)) ids.push(cb.value);
         });
         var btn = document.getElementById('bulkDeleteBtn');
         var countSpan = document.getElementById('selectedCount');
@@ -663,6 +673,17 @@
                 btn.classList.add('d-none');
             }
         }
+        var assignBtn = document.getElementById('bulkAssignBtn');
+        var assignCountSpans = document.querySelectorAll('.selected-assign-count');
+        if (assignBtn) {
+            assignCountSpans.forEach(function(s) { s.textContent = ids.length; });
+            if (ids.length > 0) {
+                assignBtn.classList.remove('d-none');
+            } else {
+                assignBtn.classList.add('d-none');
+            }
+        }
+    }
     }
 </script>
 @endsection
@@ -930,7 +951,193 @@ var bindStatusDropdowns;
                 }
             });
         }
+
+        var bulkAssignBtn = document.getElementById('bulkAssignBtn');
+        if (bulkAssignBtn) {
+            bulkAssignBtn.addEventListener('click', function() {
+                var ids = getSelectedIds();
+                var container = document.getElementById('bulkAssignHiddenInputs');
+                if (container) {
+                    container.innerHTML = '';
+                    ids.forEach(function(id) {
+                        var input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'ids[]';
+                        input.value = id;
+                        container.appendChild(input);
+                    });
+                }
+                var assignCountSpans = document.querySelectorAll('.selected-assign-count');
+                assignCountSpans.forEach(function(s) { s.textContent = ids.length; });
+                if (typeof updateBulkSplitPreview === 'function') {
+                    updateBulkSplitPreview();
+                }
+            });
+        }
+
+        var distModalEl = document.getElementById('distributeLeadsModal');
+        if (distModalEl) {
+            distModalEl.addEventListener('show.bs.modal', function() {
+                if (typeof updatePoolCounts === 'function') {
+                    updatePoolCounts();
+                }
+            });
+        }
     });
+
+    window.poolCounts = {
+        unassigned: {{ (int) $unassignedCount }},
+        my_leads: {{ (int) $myLeadsCount }},
+        all: {{ (int) $totalLeadsCount }}
+    };
+
+    window.updatePoolCounts = function() {
+        var pool = document.querySelector('input[name="source_pool"]:checked')?.value || 'unassigned';
+        var max = window.poolCounts[pool] ?? 0;
+        var limitInput = document.getElementById('distributeTotalLimit');
+        if (limitInput && limitInput.dataset.userEdited !== 'true') {
+            limitInput.placeholder = 'All available (' + max + ' leads)';
+        }
+        calculateDistributionPreview();
+    };
+
+    window.setDistributeMax = function() {
+        var pool = document.querySelector('input[name="source_pool"]:checked')?.value || 'unassigned';
+        var max = window.poolCounts[pool] ?? 0;
+        var limitInput = document.getElementById('distributeTotalLimit');
+        if (limitInput) {
+            limitInput.value = max;
+            limitInput.dataset.userEdited = 'true';
+            calculateDistributionPreview();
+        }
+    };
+
+    window.calculateDistributionPreview = function() {
+        var pool = document.querySelector('input[name="source_pool"]:checked')?.value || 'unassigned';
+        var maxAvailable = window.poolCounts[pool] ?? 0;
+        var limitInput = document.getElementById('distributeTotalLimit');
+        var count = limitInput && limitInput.value ? parseInt(limitInput.value, 10) : maxAvailable;
+        if (isNaN(count) || count < 0) count = 0;
+        if (count > maxAvailable && maxAvailable > 0) count = maxAvailable;
+
+        var checkedSalesmen = document.querySelectorAll('.distribute-salesman-cb:checked');
+        var numSalesmen = checkedSalesmen.length;
+
+        var previewText = document.getElementById('distributePreviewText');
+        var confirmBtn = document.getElementById('confirmDistributeBtn');
+
+        var mode = document.querySelector('input[name="distribution_mode"]:checked')?.value || 'equal';
+
+        if (mode === 'custom') {
+            calculateCustomTotal();
+            return;
+        }
+
+        if (numSalesmen === 0) {
+            if (previewText) previewText.innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>Please select at least 1 salesman.</span>';
+            if (confirmBtn) confirmBtn.disabled = true;
+            return;
+        }
+
+        if (count === 0) {
+            if (previewText) previewText.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i>No leads available in selected pool to distribute.</span>';
+            if (confirmBtn) confirmBtn.disabled = true;
+            return;
+        }
+
+        var perPerson = Math.floor(count / numSalesmen);
+        var remainder = count % numSalesmen;
+        var html = '<strong>' + count.toLocaleString() + ' leads</strong> will be distributed among <strong>' + numSalesmen + ' salesmen</strong>: ~<strong>' + perPerson.toLocaleString() + ' leads each</strong>';
+        if (remainder > 0) {
+            html += ' <small class="text-muted">(' + remainder + ' remainder distributed round-robin)</small>';
+        }
+        html += '.';
+
+        if (previewText) previewText.innerHTML = html;
+        if (confirmBtn) confirmBtn.disabled = false;
+    };
+
+    window.toggleAllDistributeSalesmen = function(check) {
+        document.querySelectorAll('.distribute-salesman-cb').forEach(function(cb) {
+            cb.checked = check;
+        });
+        calculateDistributionPreview();
+    };
+
+    window.handleDistModeChange = function() {
+        var mode = document.querySelector('input[name="distribution_mode"]:checked')?.value || 'equal';
+        var customBox = document.getElementById('customCountsContainer');
+
+        if (mode === 'custom') {
+            if (customBox) customBox.classList.remove('d-none');
+            calculateCustomTotal();
+        } else {
+            if (customBox) customBox.classList.add('d-none');
+            calculateDistributionPreview();
+        }
+    };
+
+    window.calculateCustomTotal = function() {
+        var total = 0;
+        document.querySelectorAll('.custom-count-field').forEach(function(input) {
+            var val = parseInt(input.value, 10);
+            if (!isNaN(val) && val > 0) total += val;
+        });
+        var summary = document.getElementById('customTotalSummary');
+        if (summary) summary.textContent = total.toLocaleString();
+
+        var previewText = document.getElementById('distributePreviewText');
+        var confirmBtn = document.getElementById('confirmDistributeBtn');
+        if (previewText) {
+            previewText.innerHTML = '<strong>' + total.toLocaleString() + ' leads</strong> configured for custom distribution across salesmen.';
+        }
+        if (confirmBtn) confirmBtn.disabled = (total <= 0);
+    };
+
+    window.handleBulkAssignTypeChange = function(type) {
+        var singleBox = document.getElementById('bulkAssignSingleContainer');
+        var multiBox = document.getElementById('bulkAssignMultiContainer');
+        if (singleBox) singleBox.classList.toggle('d-none', type !== 'single');
+        if (multiBox) multiBox.classList.toggle('d-none', type !== 'equal');
+        if (type === 'equal') {
+            updateBulkSplitPreview();
+        }
+    };
+
+    window.toggleBulkMultiSalesmen = function() {
+        var cbs = document.querySelectorAll('.bulk-multi-salesman-cb');
+        var anyUnchecked = Array.from(cbs).some(function(cb) { return !cb.checked; });
+        cbs.forEach(function(cb) { cb.checked = anyUnchecked; });
+        updateBulkSplitPreview();
+    };
+
+    window.updateBulkSplitPreview = function() {
+        var countSpan = document.querySelector('.selected-assign-count');
+        var count = countSpan ? parseInt(countSpan.textContent, 10) : 0;
+        var checked = document.querySelectorAll('.bulk-multi-salesman-cb:checked').length;
+        var text = document.getElementById('bulkSplitPreviewText');
+        if (text) {
+            if (checked === 0) {
+                text.textContent = 'Please check at least one salesman.';
+            } else {
+                var per = Math.floor(count / checked);
+                text.textContent = count + ' leads ÷ ' + checked + ' salesmen = ~' + per + ' leads each.';
+            }
+        }
+    };
+
+    window.toggleImportAssignOptions = function(opt) {
+        var singleBox = document.getElementById('importSingleUserBox');
+        var splitBox = document.getElementById('importSplitUsersBox');
+        if (singleBox) singleBox.classList.toggle('d-none', opt !== 'single');
+        if (splitBox) splitBox.classList.toggle('d-none', opt !== 'split');
+    };
+
+    window.toggleImportSplitCheckboxes = function(check) {
+        document.querySelectorAll('.import-split-cb').forEach(function(cb) {
+            cb.checked = check;
+        });
+    };
 })();
 </script>
 @can('leads.delete')
@@ -958,6 +1165,63 @@ var bindStatusDropdowns;
                         <small class="d-block text-muted mt-1">All other fields are optional and will use defaults if left empty.</small>
                     </div>
                     <input type="file" name="file" class="form-control rounded-3" accept=".xlsx,.xls,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" required>
+
+                    @if($canAssign)
+                    <div class="mt-3 pt-3 border-top">
+                        <label class="form-label fw-bold fs-xs text-uppercase text-muted mb-2"><i class="bi bi-person-gear me-1"></i>Automatic Lead Assignment on Import</label>
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <label class="form-check p-2 border rounded-2 cursor-pointer mb-0">
+                                <input class="form-check-input import-assign-radio ms-0 me-2" type="radio" name="assign_option" id="importAssignMe" value="me" checked onchange="toggleImportAssignOptions('me')">
+                                <span class="fs-xs fw-semibold">Assign all to Me (Admin)</span>
+                            </label>
+                            <label class="form-check p-2 border rounded-2 cursor-pointer mb-0">
+                                <input class="form-check-input import-assign-radio ms-0 me-2" type="radio" name="assign_option" id="importAssignUnassigned" value="unassigned" onchange="toggleImportAssignOptions('unassigned')">
+                                <span class="fs-xs fw-semibold text-muted">Leave as Unassigned leads (assign later)</span>
+                            </label>
+                            <label class="form-check p-2 border rounded-2 cursor-pointer mb-0">
+                                <input class="form-check-input import-assign-radio ms-0 me-2" type="radio" name="assign_option" id="importAssignSingle" value="single" onchange="toggleImportAssignOptions('single')">
+                                <span class="fs-xs fw-semibold">Assign all to a specific Salesman</span>
+                            </label>
+                            <label class="form-check p-2 border rounded-2 cursor-pointer mb-0 bg-primary-subtle border-primary-subtle">
+                                <input class="form-check-input import-assign-radio ms-0 me-2" type="radio" name="assign_option" id="importAssignSplit" value="split" onchange="toggleImportAssignOptions('split')">
+                                <span class="fs-xs fw-bold text-primary"><i class="bi bi-diagram-3-fill me-1"></i>Auto-Split & Distribute equally among Salesmen (e.g. 1000 leads &rarr; 200 each)</span>
+                            </label>
+                        </div>
+
+                        <div id="importSingleUserBox" class="d-none mb-3">
+                            <label class="form-label fs-xs fw-bold text-muted mb-1">Select Salesman:</label>
+                            <select name="assign_single_id" class="form-select form-select-sm rounded-2">
+                                @foreach($salesTeam as $u)
+                                    <option value="{{ $u->id }}">{{ $u->name }} ({{ $u->roles->pluck('name')->implode(', ') ?: 'Staff' }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div id="importSplitUsersBox" class="d-none mb-3 p-3 border rounded-3 bg-light">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fs-xs fw-bold text-dark">Check salesmen to divide imported leads:</span>
+                                <div>
+                                    <button type="button" class="btn btn-link btn-sm p-0 fs-xs text-decoration-none" onclick="toggleImportSplitCheckboxes(true)">All</button>
+                                    <span class="text-muted mx-1">&middot;</span>
+                                    <button type="button" class="btn btn-link btn-sm p-0 fs-xs text-decoration-none" onclick="toggleImportSplitCheckboxes(false)">None</button>
+                                </div>
+                            </div>
+                            <div class="row g-2" style="max-height: 160px; overflow-y: auto;">
+                                @foreach($salesTeam as $u)
+                                    <div class="col-6">
+                                        <div class="p-1 px-2 border rounded-2 bg-white d-flex align-items-center gap-2">
+                                            <input class="form-check-input import-split-cb mt-0" type="checkbox" name="assign_split_ids[]" value="{{ $u->id }}" id="import_user_{{ $u->id }}" checked>
+                                            <label class="form-check-label fs-xs fw-semibold text-truncate mb-0 cursor-pointer" for="import_user_{{ $u->id }}" title="{{ $u->name }}">
+                                                {{ $u->name }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <small class="text-muted d-block mt-2 fs-xs"><i class="bi bi-info-circle me-1"></i>Example: If 1,000 leads are in the file and 5 salesmen are checked, each salesman will automatically get 200 leads upon import.</small>
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
@@ -1009,3 +1273,254 @@ var bindStatusDropdowns;
     </div>
 </div>
 @endpush
+
+@if($canAssign)
+@push('modals')
+<!-- Distribute / Split Leads Modal -->
+<div class="modal fade" id="distributeLeadsModal" tabindex="-1" aria-labelledby="distributeLeadsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <form method="POST" action="{{ route('crm.leads.distribute') }}" id="distributeLeadsForm">
+                @csrf
+                <div class="modal-header border-bottom py-3 bg-light rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="distributeLeadsModalLabel">
+                        <i class="bi bi-diagram-3-fill me-2 text-primary"></i>Split & Distribute Leads
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <!-- Step 1: Select Source Pool -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge bg-primary rounded-circle me-1" style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;">1</span>
+                            Choose Leads Source Pool
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="card p-3 h-100 border cursor-pointer pool-option-card active" style="border-radius:10px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0" type="radio" name="source_pool" value="unassigned" checked onchange="updatePoolCounts()">
+                                        <div class="min-w-0">
+                                            <div class="fw-bold fs-sm text-dark">Unassigned Leads</div>
+                                            <small class="text-primary fw-bold fs-xs"><span id="poolCountUnassigned">{{ $unassignedCount }}</span> leads ready</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="card p-3 h-100 border cursor-pointer pool-option-card" style="border-radius:10px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0" type="radio" name="source_pool" value="my_leads" onchange="updatePoolCounts()">
+                                        <div class="min-w-0">
+                                            <div class="fw-bold fs-sm text-dark">My Leads</div>
+                                            <small class="text-muted fw-semibold fs-xs"><span id="poolCountMyLeads">{{ $myLeadsCount }}</span> leads owned</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="card p-3 h-100 border cursor-pointer pool-option-card" style="border-radius:10px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input class="form-check-input mt-0" type="radio" name="source_pool" value="all" onchange="updatePoolCounts()">
+                                        <div class="min-w-0">
+                                            <div class="fw-bold fs-sm text-dark">All Leads</div>
+                                            <small class="text-muted fw-semibold fs-xs">{{ $totalLeadsCount }} total in CRM</small>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter by status & quantity -->
+                    <div class="row g-3 mb-4 p-3 bg-light rounded-3">
+                        <div class="col-md-6">
+                            <label class="form-label fs-xs fw-bold text-muted mb-1">Filter by Status (Optional)</label>
+                            <select name="status" class="form-select form-select-sm" id="distributeStatus">
+                                <option value="">Any Status</option>
+                                @foreach($statuses as $s)
+                                    <option value="{{ $s->slug }}">{{ $s->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fs-xs fw-bold text-muted mb-0">Total Leads to Distribute</label>
+                                <span class="fs-xs text-primary cursor-pointer fw-semibold" onclick="setDistributeMax()" id="setMaxBtn">Set to All</span>
+                            </div>
+                            <input type="number" name="total_limit" id="distributeTotalLimit" class="form-control form-control-sm" placeholder="All available ({{ $unassignedCount }} leads)" min="1" oninput="calculateDistributionPreview()">
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Select Salesmen -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-dark mb-0">
+                                <span class="badge bg-primary rounded-circle me-1" style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;">2</span>
+                                Select Salesmen for Distribution
+                            </label>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2 fs-xs rounded-pill" onclick="toggleAllDistributeSalesmen(true)">Select All</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 fs-xs rounded-pill" onclick="toggleAllDistributeSalesmen(false)">Deselect All</button>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-3 p-3 bg-white" style="max-height: 220px; overflow-y: auto;">
+                            <div class="row g-2">
+                                @forelse($salesTeam as $salesman)
+                                    <div class="col-md-6">
+                                        <div class="p-2 border rounded-2 d-flex align-items-center justify-content-between bg-white salesman-item">
+                                            <div class="d-flex align-items-center gap-2 min-w-0">
+                                                <input class="form-check-input distribute-salesman-cb mt-0" type="checkbox" name="salesmen_ids[]" value="{{ $salesman->id }}" id="dist_user_{{ $salesman->id }}" checked onchange="calculateDistributionPreview()">
+                                                <label class="form-check-label fs-sm fw-semibold text-truncate mb-0 cursor-pointer" for="dist_user_{{ $salesman->id }}">
+                                                    {{ $salesman->name }}
+                                                    <span class="badge bg-secondary-subtle text-secondary fs-xs ms-1">{{ $salesman->roles->pluck('name')->first() ?: 'Sales' }}</span>
+                                                </label>
+                                            </div>
+                                            <span class="badge bg-light text-muted border fs-xs" title="Currently assigned leads">{{ $salesman->leads_count }} leads</span>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="col-12 text-center text-muted py-3">No active salesmen found.</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Distribution Mode & Live Preview -->
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge bg-primary rounded-circle me-1" style="width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;">3</span>
+                            Distribution Mode
+                        </label>
+                        <div class="d-flex flex-wrap gap-3 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="distribution_mode" id="distModeEqual" value="equal" checked onchange="handleDistModeChange()">
+                                <label class="form-check-label fw-semibold fs-sm" for="distModeEqual">
+                                    Equal Split (Round-Robin) — e.g. 1000 leads &divide; 5 salesmen = 200 each
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="distribution_mode" id="distModeCustom" value="custom" onchange="handleDistModeChange()">
+                                <label class="form-check-label fw-semibold fs-sm" for="distModeCustom">
+                                    Custom count per salesman
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Custom count inputs (hidden by default) -->
+                        <div id="customCountsContainer" class="d-none border rounded-3 p-3 mb-3 bg-light">
+                            <div class="fs-xs fw-bold text-dark mb-2">Specify number of leads for each selected salesman:</div>
+                            <div class="row g-2" id="customInputsList">
+                                @foreach($salesTeam as $salesman)
+                                    <div class="col-md-6 custom-input-row" data-user-id="{{ $salesman->id }}">
+                                        <div class="input-group input-group-sm">
+                                            <span class="input-group-text fw-semibold fs-xs" style="width:55%;">{{ Str::limit($salesman->name, 16) }}</span>
+                                            <input type="number" name="custom_counts[{{ $salesman->id }}]" class="form-control custom-count-field" placeholder="Count" min="0" value="0" oninput="calculateCustomTotal()">
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="fs-xs text-muted mt-2">Total assigned across custom inputs: <strong id="customTotalSummary">0</strong> leads</div>
+                        </div>
+
+                        <!-- Live Preview Banner -->
+                        <div class="alert alert-primary d-flex align-items-center gap-2 py-2 px-3 mb-0 rounded-3 border-0" id="distributionPreviewBanner" style="background:#eef2ff; color:#3730a3;">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                            <div class="fs-sm fw-semibold" id="distributePreviewText">
+                                Select pool and salesmen to preview distribution.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top py-2 px-4 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold" id="confirmDistributeBtn">
+                        <i class="bi bi-check2-circle me-1"></i>Distribute Leads Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Assign Selected Leads Modal -->
+<div class="modal fade" id="bulkAssignModal" tabindex="-1" aria-labelledby="bulkAssignModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <form method="POST" action="{{ route('crm.leads.bulk-assign') }}" id="bulkAssignForm">
+                @csrf
+                <div class="modal-header border-bottom py-3 bg-light rounded-top-4">
+                    <h5 class="modal-title fw-bold" id="bulkAssignModalLabel">
+                        <i class="bi bi-person-check-fill me-2 text-primary"></i>Assign Selected Leads
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="bulkAssignHiddenInputs"></div>
+
+                    <div class="alert alert-info py-2 px-3 mb-3 border-0 rounded-3 fs-sm fw-semibold">
+                        You have selected <strong class="text-primary selected-assign-count">0</strong> lead(s).
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold fs-xs text-uppercase text-muted mb-2">Assignment Type</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="border rounded-3 p-2 cursor-pointer d-flex align-items-center gap-2 mb-0">
+                                <input type="radio" class="form-check-input mt-0" name="assign_type" value="single" checked onchange="handleBulkAssignTypeChange('single')">
+                                <span class="fs-sm fw-semibold">Assign ALL selected leads to ONE Salesman</span>
+                            </label>
+                            <label class="border rounded-3 p-2 cursor-pointer d-flex align-items-center gap-2 mb-0">
+                                <input type="radio" class="form-check-input mt-0" name="assign_type" value="equal" onchange="handleBulkAssignTypeChange('equal')">
+                                <span class="fs-sm fw-semibold text-primary">Split & Distribute EQUALLY among multiple Salesmen</span>
+                            </label>
+                            <label class="border rounded-3 p-2 cursor-pointer d-flex align-items-center gap-2 mb-0">
+                                <input type="radio" class="form-check-input mt-0" name="assign_type" value="unassign" onchange="handleBulkAssignTypeChange('unassign')">
+                                <span class="fs-sm fw-semibold text-danger">Unassign selected leads</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Single Salesman Selection -->
+                    <div id="bulkAssignSingleContainer" class="mb-3">
+                        <label class="form-label fw-semibold fs-sm">Select Salesman</label>
+                        <select name="salesman_id" class="form-select">
+                            @foreach($salesTeam as $salesman)
+                                <option value="{{ $salesman->id }}">{{ $salesman->name }} ({{ $salesman->roles->pluck('name')->first() ?: 'Staff' }} - {{ $salesman->leads_count }} leads)</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Multi Salesmen Split Selection -->
+                    <div id="bulkAssignMultiContainer" class="d-none mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-semibold fs-sm mb-0">Select Salesmen to Share Selected Leads:</label>
+                            <button type="button" class="btn btn-link btn-sm p-0 fs-xs text-decoration-none" onclick="toggleBulkMultiSalesmen()">Toggle All</button>
+                        </div>
+                        <div class="border rounded-3 p-2 bg-light" style="max-height: 180px; overflow-y: auto;">
+                            @foreach($salesTeam as $salesman)
+                                <div class="form-check py-1">
+                                    <input class="form-check-input bulk-multi-salesman-cb" type="checkbox" name="salesmen_ids[]" value="{{ $salesman->id }}" id="bulk_s_{{ $salesman->id }}" checked onchange="updateBulkSplitPreview()">
+                                    <label class="form-check-label fs-xs fw-semibold cursor-pointer" for="bulk_s_{{ $salesman->id }}">
+                                        {{ $salesman->name }} ({{ $salesman->roles->pluck('name')->first() ?: 'Sales' }})
+                                    </label>
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="fs-xs fw-semibold text-primary mt-2" id="bulkSplitPreviewText"></div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top py-2 px-4 bg-light rounded-bottom-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold">
+                        <i class="bi bi-check2-circle me-1"></i>Apply Assignment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endpush
+@endif

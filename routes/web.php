@@ -397,7 +397,10 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
             Route::patch('/leads/{lead}/status', [LeadController::class, 'updateStatus'])->middleware('permission:leads.edit')->name('leads.status.update');
             Route::post('/leads/{lead}/move', [LeadController::class, 'move'])->middleware('permission:leads.edit')->name('leads.move');
             Route::post('/leads/{lead}/followups', [LeadController::class, 'followup'])->middleware('permission:followups.create')->name('leads.followups.store');
-            Route::post('/leads/{lead}/convert', [LeadController::class, 'convert'])->middleware('permission:leads.convert')->name('leads.convert');
+            Route::post('/leads/convert', [LeadController::class, 'convert'])->middleware('permission:leads.convert')->name('leads.convert');
+            Route::post('/leads/bulk-assign', [LeadController::class, 'bulkAssign'])->name('leads.bulk-assign');
+            Route::post('/leads/distribute', [LeadController::class, 'distribute'])->name('leads.distribute');
+            Route::patch('/leads/{lead}/assign', [LeadController::class, 'assignSingle'])->name('leads.assign');
             Route::post('/leads/bulk-delete', [LeadController::class, 'bulkDelete'])->middleware('permission:leads.delete')->name('leads.bulk-delete');
             Route::delete('/leads/{lead}', [LeadController::class, 'destroy'])->middleware('permission:leads.delete')->name('leads.destroy');
         });
