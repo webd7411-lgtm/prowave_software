@@ -8,7 +8,7 @@
     <title>@yield('title', 'Dashboard') — {{ app_name() }}</title>
     <meta name="description" content="@yield('meta_description', config('app.description', app_name().' — Enterprise Management System'))">
 
-    @vite(['resources/js/app.js'])
+    @include('layouts.partials.assets-css')
 
     {{-- No-flash theme: apply the saved theme before CSS paints --}}
     <script>
@@ -110,6 +110,7 @@
         </div>
     </div>
 
+    @include('layouts.partials.assets-js')
     @stack('modals')
     @stack('scripts')
     <script>

@@ -7,7 +7,7 @@
 
     <title>@yield('title', 'Welcome') — {{ app_name() }}</title>
 
-    @vite(['resources/js/app.js'])
+    @include('layouts.partials.assets-css', ['includeAppAssets' => false])
 
     <script>
         window.Prowave = {
@@ -64,6 +64,7 @@
         </div>
     </div>
 
+    @include('layouts.partials.assets-js', ['includeAppAssets' => false])
     @stack('scripts')
 </body>
 </html>
