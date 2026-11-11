@@ -18,7 +18,7 @@ class ProjectController extends Controller
     {
         $this->authorize('projects.view');
 
-        $query = Project::with(['client', 'manager', 'members.user', 'tasks'])
+        $query = Project::with(['client', 'manager', 'members.user'])
             ->withCount(['tasks as pending_tasks_count' => function ($q) {
                 $q->where('status', '!=', 'Completed');
             }])
@@ -83,11 +83,8 @@ class ProjectController extends Controller
 
         $projects = $query->paginate(12)->withQueryString();
 
-        // Summary Widget Counters
-        $totalProjects = Project::count();
-        $activeProjects = Project::whereIn('status', ['Planning', 'In Progress', 'Not Started'])->count();
-        $completedProjects = Project::where('status', 'Completed')->count();
-        $overdueProjects = Project::where('status', '!=', 'Completed')->where('deadline', '<', now()->startOfDay())->count();
+        // Summary Widget Counters (single aggregated query instead of 4 separate COUNT queries)
+        ['total' => $totalProjects, 'active' => $activeProjects, 'completed' => $completedProjects, 'overdue' => $overdueProjects] = $this->summaryCounts();
 
         $clients = Client::orderBy('company_name')->get();
         $managers = User::orderBy('name')->get();
@@ -364,7 +361,7 @@ class ProjectController extends Controller
     {
         $this->authorize('projects.view');
 
-        $query = Project::with(['client', 'manager', 'members.user', 'tasks'])
+        $query = Project::with(['client', 'manager', 'members.user'])
             ->withCount(['tasks as pending_tasks_count' => function ($q) {
                 $q->where('status', '!=', 'Completed');
             }])
@@ -429,11 +426,8 @@ class ProjectController extends Controller
 
         $projects = $query->get();
 
-        // Summary Widget Counters
-        $totalProjects = Project::count();
-        $activeProjects = Project::whereIn('status', ['Planning', 'In Progress', 'Not Started'])->count();
-        $completedProjects = Project::where('status', 'Completed')->count();
-        $overdueProjects = Project::where('status', '!=', 'Completed')->where('deadline', '<', now()->startOfDay())->count();
+        // Summary Widget Counters (single aggregated query instead of 4 separate COUNT queries)
+        ['total' => $totalProjects, 'active' => $activeProjects, 'completed' => $completedProjects, 'overdue' => $overdueProjects] = $this->summaryCounts();
 
         $clients = Client::orderBy('company_name')->get();
         $managers = User::orderBy('name')->get();
@@ -559,5 +553,28 @@ class ProjectController extends Controller
             'type' => 'success',
             'message' => "Project import complete: {$created} created, {$skipped} skipped.",
         ]);
+    }
+
+    /**
+     * Fetch project summary KPI counts in a single aggregated query.
+     */
+    private function summaryCounts(): array
+    {
+        $row = Project::query()
+            ->selectRaw(
+                "COUNT(*) as total_projects,
+                SUM(CASE WHEN status IN ('Planning', 'In Progress', 'Not Started') THEN 1 ELSE 0 END) as active_projects,
+                SUM(CASE WHEN status = 'Completed' THEN 1 ELSE 0 END) as completed_projects,
+                SUM(CASE WHEN status != 'Completed' AND deadline < ? THEN 1 ELSE 0 END) as overdue_projects",
+                [now()->startOfDay()]
+            )
+            ->first();
+
+        return [
+            'total' => (int) ($row->total_projects ?? 0),
+            'active' => (int) ($row->active_projects ?? 0),
+            'completed' => (int) ($row->completed_projects ?? 0),
+            'overdue' => (int) ($row->overdue_projects ?? 0),
+        ];
     }
 }

@@ -198,7 +198,7 @@
             }, { once: true });
         }
 
-        poll();
+        // Initial notifications are already rendered server-side in navbar; poll in background only
         pollTimer = setInterval(poll, POLL_INTERVAL);
 
         document.addEventListener('visibilitychange', () => {

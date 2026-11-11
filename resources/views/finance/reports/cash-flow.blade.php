@@ -1,8 +1,5 @@
 @extends('layouts.app')
 @section('title', 'Cash Flow Report')
-@push('head')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-@endpush
 @section('content')
 <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-2 mb-4">
     <div>

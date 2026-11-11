@@ -684,7 +684,6 @@
             }
         }
     }
-    }
 </script>
 @endsection
 
@@ -766,77 +765,86 @@ var bindStatusDropdowns;
         return months[d.getMonth()] + ' ' + (d.getDate() < 10 ? '0' + d.getDate() : d.getDate()) + ', ' + d.getFullYear();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    function setupMeetingConfirm() {
         var btnConfirm = document.getElementById('btnConfirmMeeting');
-        if (btnConfirm) {
-            btnConfirm.addEventListener('click', function() {
-                var date = document.getElementById('meetingFollowUpDate').value;
-                var time = document.getElementById('meetingFollowUpTime').value;
-                if (!date) { notifyToast('error', 'Please select date.'); return; }
+        if (!btnConfirm || btnConfirm.dataset.bound) return;
+        btnConfirm.dataset.bound = 'true';
 
-                if (pendingSelect) {
-                    pendingSelect.value = pendingNewStatus;
-                }
-                var modalEl = document.getElementById('meetingScheduleModal');
-                var modal = modalEl ? getBootstrapModal(modalEl) : null;
-                if (modal) modal.hide();
-                notifyToast('info', 'Saving schedule...');
+        btnConfirm.addEventListener('click', function() {
+            var date = document.getElementById('meetingFollowUpDate').value;
+            var time = document.getElementById('meetingFollowUpTime').value;
+            if (!date) { notifyToast('error', 'Please select date.'); return; }
 
-                fetch('{{ url('/crm/leads') }}/' + pendingLeadId + '/status', {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({ status: pendingNewStatus, follow_up_date: date, follow_up_time: time })
-                })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (data.success) {
-                        notifyToast('success', data.message || 'Status updated successfully.');
-                        pendingOriginalValue = pendingNewStatus;
+            if (pendingSelect) {
+                pendingSelect.value = pendingNewStatus;
+            }
+            var modalEl = document.getElementById('meetingScheduleModal');
+            var modal = modalEl ? getBootstrapModal(modalEl) : null;
+            if (modal) modal.hide();
+            notifyToast('info', 'Saving schedule...');
 
-                        if (pendingSelect) {
-                            var parentDiv = pendingSelect.closest('.flex-grow-1') || pendingSelect.closest('td') || pendingSelect.parentElement;
-                            var infoEl = parentDiv.querySelector('.lead-schedule-info');
-                            var formattedText = formatDateFormatted(date) + (time ? ' ' + formatTime12h(time) : '');
-                            if (infoEl) {
-                                infoEl.innerHTML = '<i class="bi bi-clock me-1 text-primary"></i>' + formattedText;
-                            } else {
-                                var newDiv = document.createElement('div');
-                                newDiv.className = 'fs-xs text-muted mt-1 lead-schedule-info';
-                                newDiv.innerHTML = '<i class="bi bi-clock me-1 text-primary"></i>' + formattedText;
-                                parentDiv.appendChild(newDiv);
-                            }
-                        }
-                    } else {
-                        notifyToast('error', data.message || 'Failed to update status.');
-                        if (pendingSelect) pendingSelect.value = pendingOriginalValue;
-                    }
-                })
-                .catch(function() {
-                    notifyToast('error', 'Failed to update status.');
-                    if (pendingSelect) pendingSelect.value = pendingOriginalValue;
+            fetch('{{ url('/crm/leads') }}/' + pendingLeadId + '/status', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ status: pendingNewStatus, follow_up_date: date, follow_up_time: time })
+            })
+            .then(function(r) {
+                return r.json().then(function(data) {
+                    return { ok: r.ok, data: data };
                 });
+            })
+            .then(function(res) {
+                var data = res.data || {};
+                if (res.ok && data.success) {
+                    notifyToast('success', data.message || 'Status updated successfully.');
+                    pendingOriginalValue = pendingNewStatus;
+
+                    if (pendingSelect) {
+                        pendingSelect.dataset.originalValue = pendingNewStatus;
+                        var parentDiv = pendingSelect.closest('.flex-grow-1') || pendingSelect.closest('td') || pendingSelect.parentElement;
+                        var infoEl = parentDiv.querySelector('.lead-schedule-info');
+                        var formattedText = formatDateFormatted(date) + (time ? ' ' + formatTime12h(time) : '');
+                        if (infoEl) {
+                            infoEl.innerHTML = '<i class="bi bi-clock me-1 text-primary"></i>' + formattedText;
+                        } else {
+                            var newDiv = document.createElement('div');
+                            newDiv.className = 'fs-xs text-muted mt-1 lead-schedule-info';
+                            newDiv.innerHTML = '<i class="bi bi-clock me-1 text-primary"></i>' + formattedText;
+                            parentDiv.appendChild(newDiv);
+                        }
+                    }
+                } else {
+                    notifyToast('error', data.message || 'Failed to update status.');
+                    if (pendingSelect) pendingSelect.value = pendingOriginalValue;
+                }
+            })
+            .catch(function() {
+                notifyToast('error', 'Failed to update status.');
+                if (pendingSelect) pendingSelect.value = pendingOriginalValue;
             });
-        }
-    });
+        });
+    }
 
     bindStatusDropdowns = function() {
         document.querySelectorAll('.lead-status-dropdown').forEach(function(select) {
             if (select.dataset.bound) return;
             select.dataset.bound = "true";
-            var originalValue = select.value;
+            select.dataset.originalValue = select.value;
+
             select.addEventListener('change', function() {
                 var leadId = this.getAttribute('data-lead-id');
                 var newStatus = this.value;
+                var prevStatus = this.dataset.originalValue || '';
 
                 if (newStatus === 'meeting_scheduled' || newStatus === 'call_again') {
                     pendingLeadId = leadId;
                     pendingSelect = this;
-                    pendingOriginalValue = originalValue;
+                    pendingOriginalValue = prevStatus;
                     pendingNewStatus = newStatus;
 
                     var isCall = newStatus === 'call_again';
@@ -848,11 +856,11 @@ var bindStatusDropdowns;
                     document.getElementById('meetingLeadName').textContent = name;
                     document.getElementById('meetingFollowUpDate').value = '';
                     document.getElementById('meetingFollowUpTime').value = '';
-                    
+
                     var modalEl = document.getElementById('meetingScheduleModal');
                     var modal = modalEl ? getBootstrapModal(modalEl) : null;
                     if (modal) modal.show();
-                    this.value = originalValue;
+                    this.value = prevStatus;
                     return;
                 }
 
@@ -867,28 +875,44 @@ var bindStatusDropdowns;
                     },
                     body: JSON.stringify({ status: newStatus })
                 })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    if (data.success) {
+                .then(function(r) {
+                    return r.json().then(function(data) {
+                        return { ok: r.ok, data: data };
+                    });
+                })
+                .then(function(res) {
+                    var data = res.data || {};
+                    if (res.ok && data.success) {
                         notifyToast('success', data.message || 'Status updated.');
-                        originalValue = newStatus;
+                        currentSelect.dataset.originalValue = newStatus;
                         var parentDiv = currentSelect.closest('.flex-grow-1') || currentSelect.closest('td') || currentSelect.parentElement;
                         var infoEl = parentDiv.querySelector('.lead-schedule-info');
                         if (infoEl) infoEl.remove();
                     } else {
                         notifyToast('error', data.message || 'Failed to update status.');
-                        currentSelect.value = originalValue;
+                        currentSelect.value = prevStatus;
                     }
                 })
                 .catch(function() {
                     notifyToast('error', 'Failed to update status.');
-                    currentSelect.value = originalValue;
+                    currentSelect.value = prevStatus;
                 });
             });
         });
     };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setupMeetingConfirm();
+            bindStatusDropdowns();
+        });
+    } else {
+        setupMeetingConfirm();
+        bindStatusDropdowns();
+    }
 })();
 </script>
+@endcan
 <script>
 (function() {
     function getSelectedIds() {
@@ -1146,7 +1170,7 @@ var bindStatusDropdowns;
     <div id="bulkDeleteInputs"></div>
 </form>
 @endcan
-@endcan
+@endpush
 @push('modals')
 <div class="modal fade" id="importLeadsModal" tabindex="-1" aria-labelledby="importLeadsModalLabel" aria-hidden="true">
     <div class="modal-dialog">
