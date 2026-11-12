@@ -144,11 +144,12 @@ if (! function_exists('user_avatar')) {
     {
         $user = $user ?? auth()->user();
 
-        if ($user && method_exists($user, 'avatar_url') && $user->avatar_url) {
+        if ($user && ! empty($user->avatar_url)) {
             return $user->avatar_url;
         }
 
-        return asset('images/avatar-default.svg');
+        $name = urlencode($user?->name ?? 'User');
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' fill='%231e293b'/%3E%3Ccircle cx='60' cy='46' r='22' fill='%2364748b'/%3E%3Cpath d='M24 108c0-20 16-32 36-32s36 12 36 32' fill='%2364748b'/%3E%3C/svg%3E";
     }
 }
 

@@ -71,7 +71,7 @@
         </a>
     </div>
 
-    <x-card body-class="p-4">
+    <x-card body-class="p-3 p-md-4">
         <form method="POST" action="{{ $action }}" class="client-form">
             @csrf
             @if($client->exists)

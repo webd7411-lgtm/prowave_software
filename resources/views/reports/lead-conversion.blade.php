@@ -115,10 +115,10 @@
                         <tbody>
                         @forelse ($ownerPerformance as $row)
                             <tr>
-                                <td class="fw-medium">{{ $row->owner?->name ?? 'Unassigned' }}</td>
-                                <td class="text-center">{{ $row->total }}</td>
-                                <td class="text-center text-success">{{ $row->won }}</td>
-                                <td class="text-end fw-semibold">{{ $row->total > 0 ? round(($row->won / $row->total) * 100, 1).'%' : '—' }}</td>
+                                <td data-label="Owner" class="fw-medium">{{ $row->owner?->name ?? 'Unassigned' }}</td>
+                                <td data-label="Leads" class="text-center">{{ $row->total }}</td>
+                                <td data-label="Won" class="text-center text-success">{{ $row->won }}</td>
+                                <td data-label="Rate" class="text-end fw-semibold">{{ $row->total > 0 ? round(($row->won / $row->total) * 100, 1).'%' : '—' }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="4" class="text-center text-muted py-4">No leads in this period.</td></tr>

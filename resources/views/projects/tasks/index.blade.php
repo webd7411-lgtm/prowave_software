@@ -13,7 +13,7 @@
         </div>
 
         <div class="d-flex flex-wrap align-items-center gap-2">
-            <div class="btn-group btn-group-sm me-2">
+            <div class="btn-group btn-group-sm">
                 <a href="{{ route('projects.tasks.index') }}" class="btn {{ request('view') !== 'my' ? 'btn-primary' : 'btn-outline-secondary' }}">All Tasks</a>
                 <a href="{{ route('projects.tasks.index', ['view' => 'my']) }}" class="btn {{ request('view') === 'my' ? 'btn-primary' : 'btn-outline-secondary' }}"><i class="bi bi-person me-1"></i>My Tasks</a>
             </div>
@@ -91,7 +91,7 @@
     {{-- Tasks Table --}}
     <div class="card border-0 shadow-sm">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 table-cards-lg">
                 <thead class="bg-light fs-xs text-uppercase text-muted">
                     <tr>
                         <th>Task Code</th>
@@ -107,36 +107,36 @@
                 <tbody class="fs-sm">
                     @forelse($tasks as $task)
                         <tr>
-                            <td class="fw-bold text-muted">{{ $task->task_code }}</td>
-                            <td>
+                            <td data-label="Task Code" class="fw-bold text-muted">{{ $task->task_code }}</td>
+                            <td data-label="Task Title">
                                 <a href="{{ route('projects.tasks.show', $task) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                     {{ $task->title }}
                                 </a>
                             </td>
-                            <td>
+                            <td data-label="Project">
                                 <a href="{{ route('projects.show', $task->project) }}" class="text-secondary text-decoration-none hover-primary fw-medium">
                                     {{ $task->project->name }}
                                 </a>
                             </td>
-                            <td>
+                            <td data-label="Assigned To">
                                 @if($task->assignedTo)
                                     <span class="badge bg-light text-dark border"><i class="bi bi-person me-1"></i>{{ $task->assignedTo->name }}</span>
                                 @else
                                     <span class="text-muted fs-xs">Unassigned</span>
                                 @endif
                             </td>
-                            <td><span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }}</span></td>
-                            <td>
-                                <select class="form-select form-select-sm task-status-dropdown border-0 bg-light shadow-sm rounded-2 fw-semibold fs-xs" data-task-id="{{ $task->id }}" style="min-width: 125px;">
+                            <td data-label="Priority"><span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }}</span></td>
+                            <td data-label="Status">
+                                <select class="form-select form-select-sm task-status-dropdown border-0 bg-light shadow-sm rounded-2 fw-semibold fs-xs" data-task-id="{{ $task->id }}">
                                     @foreach(['To Do', 'In Progress', 'Review', 'Testing', 'Completed', 'On Hold', 'Cancelled'] as $st)
                                         <option value="{{ $st }}" {{ $task->status === $st ? 'selected' : '' }}>{{ $st }}</option>
                                     @endforeach
                                 </select>
                             </td>
-                            <td class="{{ $task->deadline && $task->deadline->isPast() && $task->status !== 'Completed' ? 'text-danger fw-bold' : '' }}">
+                            <td data-label="Deadline" class="{{ $task->deadline && $task->deadline->isPast() && $task->status !== 'Completed' ? 'text-danger fw-bold' : '' }}">
                                 {{ $task->deadline ? $task->deadline->format('M d, Y — h:i A') : 'No deadline' }}
                             </td>
-                            <td class="text-end">
+                            <td data-label="" class="text-end fin-cell-actions">
                                 <a href="{{ route('projects.tasks.show', $task) }}" class="btn btn-sm btn-light" title="View Task"><i class="bi bi-eye"></i></a>
                                 @can('project_tasks.delete')
                                     <form action="{{ route('projects.tasks.destroy', $task) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete task?');">

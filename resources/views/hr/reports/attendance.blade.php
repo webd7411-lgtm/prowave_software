@@ -73,7 +73,7 @@
     @if ($records->count())
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-sm table-striped align-middle mb-0">
+                <table class="table table-sm table-striped align-middle mb-0 table-cards-lg">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -89,14 +89,14 @@
                     <tbody>
                         @foreach ($records as $record)
                             <tr>
-                                <td class="fs-sm">{{ format_date($record->date) }}</td>
-                                <td class="fw-500">{{ $record->employee?->name }}</td>
-                                <td class="fs-sm">{{ $record->check_in ? \Illuminate\Support\Carbon::parse($record->check_in)->format('h:i A') : '—' }}</td>
-                                <td class="fs-sm">{{ $record->check_out ? \Illuminate\Support\Carbon::parse($record->check_out)->format('h:i A') : '—' }}</td>
-                                <td class="fs-sm">{{ $record->total_work_minutes !== null ? intdiv($record->total_work_minutes, 60).'h '.($record->total_work_minutes % 60).'m' : '—' }}</td>
-                                <td class="fs-sm">{{ $record->late_minutes ? $record->late_minutes.' min' : '—' }}</td>
-                                <td class="fs-sm">{{ $record->overtime_minutes ? $record->overtime_minutes.' min' : '—' }}</td>
-                                <td><span class="badge badge-soft-{{ $record->status?->color() ?? 'secondary' }}">{{ $record->status?->label() ?? '—' }}</span></td>
+                                <td data-label="Date" class="fs-sm">{{ format_date($record->date) }}</td>
+                                <td data-label="Employee" class="fw-500">{{ $record->employee?->name }}</td>
+                                <td data-label="Check In" class="fs-sm">{{ $record->check_in ? \Illuminate\Support\Carbon::parse($record->check_in)->format('h:i A') : '—' }}</td>
+                                <td data-label="Check Out" class="fs-sm">{{ $record->check_out ? \Illuminate\Support\Carbon::parse($record->check_out)->format('h:i A') : '—' }}</td>
+                                <td data-label="Work Hours" class="fs-sm">{{ $record->total_work_minutes !== null ? intdiv($record->total_work_minutes, 60).'h '.($record->total_work_minutes % 60).'m' : '—' }}</td>
+                                <td data-label="Late" class="fs-sm">{{ $record->late_minutes ? $record->late_minutes.' min' : '—' }}</td>
+                                <td data-label="Overtime" class="fs-sm">{{ $record->overtime_minutes ? $record->overtime_minutes.' min' : '—' }}</td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $record->status?->color() ?? 'secondary' }}">{{ $record->status?->label() ?? '—' }}</span></td>
                             </tr>
                         @endforeach
                     </tbody>

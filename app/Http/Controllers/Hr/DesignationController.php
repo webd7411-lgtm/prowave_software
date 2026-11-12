@@ -11,6 +11,7 @@ use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Spatie\Permission\Models\Role;
 
 class DesignationController extends Controller
 {
@@ -21,7 +22,7 @@ class DesignationController extends Controller
         $this->authorize('designations.view');
 
         $query = Designation::query()
-            ->with(['department'])
+            ->with(['department', 'role'])
             ->withCount('users')
             ->when($request->filled('search'), fn ($q) => $q->where('name', 'like', '%'.$request->string('search').'%'))
             ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->integer('department_id')))
@@ -38,6 +39,7 @@ class DesignationController extends Controller
     {
         return view('hr.designations.create', [
             'departments' => Department::query()->active()->orderBy('name')->get(),
+            'roles' => Role::query()->orderBy('name')->get(),
         ]);
     }
 
@@ -60,6 +62,7 @@ class DesignationController extends Controller
         return view('hr.designations.edit', [
             'designation' => $designation,
             'departments' => Department::query()->active()->orderBy('name')->get(),
+            'roles' => Role::query()->orderBy('name')->get(),
         ]);
     }
 

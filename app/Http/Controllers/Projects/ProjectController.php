@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Projects\ProjectRequest;
-use App\Models\{Project, Client, User, ProjectMember, ProjectTask, ProjectFile, ProjectActivity, ClientLedger, Payment};
+use App\Models\{Project, Client, User, ProjectMember, ProjectTask, ProjectFile, ProjectActivity, ClientLedger, Payment, Invoice, InvoiceItem};
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -552,6 +552,84 @@ class ProjectController extends Controller
         return back()->with('toast', [
             'type' => 'success',
             'message' => "Project import complete: {$created} created, {$skipped} skipped.",
+        ]);
+    }
+
+    /**
+     * Generate the next recurring invoice for this project.
+     */
+    public function generateNextInvoice(Project $project): RedirectResponse
+    {
+        $this->authorize('invoices.create');
+
+        if (! $project->client_id) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'Cannot generate invoice for a project without an assigned client.']);
+        }
+
+        $amount = (float) ($project->recurring_amount ?: $project->budget);
+        if ($amount <= 0) {
+            return back()->with('toast', ['type' => 'error', 'message' => 'Please set a recurring amount or budget before generating an invoice.']);
+        }
+
+        $billingDate = $project->next_billing_date ? $project->next_billing_date->copy() : now();
+        $cycleLabel = match ($project->billing_type) {
+            'monthly' => 'Monthly Retainer (' . $billingDate->format('M Y') . ')',
+            'annually' => 'Annual Contract (' . $billingDate->format('Y') . ' - ' . $billingDate->copy()->addYear()->format('Y') . ')',
+            default => 'One-Time Project Billing',
+        };
+
+        $invoice = Invoice::create([
+            'invoice_number' => 'INV-' . now()->format('ymdHis'),
+            'client_id' => $project->client_id,
+            'project_id' => $project->id,
+            'billing_cycle_label' => $cycleLabel,
+            'invoice_date' => $billingDate->format('Y-m-d'),
+            'due_date' => $billingDate->copy()->addDays(7)->format('Y-m-d'),
+            'subtotal' => $amount,
+            'discount' => 0,
+            'tax' => 0,
+            'total' => $amount,
+            'paid_amount' => 0,
+            'status' => 'unpaid',
+            'notes' => "Invoice generated for project: {$project->name} ({$cycleLabel})",
+            'created_by' => auth()->id(),
+        ]);
+
+        InvoiceItem::create([
+            'invoice_id' => $invoice->id,
+            'description' => "{$project->name} — {$cycleLabel}",
+            'quantity' => 1,
+            'unit_price' => $amount,
+            'discount' => 0,
+            'tax' => 0,
+            'total' => $amount,
+        ]);
+
+        // Advance next_billing_date
+        $nextDate = $billingDate->copy();
+        if ($project->billing_type === 'monthly') {
+            $nextDate = $nextDate->addMonth();
+        } elseif ($project->billing_type === 'annually') {
+            $nextDate = $nextDate->addYear();
+        }
+
+        $project->update([
+            'last_invoiced_at' => now(),
+            'next_billing_date' => $project->isRecurring() ? $nextDate : null,
+        ]);
+
+        ProjectActivity::log($project->id, 'Invoice generated', "Invoice '{$invoice->invoice_number}' for {$cycleLabel} was generated.");
+
+        app(NotificationService::class)->sendToPermission(
+            'invoices.view',
+            'New recurring invoice generated',
+            "{$invoice->invoice_number} for {$project->name} ({$cycleLabel})",
+            ['category' => 'finance', 'url' => route('crm.invoices.show', $invoice), 'color' => 'success']
+        );
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => "Invoice {$invoice->invoice_number} for {$cycleLabel} generated successfully.",
         ]);
     }
 

@@ -101,6 +101,18 @@
                                 <div class="mt-1"><span class="badge badge-soft-{{ $task->status->color() }}">{{ $task->status->label() }}</span></div>
                             </div>
                         </div>
+                        <div class="d-flex flex-wrap justify-content-end gap-1 mt-2 pt-2 border-top">
+                            @can('update', $task)
+                                <a href="{{ route('hr.tasks.edit', $task) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil me-1"></i>Edit</a>
+                            @endcan
+                            @can('delete', $task)
+                                <form method="POST" action="{{ route('hr.tasks.destroy', $task) }}" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-soft-danger" data-confirm data-confirm-title="Delete task?" data-confirm-text="This task will be permanently deleted." data-confirm-confirm-text="Yes, delete"><i class="bi bi-trash"></i></button>
+                                </form>
+                            @endcan
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -108,7 +120,7 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Task</th>
@@ -123,31 +135,31 @@
                     <tbody>
                         @foreach ($tasks as $task)
                             <tr>
-                                <td>
+                                <td data-label="Task">
                                     <div class="fw-500">{{ $task->title }}</div>
                                     @if ($task->description)
-                                        <div class="fs-xs text-muted text-truncate" style="max-width:260px" title="{{ $task->description }}">{{ $task->description }}</div>
+                                        <div class="fs-xs text-muted text-break" title="{{ $task->description }}">{{ \Illuminate\Support\Str::limit($task->description, 80) }}</div>
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Assignee">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ user_avatar($task->assignee) }}" alt="" class="rounded-circle" style="width:28px;height:28px;object-fit:cover">
                                         <span class="fs-sm">{{ $task->assignee?->name }}</span>
                                     </div>
                                 </td>
-                                <td class="fs-sm">{{ $task->department?->name ?? '—' }}</td>
-                                <td><span class="badge badge-soft-{{ $task->priority?->color() ?? 'secondary' }}">{{ $task->priority?->label() ?? '—' }}</span></td>
-                                <td class="fs-sm">
+                                <td data-label="Department" class="fs-sm">{{ $task->department?->name ?? '—' }}</td>
+                                <td data-label="Priority"><span class="badge badge-soft-{{ $task->priority?->color() ?? 'secondary' }}">{{ $task->priority?->label() ?? '—' }}</span></td>
+                                <td data-label="Deadline" class="fs-sm">
                                     @if ($task->deadline)
                                         <span class="{{ $task->isOverdue() ? 'text-danger fw-600' : '' }}">{{ format_date($task->deadline) }}</span>
                                     @else
                                         —
                                     @endif
                                 </td>
-                                <td>
+                                <td data-label="Status">
                                     <form method="POST" action="{{ route('hr.tasks.status', $task) }}" class="d-flex align-items-center gap-1">
                                         @csrf
-                                        <select name="status" class="form-select form-select-sm task-status-select" data-task-id="{{ $task->id }}" style="min-width:120px">
+                                        <select name="status" class="form-select form-select-sm task-status-select" data-task-id="{{ $task->id }}">
                                             @foreach ($statuses as $value => $label)
                                                 <option value="{{ $value }}" @selected($task->status->value === $value)>{{ $label }}</option>
                                             @endforeach
@@ -155,7 +167,7 @@
                                         <noscript><button type="submit" class="btn btn-sm btn-soft-primary"><i class="bi bi-check"></i></button></noscript>
                                     </form>
                                 </td>
-                                <td class="text-end">
+                                <td data-label="" class="text-end fin-cell-actions">
                                     <div class="d-flex justify-content-end gap-1">
                                         @can('update', $task)
                                             <a href="{{ route('hr.tasks.edit', $task) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil"></i></a>

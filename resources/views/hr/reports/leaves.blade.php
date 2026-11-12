@@ -64,7 +64,7 @@
     @if ($leaves->count())
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-sm table-striped align-middle mb-0">
+                <table class="table table-sm table-striped align-middle mb-0 table-cards-lg">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -79,15 +79,15 @@
                     <tbody>
                         @foreach ($leaves as $leave)
                             <tr>
-                                <td class="fw-500">{{ $leave->employee?->name }}</td>
-                                <td>{{ $leave->leaveType?->name ?? '—' }}</td>
-                                <td class="fs-sm">{{ format_date($leave->start_date) }}</td>
-                                <td class="fs-sm">{{ format_date($leave->end_date) }}</td>
-                                <td>{{ $leave->days }}</td>
-                                <td class="fs-sm">
-                                    <span class="text-truncate d-inline-block" style="max-width:220px" title="{{ $leave->reason }}">{{ $leave->reason ?: '—' }}</span>
+                                <td data-label="Employee" class="fw-500">{{ $leave->employee?->name }}</td>
+                                <td data-label="Leave Type">{{ $leave->leaveType?->name ?? '—' }}</td>
+                                <td data-label="Start" class="fs-sm">{{ format_date($leave->start_date) }}</td>
+                                <td data-label="End" class="fs-sm">{{ format_date($leave->end_date) }}</td>
+                                <td data-label="Days">{{ $leave->days }}</td>
+                                <td data-label="Reason" class="fs-sm">
+                                    <span class="text-break" title="{{ $leave->reason }}">{{ $leave->reason ?: '—' }}</span>
                                 </td>
-                                <td><span class="badge badge-soft-{{ $leave->status->color() }}">{{ $leave->status->label() }}</span></td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $leave->status->color() }}">{{ $leave->status->label() }}</span></td>
                             </tr>
                         @endforeach
                     </tbody>

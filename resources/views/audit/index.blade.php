@@ -58,8 +58,8 @@
                 <label class="form-label">To</label>
                 <input type="date" name="to" class="form-control" value="{{ $filters['to'] ?? '' }}">
             </div>
-            <div class="col-12 d-flex gap-2">
-                <div class="input-group flex-grow-1">
+            <div class="col-12 d-flex flex-wrap gap-2">
+                <div class="input-group flex-grow-1" style="min-width: 200px;">
                     <span class="input-group-text"><i class="bi bi-search"></i></span>
                     <input type="text" name="search" class="form-control" placeholder="Search action descriptions..." value="{{ $filters['search'] ?? '' }}">
                 </div>
@@ -72,7 +72,7 @@
     <x-card>
         @if ($logs->count())
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                     <tr>
                         <th>When</th>
@@ -85,16 +85,16 @@
                     <tbody>
                     @foreach ($logs as $log)
                         <tr>
-                            <td class="text-nowrap">{{ format_datetime($log->created_at->toDateTimeString()) }}</td>
-                            <td>
+                            <td data-label="When" class="text-nowrap">{{ format_datetime($log->created_at->toDateTimeString()) }}</td>
+                            <td data-label="User">
                                 <div class="d-flex align-items-center gap-2">
                                     <img src="{{ user_avatar($log->causer) }}" alt="" class="avatar avatar-xs">
                                     <span class="fw-medium">{{ $log->causer?->name ?? 'System' }}</span>
                                 </div>
                             </td>
-                            <td>{{ $log->description }}</td>
-                            <td><span class="badge bg-soft-dark-subtle text-dark">{{ $log->log_name }}</span></td>
-                            <td>
+                            <td data-label="Action" class="text-break">{{ $log->description }}</td>
+                            <td data-label="Module"><span class="badge bg-soft-dark-subtle text-dark">{{ $log->log_name }}</span></td>
+                            <td data-label="Event">
                                 @php
                                     $tone = match ($log->event) {
                                         'created' => 'bg-success-subtle text-success-emphasis',

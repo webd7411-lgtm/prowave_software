@@ -8,7 +8,7 @@
             <li class="breadcrumb-item active">{{ $invoice ? 'Edit' : 'Create' }}</li>
         </ol>
     </nav>
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h1 class="page-title">{{ $invoice ? 'Edit Invoice ' . $invoice->invoice_number : 'Create Invoice' }}</h1>
         <a href="{{ url()->previous() }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-1"></i>Back
@@ -41,22 +41,22 @@
                             @endphp
                             @foreach($items as $index => $item)
                             <tr class="item-row">
-                                <td>
+                                <td data-label="Description">
                                     <input type="text" name="items[{{ $index }}][description]" class="form-control" value="{{ $item['description'] ?? '' }}" required>
                                 </td>
-                                <td>
+                                <td data-label="Qty">
                                     <input type="number" name="items[{{ $index }}][quantity]" class="form-control qty-input" value="{{ $item['quantity'] ?? '1' }}" min="0.01" step="0.01" required>
                                 </td>
-                                <td>
+                                <td data-label="Price">
                                     <input type="number" name="items[{{ $index }}][unit_price]" class="form-control price-input" value="{{ $item['unit_price'] ?? '0' }}" min="0" step="0.01" required>
                                 </td>
-                                <td>
+                                <td data-label="Discount">
                                     <input type="number" name="items[{{ $index }}][discount]" class="form-control disc-input" value="{{ $item['discount'] ?? '0' }}" min="0" step="0.01">
                                 </td>
-                                <td>
+                                <td data-label="Tax">
                                     <input type="number" name="items[{{ $index }}][tax]" class="form-control tax-input" value="{{ $item['tax'] ?? '0' }}" min="0" step="0.01">
                                 </td>
-                                <td>
+                                <td data-label="Action" class="fin-cell-actions">
                                     <button type="button" class="btn btn-sm btn-outline-danger remove-item"><i class="bi bi-trash"></i></button>
                                 </td>
                             </tr>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="col-12 col-lg-4">
-            <x-card title="Invoice Details" class="sticky-top" style="top: 20px;">
+            <x-card title="Invoice Details" class="sticky-lg-top" style="top: 20px;">
                 <div class="mb-3">
                     <label class="form-label">Client <span class="text-danger">*</span></label>
                     <select name="client_id" class="form-select" required>
@@ -187,12 +187,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const tr = document.createElement('tr');
         tr.className = 'item-row';
         tr.innerHTML = `
-            <td><input type="text" name="items[${itemIndex}][description]" class="form-control" required></td>
-            <td><input type="number" name="items[${itemIndex}][quantity]" class="form-control qty-input" value="1" min="0.01" step="0.01" required></td>
-            <td><input type="number" name="items[${itemIndex}][unit_price]" class="form-control price-input" value="0" min="0" step="0.01" required></td>
-            <td><input type="number" name="items[${itemIndex}][discount]" class="form-control disc-input" value="0" min="0" step="0.01"></td>
-            <td><input type="number" name="items[${itemIndex}][tax]" class="form-control tax-input" value="0" min="0" step="0.01"></td>
-            <td><button type="button" class="btn btn-sm btn-outline-danger remove-item"><i class="bi bi-trash"></i></button></td>
+            <td data-label="Description"><input type="text" name="items[${itemIndex}][description]" class="form-control" required></td>
+            <td data-label="Qty"><input type="number" name="items[${itemIndex}][quantity]" class="form-control qty-input" value="1" min="0.01" step="0.01" required></td>
+            <td data-label="Price"><input type="number" name="items[${itemIndex}][unit_price]" class="form-control price-input" value="0" min="0" step="0.01" required></td>
+            <td data-label="Discount"><input type="number" name="items[${itemIndex}][discount]" class="form-control disc-input" value="0" min="0" step="0.01"></td>
+            <td data-label="Tax"><input type="number" name="items[${itemIndex}][tax]" class="form-control tax-input" value="0" min="0" step="0.01"></td>
+            <td data-label="Action" class="fin-cell-actions"><button type="button" class="btn btn-sm btn-outline-danger remove-item"><i class="bi bi-trash"></i></button></td>
         `;
         tbody.appendChild(tr);
         itemIndex++;

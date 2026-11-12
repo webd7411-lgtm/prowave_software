@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Permission\Models\Role;
 
 class Designation extends Model
 {
@@ -18,6 +19,7 @@ class Designation extends Model
         'name',
         'code',
         'department_id',
+        'role_id',
         'description',
         'is_active',
         'created_by',
@@ -32,7 +34,7 @@ class Designation extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'code', 'department_id', 'description', 'is_active'])
+            ->logOnly(['name', 'code', 'department_id', 'role_id', 'description', 'is_active'])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs()
             ->useLogName('designation');
@@ -41,6 +43,11 @@ class Designation extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
     }
 
     public function users(): HasMany

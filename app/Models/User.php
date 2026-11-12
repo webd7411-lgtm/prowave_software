@@ -39,6 +39,7 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'cover_photo',
         'phone',
         'father_name',
         'cnic',
@@ -107,6 +108,7 @@ protected $casts = [
 
     protected $appends = [
         'avatar_url',
+        'cover_photo_url',
     ];
 
     public function getActivitylogOptions(): LogOptions
@@ -125,6 +127,12 @@ protected $casts = [
     {
         $avatar = $this->getAttribute('avatar');
         return $avatar ? asset($avatar) : null;
+    }
+
+    public function getCoverPhotoUrlAttribute(): ?string
+    {
+        $cover = $this->getAttribute('cover_photo');
+        return $cover ? asset($cover) : null;
     }
 
     public function getEmployeeIdAttribute($value): string

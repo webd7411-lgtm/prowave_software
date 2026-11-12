@@ -31,14 +31,14 @@
             <tbody>
                 @forelse($clients as $client)
                     <tr>
-                        <td>
+                        <td data-label="Client">
                             <a href="{{ route('crm.clients.show', $client) }}" class="fw-600 text-decoration-none">{{ $client->company_name }}</a>
                             <div class="fs-xs text-muted">{{ $client->client_number }}</div>
                         </td>
-                        <td>
+                        <td data-label="Contact">
                             <div class="fw-semibold">{{ $client->phone ?: '—' }}</div>
                             @if($client->contact_person || $client->email)
-                                <div class="fs-xs text-muted">
+                                <div class="fs-xs text-muted text-break">
                                     {{ $client->contact_person ?: 'No Name' }}
                                     @if($client->email)
                                         <span>&middot; {{ $client->email }}</span>
@@ -46,10 +46,10 @@
                                 </div>
                             @endif
                         </td>
-                        <td>{{ $client->manager?->name ?? '—' }}</td>
-                        <td class="fw-bold">{{ number_format($client->outstanding(), 2) }} PKR</td>
-                        <td class="text-end">
-                            <div class="d-flex justify-content-end gap-1">
+                        <td data-label="Manager">{{ $client->manager?->name ?? '—' }}</td>
+                        <td data-label="Outstanding" class="fw-bold">{{ number_format($client->outstanding(), 2) }} PKR</td>
+                        <td data-label="Actions" class="text-end fin-cell-actions">
+                            <div class="d-flex justify-content-end gap-1 flex-wrap">
                                 <a href="{{ route('crm.clients.show', $client) }}" class="btn btn-sm btn-soft-primary" title="View Details">
                                     <i class="bi bi-eye"></i> View
                                 </a>

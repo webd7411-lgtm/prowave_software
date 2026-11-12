@@ -28,7 +28,7 @@
                 <input type="search" class="form-control ps-5" name="search" id="dept-search-input" value="{{ $filters['search'] ?? '' }}" placeholder="Search departments...">
             </div>
         </div>
-        <div class="col-12 col-md-3 d-flex gap-2">
+        <div class="col-12 col-md-3 d-flex flex-wrap gap-2">
             <button type="submit" class="btn btn-soft-primary"><i class="bi bi-funnel me-1"></i>Filter</button>
             <a href="{{ route('admin.departments.index') }}" class="btn btn-soft-secondary" title="Reset Filter"><i class="bi bi-x-circle me-1"></i>Reset Filter</a>
         </div>
@@ -36,37 +36,37 @@
 
     <x-card body-class="p-3">
         <div class="table-responsive">
-            <table class="table table-hover align-middle data-table" data-dt-order-col="0">
+            <table class="table table-hover align-middle data-table dt-mobile-cards" data-dt-order-col="0" data-dt-options='{"responsive":false}'>
                 <thead>
                     <tr>
-                        <th>Department</th>
+                        <th data-priority="1">Department</th>
                         <th>Code</th>
                         <th>Members</th>
                         <th>Status</th>
                         <th>Created</th>
-                        <th class="no-sort"></th>
+                        <th class="no-sort" data-priority="1"></th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($departments as $department)
                         <tr>
-                            <td>
+                            <td data-label="Department">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="avatar-fallback sm"><i class="bi bi-building"></i></span>
                                     <div class="fw-500">{{ $department->name }}</div>
                                 </div>
                             </td>
-                            <td><span class="badge badge-soft-secondary">{{ $department->code }}</span></td>
-                            <td><span class="badge badge-soft-primary">{{ $department->users_count }}</span></td>
-                            <td>
+                            <td data-label="Code"><span class="badge badge-soft-secondary">{{ $department->code }}</span></td>
+                            <td data-label="Members"><span class="badge badge-soft-primary">{{ $department->users_count }}</span></td>
+                            <td data-label="Status">
                                 @if ($department->is_active)
                                     <span class="badge badge-soft-success">Active</span>
                                 @else
                                     <span class="badge badge-soft-secondary">Inactive</span>
                                 @endif
                             </td>
-                            <td>{{ format_date($department->created_at) }}</td>
-                            <td>
+                            <td data-label="Created">{{ format_date($department->created_at) }}</td>
+                            <td data-label="">
                                 <div class="d-flex justify-content-end gap-1">
                                     @can('departments.edit')
                                         <a class="btn btn-icon btn-soft-primary btn-sm" href="{{ route('admin.departments.edit', $department) }}" title="Edit">

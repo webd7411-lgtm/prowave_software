@@ -53,12 +53,12 @@
                         <tbody>
                             @forelse($quotation->items as $item)
                             <tr>
-                                <td>{{ $item->description }}</td>
-                                <td class="text-center">{{ number_format($item->quantity, 2) }}</td>
-                                <td class="text-end">{{ number_format($item->unit_price, 2) }}</td>
-                                <td class="text-end">{{ $item->discount > 0 ? '-' . number_format($item->discount, 2) : '—' }}</td>
-                                <td class="text-end">{{ $item->tax > 0 ? number_format($item->tax, 2) : '—' }}</td>
-                                <td class="text-end fw-semibold">{{ number_format($item->total, 2) }}</td>
+                                <td data-label="Description">{{ $item->description }}</td>
+                                <td data-label="Qty" class="text-center">{{ number_format($item->quantity, 2) }}</td>
+                                <td data-label="Unit Price" class="text-end">{{ number_format($item->unit_price, 2) }}</td>
+                                <td data-label="Discount" class="text-end">{{ $item->discount > 0 ? '-' . number_format($item->discount, 2) : '—' }}</td>
+                                <td data-label="Tax" class="text-end">{{ $item->tax > 0 ? number_format($item->tax, 2) : '—' }}</td>
+                                <td data-label="Total" class="text-end fw-semibold">{{ number_format($item->total, 2) }}</td>
                             </tr>
                             @empty
                             <tr>

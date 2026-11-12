@@ -124,7 +124,7 @@
 <div class="card mt-3">
     <div class="card-header"><h5 class="mb-0"><i class="bi bi-list-ul me-2 text-danger"></i>All Office Expenses</h5></div>
     <div class="table-responsive">
-        <table class="table table-hover mb-0 fin-table">
+        <table class="table table-hover mb-0 fin-table table-cards-lg">
             <thead>
                 <tr>
                     <th>Expense No</th>

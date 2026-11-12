@@ -44,51 +44,58 @@
     </div>
 
     <div class="row g-3 g-md-4">
-        <div class="col-12 col-lg-4">
-            <div class="card overflow-hidden">
-                <div class="profile-cover"></div>
-                <div class="text-center pb-4">
-                    <div class="profile-avatar-wrap mb-3">
+        <div class="col-12 col-lg-4 d-flex justify-content-center justify-content-lg-start align-items-start">
+            <div class="card overflow-hidden staff-id-card w-100">
+                <div class="profile-cover">
+                    @if ($employee->cover_photo_url)
+                        <img src="{{ $employee->cover_photo_url }}" class="profile-cover-img" alt="{{ $employee->name }} Cover">
+                    @endif
+                    <div class="profile-avatar-wrap">
                         <img src="{{ user_avatar($employee) }}" class="profile-avatar" alt="{{ $employee->name }}">
                     </div>
-                    <h4 class="mb-1">{{ $employee->name }}</h4>
-                    <p class="text-muted mb-2">{{ $employee->designation ?? 'Team Member' }}</p>
+                </div>
+                <div class="text-center pt-3 pb-4 d-flex flex-column flex-grow-1 justify-content-between">
+                    <div>
+                        <h4 class="mb-1 px-3">{{ $employee->name }}</h4>
+                        <p class="text-muted mb-2 px-3">{{ $employee->designation ?? 'Team Member' }}</p>
 
-                    <div class="d-flex flex-wrap justify-content-center gap-1 mb-2">
-                        <span class="badge badge-soft-{{ $employee->employee_status?->color() ?? 'secondary' }}">{{ $employee->employee_status?->label() ?? '—' }}</span>
                         @if ($employee->employment_type)
-                            <span class="badge badge-soft-info">{{ $employee->employment_type->label() }}</span>
+                            <div class="d-flex flex-wrap justify-content-center gap-1 mb-2">
+                                <span class="badge badge-soft-info">{{ $employee->employment_type->label() }}</span>
+                            </div>
                         @endif
                     </div>
 
-                    <div class="divider mx-4"></div>
+                    <div>
+                        <div class="divider mx-3 my-3"></div>
 
-                    <div class="text-start px-4">
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-person-badge me-2"></i>Employee ID</span>
-                            <span class="fw-500">{{ $employee->employee_id ?? '—' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-envelope me-2"></i>Email</span>
-                            <span class="fw-500 text-truncate ms-2">{{ $employee->email }}</span>
-                        </div>
-                        @if ($employee->phone)
-                            <div class="d-flex justify-content-between py-1">
-                                <span class="text-muted"><i class="bi bi-telephone me-2"></i>Phone</span>
-                                <span class="fw-500">{{ $employee->phone }}</span>
+                        <div class="text-start px-3 small">
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-person-badge me-2"></i>Employee ID</span>
+                                <span class="fw-500 text-end text-break">{{ $employee->employee_id ?? '—' }}</span>
                             </div>
-                        @endif
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-building me-2"></i>Department</span>
-                            <span class="fw-500">{{ $employee->department?->name ?? '—' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-person-badge me-2"></i>Manager</span>
-                            <span class="fw-500 text-truncate ms-2">{{ $employee->reportingManager?->name ?? '—' }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-calendar3 me-2"></i>Joined</span>
-                            <span class="fw-500">{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</span>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-envelope me-2"></i>Email</span>
+                                <span class="fw-500 text-end text-break">{{ $employee->email }}</span>
+                            </div>
+                            @if ($employee->phone)
+                                <div class="d-flex justify-content-between gap-2 py-1">
+                                    <span class="text-muted text-nowrap"><i class="bi bi-telephone me-2"></i>Phone</span>
+                                    <span class="fw-500 text-end text-break">{{ $employee->phone }}</span>
+                                </div>
+                            @endif
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-building me-2"></i>Department</span>
+                                <span class="fw-500 text-end text-break">{{ $employee->department?->name ?? '—' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-person-badge me-2"></i>Manager</span>
+                                <span class="fw-500 text-end text-break">{{ $employee->reportingManager?->name ?? '—' }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-calendar3 me-2"></i>Joined</span>
+                                <span class="fw-500 text-end text-break">{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -184,17 +191,17 @@
                                 <tbody>
                                     @forelse ($recentAttendance as $record)
                                         <tr>
-                                            <td>{{ format_date($record->date) }}</td>
-                                            <td>{{ $record->check_in ? \Illuminate\Support\Carbon::parse($record->check_in)->format('h:i A') : '—' }}</td>
-                                            <td>{{ $record->check_out ? \Illuminate\Support\Carbon::parse($record->check_out)->format('h:i A') : '—' }}</td>
-                                            <td>
+                                            <td data-label="Date">{{ format_date($record->date) }}</td>
+                                            <td data-label="Check In">{{ $record->check_in ? \Illuminate\Support\Carbon::parse($record->check_in)->format('h:i A') : '—' }}</td>
+                                            <td data-label="Check Out">{{ $record->check_out ? \Illuminate\Support\Carbon::parse($record->check_out)->format('h:i A') : '—' }}</td>
+                                            <td data-label="Hours">
                                                 @if ($record->total_work_minutes !== null)
                                                     {{ intdiv($record->total_work_minutes, 60) }}h {{ $record->total_work_minutes % 60 }}m
                                                 @else
                                                     —
                                                 @endif
                                             </td>
-                                            <td><span class="badge badge-soft-{{ $record->status->color() }}">{{ $record->status->label() }}</span></td>
+                                            <td data-label="Status"><span class="badge badge-soft-{{ $record->status->color() }}">{{ $record->status->label() }}</span></td>
                                         </tr>
                                     @empty
                                         <tr><td colspan="5" class="text-center text-muted py-3">No attendance records yet.</td></tr>
@@ -210,13 +217,13 @@
 
                 <div class="tab-pane fade" id="tab-tasks" role="tabpanel">
                     <div class="row g-3 mb-3">
-                        <div class="col-4">
+                        <div class="col-12 col-sm-4">
                             <x-stat-card label="Total Tasks" :value="$taskSummary['total']" icon="bi-list-task" variant="primary" />
                         </div>
-                        <div class="col-4">
+                        <div class="col-6 col-sm-4">
                             <x-stat-card label="Completed" :value="$taskSummary['completed']" icon="bi-check2-all" variant="success" />
                         </div>
-                        <div class="col-4">
+                        <div class="col-6 col-sm-4">
                             <x-stat-card label="Pending" :value="$taskSummary['pending']" icon="bi-hourglass-split" variant="warning" />
                         </div>
                     </div>
@@ -262,10 +269,10 @@
                                 <tbody>
                                     @forelse ($employee->leaveBalances as $balance)
                                         <tr>
-                                            <td>{{ $balance->leaveType?->name ?? '—' }}</td>
-                                            <td>{{ $balance->allocated }}</td>
-                                            <td>{{ $balance->used }}</td>
-                                            <td><span class="badge badge-soft-{{ $balance->remaining > 0 ? 'success' : 'danger' }}">{{ $balance->remaining }}</span></td>
+                                            <td data-label="Leave Type">{{ $balance->leaveType?->name ?? '—' }}</td>
+                                            <td data-label="Allocated">{{ $balance->allocated }}</td>
+                                            <td data-label="Used">{{ $balance->used }}</td>
+                                            <td data-label="Remaining"><span class="badge badge-soft-{{ $balance->remaining > 0 ? 'success' : 'danger' }}">{{ $balance->remaining }}</span></td>
                                         </tr>
                                     @empty
                                         <tr><td colspan="4" class="text-center text-muted py-3">No leave balances yet.</td></tr>

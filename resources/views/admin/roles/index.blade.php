@@ -23,7 +23,7 @@
 
     <x-card body-class="p-3">
         <div class="table-responsive">
-            <table class="table table-hover align-middle data-table" data-dt-order-col="0">
+            <table class="table table-hover align-middle data-table dt-mobile-cards" data-dt-order-col="0" data-dt-options='{"responsive":false}'>
                 <thead>
                     <tr>
                         <th>Role</th>
@@ -36,7 +36,7 @@
                 <tbody>
                     @foreach ($roles as $role)
                         <tr>
-                            <td>
+                            <td data-label="Role">
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="avatar-fallback sm">
                                         <i class="bi {{ $role->name === 'Super Admin' ? 'bi-shield-fill' : ($role->name === 'Client' ? 'bi-person' : 'bi-person-badge') }}"></i>
@@ -47,12 +47,12 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Permissions">
                                 <span class="badge badge-soft-primary">{{ $role->permissions_count ?? $role->permissions->count() }} permissions</span>
                             </td>
-                            <td>{{ $role->users_count ?? $role->users()->count() }}</td>
-                            <td>{{ format_date($role->created_at) }}</td>
-                            <td>
+                            <td data-label="Users">{{ $role->users_count ?? $role->users()->count() }}</td>
+                            <td data-label="Created">{{ format_date($role->created_at) }}</td>
+                            <td data-label="">
                                 <div class="d-flex justify-content-end gap-1">
                                     @can('roles.edit')
                                         @if ($role->name !== 'Super Admin')

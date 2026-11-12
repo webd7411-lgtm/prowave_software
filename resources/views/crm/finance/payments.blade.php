@@ -110,11 +110,11 @@
                     <tbody>
                         @forelse($records as $record)
                         <tr>
-                            <td class="fw-semibold text-primary">
+                            <td data-label="Receipt #" class="fw-semibold text-primary">
                                 <i class="bi bi-receipt me-1"></i>{{ $record->payment_number }}
                             </td>
-                            <td>{{ $record->client->company_name }}</td>
-                            <td>
+                            <td data-label="Client">{{ $record->client->company_name }}</td>
+                            <td data-label="Invoice #">
                                 @if($record->invoice)
                                     <a href="{{ route('crm.invoices.show', $record->invoice) }}" class="text-decoration-none fw-semibold">
                                         {{ $record->invoice->invoice_number }}
@@ -123,13 +123,13 @@
                                     <span class="text-muted">—</span>
                                 @endif
                             </td>
-                            <td>{{ $record->payment_date->format('M d, Y') }}</td>
-                            <td>
+                            <td data-label="Date">{{ $record->payment_date->format('M d, Y') }}</td>
+                            <td data-label="Method">
                                 <span class="badge bg-light text-dark border">
                                     {{ ucwords(str_replace('_',' ',$record->method)) }}
                                 </span>
                             </td>
-                            <td class="text-end text-success fw-bold">{{ number_format($record->amount, 2) }} PKR</td>
+                            <td data-label="Amount" class="text-end text-success fw-bold">{{ number_format($record->amount, 2) }} PKR</td>
                         </tr>
                         @empty
                         <tr>

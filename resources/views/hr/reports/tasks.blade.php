@@ -68,7 +68,7 @@
     @if ($tasks->count())
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-sm table-striped align-middle mb-0">
+                <table class="table table-sm table-striped align-middle mb-0 table-cards-lg">
                     <thead>
                         <tr>
                             <th>Task</th>
@@ -83,18 +83,18 @@
                     <tbody>
                         @foreach ($tasks as $task)
                             <tr>
-                                <td class="fw-500">
+                                <td data-label="Task" class="fw-500">
                                     {{ $task->title }}
                                     @if ($task->description)
-                                        <div class="fs-xs text-muted text-truncate" style="max-width:260px" title="{{ $task->description }}">{{ $task->description }}</div>
+                                        <div class="fs-xs text-muted text-break" title="{{ $task->description }}">{{ \Illuminate\Support\Str::limit($task->description, 80) }}</div>
                                     @endif
                                 </td>
-                                <td>{{ $task->assignee?->name }}</td>
-                                <td>{{ $task->department?->name ?? '—' }}</td>
-                                <td><span class="badge badge-soft-{{ $task->priority?->color() ?? 'secondary' }}">{{ $task->priority?->label() ?? '—' }}</span></td>
-                                <td class="fs-sm">{{ $task->deadline ? format_date($task->deadline) : '—' }}</td>
-                                <td><span class="badge badge-soft-{{ $task->status->color() }}">{{ $task->status->label() }}</span></td>
-                                <td class="fs-sm">{{ $task->estimated_hours ?? '—' }} / {{ $task->actual_hours ?? '—' }} hr(s)</td>
+                                <td data-label="Assignee">{{ $task->assignee?->name }}</td>
+                                <td data-label="Department">{{ $task->department?->name ?? '—' }}</td>
+                                <td data-label="Priority"><span class="badge badge-soft-{{ $task->priority?->color() ?? 'secondary' }}">{{ $task->priority?->label() ?? '—' }}</span></td>
+                                <td data-label="Deadline" class="fs-sm">{{ $task->deadline ? format_date($task->deadline) : '—' }}</td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $task->status->color() }}">{{ $task->status->label() }}</span></td>
+                                <td data-label="Est./Actual" class="fs-sm">{{ $task->estimated_hours ?? '—' }} / {{ $task->actual_hours ?? '—' }} hr(s)</td>
                             </tr>
                         @endforeach
                     </tbody>

@@ -95,8 +95,8 @@
                             <span class="badge badge-soft-{{ $leave->status->color() }}">{{ $leave->status->label() }}</span>
                         </div>
                         <div class="row g-2 mt-2 fs-xs text-muted">
-                            <div class="col-6"><i class="bi bi-calendar-range me-1"></i>{{ format_date($leave->start_date) }} → {{ format_date($leave->end_date) }}</div>
-                            <div class="col-6"><i class="bi bi-calendar-day me-1"></i>{{ $leave->days }} day(s)</div>
+                            <div class="col-12 col-sm-6"><i class="bi bi-calendar-range me-1"></i>{{ format_date($leave->start_date) }} → {{ format_date($leave->end_date) }}</div>
+                            <div class="col-12 col-sm-6"><i class="bi bi-calendar-day me-1"></i>{{ $leave->days }} day(s)</div>
                         </div>
                         @if ($leave->status->value === 'pending' && auth()->user()->can('leave.approve'))
                             <div class="d-flex gap-2 mt-2">
@@ -111,7 +111,7 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -127,7 +127,7 @@
                     <tbody>
                         @foreach ($leaves as $leave)
                             <tr>
-                                <td>
+                                <td data-label="Employee">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ user_avatar($leave->employee) }}" alt="" class="rounded-circle" style="width:32px;height:32px;object-fit:cover">
                                         <div class="min-w-0">
@@ -136,18 +136,18 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $leave->leaveType?->name ?? '—' }}</td>
-                                <td>
+                                <td data-label="Leave Type">{{ $leave->leaveType?->name ?? '—' }}</td>
+                                <td data-label="Duration">
                                     <div>{{ format_date($leave->start_date) }}</div>
                                     <div class="fs-xs text-muted">→ {{ format_date($leave->end_date) }}</div>
                                 </td>
-                                <td>{{ $leave->days }}</td>
-                                <td>
-                                    <span class="text-truncate d-inline-block" style="max-width:220px" title="{{ $leave->reason }}">{{ $leave->reason ?: '—' }}</span>
+                                <td data-label="Days">{{ $leave->days }}</td>
+                                <td data-label="Reason">
+                                    <span class="text-break" title="{{ $leave->reason }}">{{ $leave->reason ?: '—' }}</span>
                                 </td>
-                                <td><span class="badge badge-soft-{{ $leave->status->color() }}">{{ $leave->status->label() }}</span></td>
-                                <td class="fs-sm text-muted">{{ $leave->reviewer?->name ?? '—' }}</td>
-                                <td class="text-end">
+                                <td data-label="Status"><span class="badge badge-soft-{{ $leave->status->color() }}">{{ $leave->status->label() }}</span></td>
+                                <td data-label="Reviewed By" class="fs-sm text-muted">{{ $leave->reviewer?->name ?? '—' }}</td>
+                                <td data-label="" class="text-end fin-cell-actions">
                                     @if ($leave->status->value === 'pending' && auth()->user()->can('leave.approve'))
                                         <div class="d-flex justify-content-end gap-1">
                                             <button type="button" class="btn btn-sm btn-soft-success" data-bs-toggle="modal" data-bs-target="#reviewModal{{ $leave->id }}" data-leave-status="approved" title="Approve"><i class="bi bi-check-lg"></i></button>

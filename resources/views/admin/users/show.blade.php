@@ -65,35 +65,35 @@
 
                     <div class="divider mx-4"></div>
 
-                    <div class="text-start px-4">
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-envelope me-2"></i>Email</span>
-                            <span class="fw-500 text-truncate ms-2">{{ $user->email }}</span>
+                    <div class="text-start px-3 px-sm-4">
+                        <div class="d-flex justify-content-between gap-2 py-1">
+                            <span class="text-muted text-nowrap"><i class="bi bi-envelope me-2"></i>Email</span>
+                            <span class="fw-500 text-end text-break">{{ $user->email }}</span>
                         </div>
                         @if ($user->phone)
-                            <div class="d-flex justify-content-between py-1">
-                                <span class="text-muted"><i class="bi bi-telephone me-2"></i>Phone</span>
-                                <span class="fw-500">{{ $user->phone }}</span>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-telephone me-2"></i>Phone</span>
+                                <span class="fw-500 text-end text-break">{{ $user->phone }}</span>
                             </div>
                         @endif
                         @if ($user->employee_id)
-                            <div class="d-flex justify-content-between py-1">
-                                <span class="text-muted"><i class="bi bi-person-badge me-2"></i>Employee ID</span>
-                                <span class="fw-500">{{ $user->employee_id }}</span>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-person-badge me-2"></i>Employee ID</span>
+                                <span class="fw-500 text-end text-break">{{ $user->employee_id }}</span>
                             </div>
                         @endif
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-building me-2"></i>Department</span>
-                            <span class="fw-500">{{ $user->department?->name ?? '—' }}</span>
+                        <div class="d-flex justify-content-between gap-2 py-1">
+                            <span class="text-muted text-nowrap"><i class="bi bi-building me-2"></i>Department</span>
+                            <span class="fw-500 text-end text-break">{{ $user->department?->name ?? '—' }}</span>
                         </div>
-                        <div class="d-flex justify-content-between py-1">
-                            <span class="text-muted"><i class="bi bi-calendar3 me-2"></i>Joined</span>
-                            <span class="fw-500">{{ format_date($user->created_at) }}</span>
+                        <div class="d-flex justify-content-between gap-2 py-1">
+                            <span class="text-muted text-nowrap"><i class="bi bi-calendar3 me-2"></i>Joined</span>
+                            <span class="fw-500 text-end text-break">{{ format_date($user->created_at) }}</span>
                         </div>
                         @if ($user->last_login_at)
-                            <div class="d-flex justify-content-between py-1">
-                                <span class="text-muted"><i class="bi bi-clock-history me-2"></i>Last Login</span>
-                                <span class="fw-500">{{ diff_for_humans($user->last_login_at) }}</span>
+                            <div class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-muted text-nowrap"><i class="bi bi-clock-history me-2"></i>Last Login</span>
+                                <span class="fw-500 text-end text-break">{{ diff_for_humans($user->last_login_at) }}</span>
                             </div>
                         @endif
                     </div>
@@ -129,14 +129,14 @@
                         @endcan
                     </x-slot>
                     <div class="row g-3">
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Employee ID</div><div class="fw-500 text-primary">{{ $user->employee_id }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Username</div><div class="fw-500">{{ $user->username ?? '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Status</div><div class="fw-500">{{ $user->status->label() }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Gender</div><div class="fw-500">{{ $user->gender?->label() ?? '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Date of Birth</div><div class="fw-500">{{ $user->dob ? format_date($user->dob) : '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Designation</div><div class="fw-500">{{ $user->designation ?? '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Joining Date</div><div class="fw-500">{{ $user->joining_date ? format_date($user->joining_date) : '—' }}</div></div>
-                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Reporting Manager</div><div class="fw-500">{{ $user->reportingManager?->name ?? '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Employee ID</div><div class="fw-500 text-primary text-break">{{ $user->employee_id }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Username</div><div class="fw-500 text-break">{{ $user->username ?? '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Status</div><div class="fw-500 text-break">{{ $user->status->label() }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Gender</div><div class="fw-500 text-break">{{ $user->gender?->label() ?? '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Date of Birth</div><div class="fw-500 text-break">{{ $user->dob ? format_date($user->dob) : '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Designation</div><div class="fw-500 text-break">{{ $user->designation ?? '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Joining Date</div><div class="fw-500 text-break">{{ $user->joining_date ? format_date($user->joining_date) : '—' }}</div></div>
+                        <div class="col-6 col-md-3"><div class="fs-xs text-muted text-uppercase">Reporting Manager</div><div class="fw-500 text-break">{{ $user->reportingManager?->name ?? '—' }}</div></div>
                     </div>
                     @if ($user->bio)
                         <hr>
@@ -181,11 +181,11 @@
                             <tbody>
                                 @forelse ($loginLogs as $log)
                                     <tr>
-                                        <td>{{ format_datetime($log->login_at) }}</td>
-                                        <td class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
-                                        <td>{{ $log->browser ?? '—' }}</td>
-                                        <td>{{ $log->device ?? '—' }} · {{ $log->platform ?? '—' }}</td>
-                                        <td>
+                                        <td data-label="Date">{{ format_datetime($log->login_at) }}</td>
+                                        <td data-label="IP Address" class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
+                                        <td data-label="Browser">{{ $log->browser ?? '—' }}</td>
+                                        <td data-label="Device">{{ $log->device ?? '—' }} · {{ $log->platform ?? '—' }}</td>
+                                        <td data-label="Status">
                                             <span class="badge badge-soft-{{ $log->status === 'success' ? 'success' : ($log->status === 'locked' ? 'warning' : 'danger') }}">{{ ucfirst($log->status) }}</span>
                                         </td>
                                     </tr>
@@ -202,7 +202,7 @@
                     <div class="list-group list-group-flush">
                         @forelse ($activities as $activity)
                             <div class="list-group-item px-0">
-                                <div class="d-flex justify-content-between align-items-start">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-1">
                                     <div>
                                         <i class="bi bi-dot"></i> {{ $activity->description }}
                                     </div>

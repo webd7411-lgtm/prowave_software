@@ -3,7 +3,7 @@
 @section('title', 'Project Kanban Board')
 
 @section('content')
-<div class="container-fluid kanban-page-wrapper">
+<div class="container-fluid px-0 kanban-page-wrapper">
     {{-- Header --}}
     <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
@@ -101,7 +101,7 @@
     </div>
 
     {{-- Kanban Board Columns Grid --}}
-    <div class="row g-3 flex-nowrap overflow-auto pb-4 kanban-scroll-container" style="min-height: 650px;">
+    <div class="row g-3 pb-4 kanban-board-grid">
         @php
             $columnConfig = [
                 'To Do' => ['id' => 'col-todo', 'color' => 'border-secondary', 'badge' => 'bg-secondary'],
@@ -114,7 +114,7 @@
 
         @foreach($columns as $colTitle => $tasks)
             @php $cfg = $columnConfig[$colTitle]; @endphp
-            <div class="col-12 col-md-4 col-xl-2-4 kanban-column-wrapper {{ $cfg['id'] }}" style="min-width: 280px; max-width: 320px;">
+            <div class="col-12 col-md-6 col-lg-4 col-xl-2-4 kanban-column-wrapper {{ $cfg['id'] }}">
                 <div class="bg-light rounded-3 p-3 h-100 border-top border-4 {{ $cfg['color'] }} d-flex flex-column">
                     {{-- Column Header --}}
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -233,7 +233,7 @@
                     </div>
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-4">
+                    <div class="col-12 col-sm-4">
                         <label class="form-label fw-semibold fs-sm">Status</label>
                         <select name="status" class="form-select">
                             <option value="To Do" selected>To Do</option>
@@ -243,11 +243,11 @@
                             <option value="Completed">Completed</option>
                         </select>
                     </div>
-                    <div class="col-4">
+                    <div class="col-6 col-sm-4">
                         <label class="form-label fw-semibold fs-sm">Deadline Date</label>
                         <input type="date" name="deadline" class="form-control">
                     </div>
-                    <div class="col-4">
+                    <div class="col-6 col-sm-4">
                         <label class="form-label fw-semibold fs-sm">Time</label>
                         <input type="time" name="deadline_time" class="form-control" value="18:00">
                     </div>
@@ -288,19 +288,23 @@
             });
         });
 
-        // Mobile column switcher
+        // Mobile column switcher (sync on load + resize)
         const mobileSelect = document.getElementById('mobileKanbanSelect');
-        if (mobileSelect) {
-            mobileSelect.addEventListener('change', function () {
-                const targetId = this.value;
-                document.querySelectorAll('.kanban-column-wrapper').forEach(col => {
-                    if (col.classList.contains(targetId)) {
-                        col.style.display = 'block';
-                    } else {
-                        col.style.display = 'none';
-                    }
+        function syncKanbanColumns() {
+            const cols = document.querySelectorAll('.kanban-column-wrapper');
+            if (window.innerWidth < 768 && mobileSelect) {
+                const targetId = mobileSelect.value;
+                cols.forEach(col => {
+                    col.style.display = col.classList.contains(targetId) ? 'block' : 'none';
                 });
-            });
+            } else {
+                cols.forEach(col => { col.style.display = ''; });
+            }
+        }
+        if (mobileSelect) {
+            mobileSelect.addEventListener('change', syncKanbanColumns);
+            window.addEventListener('resize', syncKanbanColumns);
+            syncKanbanColumns();
         }
     });
 </script>

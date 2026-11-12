@@ -14,7 +14,7 @@
 <div class="row g-4 animate-fade-in-up stagger-1">
     <div class="col-12 col-lg-7">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
                 <span class="fw-600"><i class="bi bi-receipt me-2 text-primary"></i>Transaction Details</span>
                 @if(auth()->user()->can('transactions.edit') || auth()->user()->can('transactions.delete'))
                 <div class="d-flex gap-2">

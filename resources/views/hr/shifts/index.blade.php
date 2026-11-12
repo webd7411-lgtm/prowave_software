@@ -53,7 +53,19 @@
                         </div>
                         <div class="fs-xs text-muted mt-2">
                             <div><i class="bi bi-clock me-1"></i>{{ \Illuminate\Support\Carbon::parse($shift->start_time)->format('h:i A') }} — {{ \Illuminate\Support\Carbon::parse($shift->end_time)->format('h:i A') }}</div>
-                            <div><i class="bi bi-people me-1"></i>{{ $shift->employees_count }} employee(s)</div>
+                            <div><i class="bi bi-people me-1"></i>{{ $shift->employees_count }} employee(s) · Grace {{ $shift->grace_period }}m · Break {{ $shift->break_minutes }}m</div>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-end gap-1 mt-2 pt-2 border-top">
+                            @can('shifts.edit')
+                                <a href="{{ route('hr.shifts.edit', $shift) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil me-1"></i>Edit</a>
+                            @endcan
+                            @can('shifts.delete')
+                                <form method="POST" action="{{ route('hr.shifts.destroy', $shift) }}" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-soft-danger" data-confirm data-confirm-title="Delete shift?" data-confirm-text="This shift will be permanently deleted." data-confirm-confirm-text="Yes, delete"><i class="bi bi-trash"></i></button>
+                                </form>
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -62,7 +74,7 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Shift</th>
@@ -79,17 +91,17 @@
                     <tbody>
                         @foreach ($shifts as $shift)
                             <tr>
-                                <td class="fw-600">{{ $shift->name }}</td>
-                                <td><span class="badge badge-soft-secondary font-monospace">{{ $shift->code ?? '—' }}</span></td>
-                                <td>{{ \Illuminate\Support\Carbon::parse($shift->start_time)->format('h:i A') }}</td>
-                                <td>{{ \Illuminate\Support\Carbon::parse($shift->end_time)->format('h:i A') }}</td>
-                                <td>{{ $shift->grace_period }} min</td>
-                                <td>{{ $shift->break_minutes }} min</td>
-                                <td>{{ $shift->employees_count }}</td>
-                                <td>
+                                <td data-label="Shift" class="fw-600">{{ $shift->name }}</td>
+                                <td data-label="Code"><span class="badge badge-soft-secondary font-monospace">{{ $shift->code ?? '—' }}</span></td>
+                                <td data-label="Start Time">{{ \Illuminate\Support\Carbon::parse($shift->start_time)->format('h:i A') }}</td>
+                                <td data-label="End Time">{{ \Illuminate\Support\Carbon::parse($shift->end_time)->format('h:i A') }}</td>
+                                <td data-label="Grace">{{ $shift->grace_period }} min</td>
+                                <td data-label="Break">{{ $shift->break_minutes }} min</td>
+                                <td data-label="Employees">{{ $shift->employees_count }}</td>
+                                <td data-label="Status">
                                     <span class="badge badge-soft-{{ $shift->is_active ? 'success' : 'secondary' }}">{{ $shift->is_active ? 'Active' : 'Inactive' }}</span>
                                 </td>
-                                <td class="text-end">
+                                <td data-label="" class="text-end fin-cell-actions">
                                     <div class="d-flex justify-content-end gap-1">
                                         @can('shifts.edit')
                                             <a href="{{ route('hr.shifts.edit', $shift) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil"></i></a>

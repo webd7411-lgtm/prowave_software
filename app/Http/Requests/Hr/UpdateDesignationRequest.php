@@ -15,6 +15,7 @@ class UpdateDesignationRequest extends StoreDesignationRequest
             'name' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:30', Rule::unique('designations', 'code')->ignore($id)],
             'department_id' => ['nullable', 'exists:departments,id'],
+            'role_id' => ['nullable', 'exists:roles,id'],
             'description' => ['nullable', 'string', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
         ];

@@ -93,7 +93,7 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -108,7 +108,7 @@
                     <tbody>
                         @foreach ($updates as $update)
                             <tr>
-                                <td>
+                                <td data-label="Employee">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ user_avatar($update->employee) }}" alt="" class="rounded-circle" style="width:32px;height:32px;object-fit:cover">
                                         <div class="min-w-0">
@@ -117,14 +117,14 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ format_date($update->date) }}</td>
-                                <td>
-                                    <span class="text-truncate d-inline-block" style="max-width:280px" title="{{ $update->work_description }}">{{ $update->work_description ?: '—' }}</span>
+                                <td data-label="Date">{{ format_date($update->date) }}</td>
+                                <td data-label="Work Summary">
+                                    <span class="text-break" title="{{ $update->work_description }}">{{ \Illuminate\Support\Str::limit($update->work_description ?: '—', 80) }}</span>
                                 </td>
-                                <td>{{ $update->hours_worked ?: '—' }}</td>
-                                <td><span class="badge badge-soft-{{ $update->status->color() }}">{{ $update->status->label() }}</span></td>
-                                <td class="fs-sm text-muted">{{ $update->reviewer?->name ?? '—' }}</td>
-                                <td class="text-end">
+                                <td data-label="Hours">{{ $update->hours_worked ?: '—' }}</td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $update->status->color() }}">{{ $update->status->label() }}</span></td>
+                                <td data-label="Reviewed By" class="fs-sm text-muted">{{ $update->reviewer?->name ?? '—' }}</td>
+                                <td data-label="" class="text-end fin-cell-actions">
                                     <a href="{{ route('hr.updates.show', $update) }}" class="btn btn-sm btn-soft-primary" title="View"><i class="bi bi-eye"></i></a>
                                 </td>
                             </tr>

@@ -18,6 +18,7 @@ class StoreDesignationRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:30', 'unique:designations,code'],
             'department_id' => ['nullable', 'exists:departments,id'],
+            'role_id' => ['nullable', 'exists:roles,id'],
             'description' => ['nullable', 'string', 'max:500'],
             'is_active' => ['nullable', 'boolean'],
         ];

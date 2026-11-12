@@ -27,7 +27,7 @@
             <h1 class="page-title">Attendance Dashboard</h1>
             <p class="page-subtitle">Today's overview and monthly trends.</p>
         </div>
-        <form method="GET" action="{{ route('hr.attendance.dashboard') }}" class="d-flex gap-2 align-items-center">
+        <form method="GET" action="{{ route('hr.attendance.dashboard') }}" class="d-flex flex-wrap gap-2 align-items-center">
             <input type="date" name="date" class="form-control form-control-sm" value="{{ $date }}" max="{{ now()->toDateString() }}">
             <button type="submit" class="btn btn-sm btn-soft-primary"><i class="bi bi-calendar-event me-1"></i>Go</button>
         </form>

@@ -55,7 +55,7 @@
     @if ($employees->count())
         <div class="card">
             <div class="table-responsive">
-                <table class="table table-sm table-striped align-middle mb-0">
+                <table class="table table-sm table-striped align-middle mb-0 table-cards-lg">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -71,14 +71,14 @@
                     <tbody>
                         @foreach ($employees as $employee)
                             <tr>
-                                <td class="fw-500">{{ $employee->name }}</td>
-                                <td>{{ $employee->employee_id }}</td>
-                                <td>{{ $employee->department?->name ?? '—' }}</td>
-                                <td>{{ $employee->designation ?? '—' }}</td>
-                                <td>{{ $employee->shift?->name ?? '—' }}</td>
-                                <td class="fs-sm">{{ $employee->email }}</td>
-                                <td><span class="badge badge-soft-{{ $employee->employee_status?->color() ?? 'secondary' }}">{{ $employee->employee_status?->label() ?? '—' }}</span></td>
-                                <td class="fs-sm">{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</td>
+                                <td data-label="Employee" class="fw-500">{{ $employee->name }}</td>
+                                <td data-label="Employee ID">{{ $employee->employee_id }}</td>
+                                <td data-label="Department">{{ $employee->department?->name ?? '—' }}</td>
+                                <td data-label="Designation">{{ $employee->designation ?? '—' }}</td>
+                                <td data-label="Shift">{{ $employee->shift?->name ?? '—' }}</td>
+                                <td data-label="Email" class="fs-sm text-break">{{ $employee->email }}</td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $employee->employee_status?->color() ?? 'secondary' }}">{{ $employee->employee_status?->label() ?? '—' }}</span></td>
+                                <td data-label="Joined" class="fs-sm">{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

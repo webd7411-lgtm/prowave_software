@@ -19,7 +19,7 @@
 
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
-            <x-card title="Edit Department" subtitle="Modify the department information" icon="bi-building-gear" body-class="p-4">
+            <x-card title="Edit Department" subtitle="Modify the department information" icon="bi-building-gear" body-class="p-3 p-md-4">
                 <x-form :action="route('admin.departments.update', $department)" method="PATCH" spinner="Saving..." cancel-url="{{ route('admin.departments.index') }}">
                     <div class="row g-3">
                         <div class="col-md-7">

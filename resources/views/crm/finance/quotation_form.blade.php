@@ -20,7 +20,7 @@
             @endif
 
             <div class="card mb-4">
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-md-4">
                     <div class="row g-3">
                         <div class="col-12 col-sm-6">
                             <label class="form-label fw-semibold">Client <span class="text-danger">*</span></label>
@@ -62,7 +62,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h5 class="card-title mb-0">Line Items</h5>
                     <button type="button" class="btn btn-sm btn-outline-primary" id="addItemBtn">
                         <i class="bi bi-plus-circle me-1"></i>Add Item
@@ -113,7 +113,7 @@
             </div>
 
             <div class="card mb-4">
-                <div class="card-body p-4">
+                <div class="card-body p-3 p-md-4">
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label">Notes</label>
@@ -150,23 +150,23 @@
     function createRow(data = {}) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td>
+            <td data-label="Description">
                 <input type="text" name="items[${rowIndex}][description]" class="form-control form-control-sm" placeholder="Service or product description" value="${data.description || ''}" required>
             </td>
-            <td>
+            <td data-label="Qty">
                 <input type="number" name="items[${rowIndex}][quantity]" class="form-control form-control-sm item-qty" step="0.01" min="0.01" value="${data.quantity || 1}" required>
             </td>
-            <td>
+            <td data-label="Unit Price">
                 <input type="number" name="items[${rowIndex}][unit_price]" class="form-control form-control-sm item-price" step="0.01" min="0" value="${data.unit_price || 0}" required>
             </td>
-            <td>
+            <td data-label="Discount">
                 <input type="number" name="items[${rowIndex}][discount]" class="form-control form-control-sm item-discount" step="0.01" min="0" value="${data.discount || 0}">
             </td>
-            <td>
+            <td data-label="Tax">
                 <input type="number" name="items[${rowIndex}][tax]" class="form-control form-control-sm item-tax" step="0.01" min="0" value="${data.tax || 0}">
             </td>
-            <td class="fw-semibold item-total">0.00</td>
-            <td>
+            <td data-label="Total" class="fw-semibold item-total">0.00</td>
+            <td data-label="Action" class="fin-cell-actions">
                 <button type="button" class="btn btn-sm btn-outline-danger remove-item" title="Remove">
                     <i class="bi bi-trash"></i>
                 </button>

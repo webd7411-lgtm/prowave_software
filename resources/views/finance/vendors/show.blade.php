@@ -77,7 +77,7 @@
                 <span class="badge bg-danger-subtle text-danger rounded-pill">{{ setting('general.currency','PKR') }} {{ number_format($vendor->totalExpenses(), 0) }}</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0 fin-table">
+                <table class="table table-hover mb-0 fin-table table-cards-lg">
                     <thead>
                         <tr>
                             <th>Expense No</th>
@@ -113,7 +113,7 @@
                 <span class="badge bg-success-subtle text-success rounded-pill">{{ setting('general.currency','PKR') }} {{ number_format($vendor->totalPaid(), 0) }}</span>
             </div>
             <div class="table-responsive">
-                <table class="table table-hover mb-0 fin-table">
+                <table class="table table-hover mb-0 fin-table table-cards-lg">
                     <thead>
                         <tr>
                             <th>Payment No</th>

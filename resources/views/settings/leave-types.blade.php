@@ -31,7 +31,7 @@
             <x-card>
                 @if ($leaveTypes->count())
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-hover align-middle table-cards-lg">
                             <thead>
                             <tr>
                                 <th>Name</th>
@@ -45,21 +45,21 @@
                             <tbody>
                             @foreach ($leaveTypes as $type)
                                 <tr>
-                                    <td>
+                                    <td data-label="Name">
                                         <div class="fw-medium">{{ $type->name }}</div>
                                         @if ($type->description)
                                             <div class="fs-xs text-muted">{{ $type->description }}</div>
                                         @endif
                                     </td>
-                                    <td><span class="badge bg-soft-dark-subtle text-dark">{{ $type->code }}</span></td>
-                                    <td class="text-center fw-semibold">{{ $type->days_per_year }}</td>
-                                    <td class="text-center">
+                                    <td data-label="Code"><span class="badge bg-soft-dark-subtle text-dark">{{ $type->code }}</span></td>
+                                    <td data-label="Days / Year" class="text-center fw-semibold">{{ $type->days_per_year }}</td>
+                                    <td data-label="Paid" class="text-center">
                                         <span class="badge {{ $type->is_paid ? 'bg-success-subtle text-success-emphasis' : 'bg-warning-subtle text-warning-emphasis' }}">
                                             {{ $type->is_paid ? 'Paid' : 'Unpaid' }}
                                         </span>
                                     </td>
-                                    <td class="text-center text-muted">{{ $type->leave_requests_count ?? 0 }}</td>
-                                    <td class="text-end">
+                                    <td data-label="Used" class="text-center text-muted">{{ $type->leave_requests_count ?? 0 }}</td>
+                                    <td data-label="" class="text-end">
                                         @can('settings.edit')
                                             <form action="{{ route('settings.leave-types.destroy', $type) }}" method="POST"
                                                   class="d-inline" data-confirm="Delete leave type {{ $type->name }}?">

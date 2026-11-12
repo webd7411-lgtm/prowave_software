@@ -53,12 +53,12 @@
                         <tbody>
                             @forelse($invoice->items as $item)
                             <tr>
-                                <td>{{ $item->description }}</td>
-                                <td class="text-center">{{ number_format($item->quantity, 2) }}</td>
-                                <td class="text-end">{{ number_format($item->unit_price, 2) }}</td>
-                                <td class="text-end">{{ $item->discount > 0 ? '-' . number_format($item->discount, 2) : '—' }}</td>
-                                <td class="text-end">{{ $item->tax > 0 ? number_format($item->tax, 2) : '—' }}</td>
-                                <td class="text-end fw-semibold">{{ number_format($item->total, 2) }}</td>
+                                <td data-label="Description">{{ $item->description }}</td>
+                                <td data-label="Qty" class="text-center">{{ number_format($item->quantity, 2) }}</td>
+                                <td data-label="Unit Price" class="text-end">{{ number_format($item->unit_price, 2) }}</td>
+                                <td data-label="Discount" class="text-end">{{ $item->discount > 0 ? '-' . number_format($item->discount, 2) : '—' }}</td>
+                                <td data-label="Tax" class="text-end">{{ $item->tax > 0 ? number_format($item->tax, 2) : '—' }}</td>
+                                <td data-label="Total" class="text-end fw-semibold">{{ number_format($item->total, 2) }}</td>
                             </tr>
                             @empty
                             <tr>
@@ -103,8 +103,8 @@
         @endif
         
         <div class="card mt-4 shadow-sm border">
-            <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center py-3">
-                <div>
+            <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
+                <div class="min-w-0">
                     <h6 class="fw-bold mb-0 text-dark">
                         <i class="bi bi-clock-history text-primary me-2"></i>Payment History & Receipts
                     </h6>
@@ -139,11 +139,11 @@
                         <tbody>
                             @forelse($invoice->payments as $payment)
                             <tr>
-                                <td class="fw-semibold text-primary">
+                                <td data-label="Receipt #" class="fw-semibold text-primary">
                                     <i class="bi bi-receipt me-1"></i>{{ $payment->payment_number }}
                                 </td>
-                                <td>{{ $payment->payment_date->format('d M, Y') }}</td>
-                                <td>
+                                <td data-label="Date">{{ $payment->payment_date->format('d M, Y') }}</td>
+                                <td data-label="Method">
                                     @php
                                         $methodIcons = [
                                             'cash' => 'bi-cash-stack text-success',
@@ -161,16 +161,16 @@
                                         {{ ucwords(str_replace('_', ' ', $payment->method)) }}
                                     </span>
                                 </td>
-                                <td>
+                                <td data-label="Reference">
                                     @if($payment->reference_number)
                                         <code class="text-dark bg-light px-2 py-1 rounded">{{ $payment->reference_number }}</code>
                                     @else
                                         <span class="text-muted">—</span>
                                     @endif
                                 </td>
-                                <td><small class="text-muted">{{ $payment->notes ?: '—' }}</small></td>
-                                <td><small class="text-muted">{{ $payment->creator?->name ?? 'System' }}</small></td>
-                                <td class="text-end text-success fw-bold">
+                                <td data-label="Notes"><small class="text-muted">{{ $payment->notes ?: '—' }}</small></td>
+                                <td data-label="Recorded By"><small class="text-muted">{{ $payment->creator?->name ?? 'System' }}</small></td>
+                                <td data-label="Amount Paid" class="text-end text-success fw-bold">
                                     + {{ number_format($payment->amount, 2) }} PKR
                                 </td>
                             </tr>

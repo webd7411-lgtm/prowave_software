@@ -1,5 +1,5 @@
 @php
-    $assetVer = '1.0.2';
+    $assetVer = '1.0.8';
     $includeAppAssets = $includeAppAssets ?? true;
 @endphp
 

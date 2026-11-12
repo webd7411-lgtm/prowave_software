@@ -172,28 +172,28 @@
             @foreach($projects as $project)
                 <div class="col-12 col-md-6 col-xl-4">
                     <div class="card border-0 shadow-sm h-100 hover-shadow transition">
-                        <div class="card-body d-flex flex-column p-4">
+                        <div class="card-body d-flex flex-column p-3 p-md-4">
                             {{-- Card Top Row --}}
                             <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
-                                <div>
+                                <div class="min-w-0 flex-grow-1">
                                     <span class="badge bg-light text-muted border fs-xs mb-1">{{ $project->project_code }}</span>
-                                    <h5 class="fw-bold text-dark mb-0 text-truncate" style="max-width: 240px;">
+                                    <h5 class="fw-bold text-dark mb-0 text-truncate">
                                         <a href="{{ route('projects.show', $project) }}" class="text-dark text-decoration-none hover-primary">
                                             {{ $project->name }}
                                         </a>
                                     </h5>
-                                    <div class="fs-xs text-muted mt-1">
+                                    <div class="fs-xs text-muted mt-1 text-truncate">
                                         <i class="bi bi-building me-1"></i> {{ $project->client?->company_name ?? 'Internal / No Client' }}
                                     </div>
                                 </div>
                                 {{-- Health Badge --}}
-                                <span class="badge {{ $project->health_badge_class }} fs-xs px-2 py-1">
+                                <span class="badge {{ $project->health_badge_class }} fs-xs px-2 py-1 flex-shrink-0">
                                     <i class="bi bi-heart-pulse me-1"></i>{{ $project->health }}
                                 </span>
                             </div>
 
                             {{-- Project Type & Priority --}}
-                            <div class="d-flex align-items-center gap-2 mb-3">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
                                 <span class="badge bg-secondary-subtle text-secondary fs-xs fw-normal">{{ $project->project_type }}</span>
                                 <span class="badge {{ $project->priority_badge_class }} fs-xs">{{ $project->priority }} Priority</span>
                                 <span class="badge {{ $project->status_badge_class }} fs-xs ms-auto">{{ $project->status }}</span>
@@ -252,7 +252,7 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="d-flex justify-content-end mt-4">
+        <div class="d-flex justify-content-center justify-content-md-end flex-wrap mt-4">
             {{ $projects->links() }}
         </div>
     @endif

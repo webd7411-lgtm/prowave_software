@@ -6,12 +6,22 @@
 <div class="container-fluid px-0">
     {{-- Top Banner --}}
     <div class="card border-0 shadow-sm mb-4 bg-white overflow-hidden">
-        <div class="card-body p-4">
+        <div class="card-body p-3 p-md-4">
             <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-3">
                 <div>
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
                         <span class="badge bg-light text-muted border fs-xs">{{ $project->project_code }}</span>
                         <span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $project->project_type }}</span>
+                        @if($project->billing_type === 'monthly')
+                            <span class="badge bg-info-subtle text-info border border-info-subtle fs-xs"><i class="bi bi-arrow-repeat me-1"></i>Monthly Retainer</span>
+                        @elseif($project->billing_type === 'annually')
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle fs-xs"><i class="bi bi-calendar3 me-1"></i>Annual Contract</span>
+                        @else
+                            <span class="badge bg-light text-muted border fs-xs">One-Time Project</span>
+                        @endif
+                        @if($project->isRenewalDue())
+                            <span class="badge bg-danger fs-xs text-white"><i class="bi bi-exclamation-triangle me-1"></i>Renewal / Payment Due</span>
+                        @endif
                         <span class="badge {{ $project->status_badge_class }} fs-xs">{{ $project->status }}</span>
                         <span class="badge {{ $project->priority_badge_class }} fs-xs">{{ $project->priority }} Priority</span>
                         <span class="badge {{ $project->health_badge_class }} fs-xs fw-bold"><i class="bi bi-heart-pulse me-1"></i>Health: {{ $project->health }}</span>
@@ -28,6 +38,16 @@
                     <a href="{{ route('projects.index') }}" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
                         <i class="bi bi-arrow-left"></i> Back to Projects
                     </a>
+                    @if($project->client_id && ($project->recurring_amount > 0 || $project->budget > 0))
+                        @can('invoices.create')
+                            <form action="{{ route('projects.generate-invoice', $project) }}" method="POST" class="d-inline" onsubmit="return confirm('Generate invoice for this project cycle?');">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1 shadow-sm">
+                                    <i class="bi bi-receipt"></i> Generate {{ $project->billing_type === 'monthly' ? 'Monthly' : ($project->billing_type === 'annually' ? 'Annual' : 'Project') }} Invoice
+                                </button>
+                            </form>
+                        @endcan
+                    @endif
                     @can('project_tasks.create')
                         <button type="button" class="btn btn-primary btn-sm d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#createTaskModal">
                             <i class="bi bi-plus-lg"></i> Add Task
@@ -88,7 +108,7 @@
     </div>
 
     {{-- Main Navigation Tabs --}}
-    <ul class="nav nav-pills custom-pills mb-4 gap-2 border-bottom pb-2 flex-nowrap overflow-auto" id="projectTab" role="tablist">
+    <ul class="nav nav-pills custom-pills mb-4 gap-2 border-bottom pb-2 flex-wrap" id="projectTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active btn-sm" id="overview-tab" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab">
                 <i class="bi bi-grid-1x2 me-1"></i> Overview
@@ -255,7 +275,7 @@
 
             <div class="card border-0 shadow-sm">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0 table-cards-lg">
                         <thead class="bg-light fs-xs text-uppercase text-muted">
                             <tr>
                                 <th>Task Code</th>
@@ -270,30 +290,30 @@
                         <tbody class="fs-sm">
                             @forelse($project->tasks as $task)
                                 <tr>
-                                    <td class="fw-bold text-muted">{{ $task->task_code }}</td>
-                                    <td>
+                                    <td data-label="Task Code" class="fw-bold text-muted">{{ $task->task_code }}</td>
+                                    <td data-label="Title">
                                         <a href="{{ route('projects.tasks.show', $task) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                             {{ $task->title }}
                                         </a>
 
                                     </td>
-                                    <td>
+                                    <td data-label="Assigned To">
                                         @if($task->assignedTo)
                                             <span class="badge bg-light text-dark border"><i class="bi bi-person me-1"></i>{{ $task->assignedTo->name }}</span>
                                         @else
                                             <span class="text-muted fs-xs">Unassigned</span>
                                         @endif
                                     </td>
-                                    <td><span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }}</span></td>
-                                    <td>
-                                        <select class="form-select form-select-sm task-status-change" data-task-id="{{ $task->id }}" style="width:130px;">
+                                    <td data-label="Priority"><span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }}</span></td>
+                                    <td data-label="Status">
+                                        <select class="form-select form-select-sm task-status-change" data-task-id="{{ $task->id }}">
                                             @foreach(['To Do', 'In Progress', 'Review', 'Testing', 'Completed', 'On Hold', 'Cancelled'] as $st)
                                                 <option value="{{ $st }}" {{ $task->status === $st ? 'selected' : '' }}>{{ $st }}</option>
                                             @endforeach
                                         </select>
                                     </td>
-                                    <td>{{ $task->deadline ? $task->deadline->format('M d, Y — h:i A') : 'N/A' }}</td>
-                                    <td class="text-end">
+                                    <td data-label="Deadline">{{ $task->deadline ? $task->deadline->format('M d, Y — h:i A') : 'N/A' }}</td>
+                                    <td data-label="" class="text-end fin-cell-actions">
                                         <a href="{{ route('projects.tasks.show', $task) }}" class="btn btn-sm btn-light" title="View Task"><i class="bi bi-eye"></i></a>
                                         @can('project_tasks.delete')
                                             <form action="{{ route('projects.tasks.destroy', $task) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete task?');">
@@ -391,14 +411,14 @@
                         <tbody class="fs-sm">
                             @forelse($project->files as $file)
                                 <tr>
-                                    <td class="fw-semibold text-dark">
+                                    <td data-label="File Name" class="fw-semibold text-dark">
                                         <i class="bi bi-file-earmark-text text-primary me-2 fs-5"></i>{{ $file->name }}
                                     </td>
-                                    <td><span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $file->file_type }}</span></td>
-                                    <td>{{ $file->formatted_size }}</td>
-                                    <td>{{ $file->uploader?->name ?? 'System' }}</td>
-                                    <td>{{ $file->created_at->format('M d, Y H:i') }}</td>
-                                    <td class="text-end">
+                                    <td data-label="Type"><span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $file->file_type }}</span></td>
+                                    <td data-label="Size">{{ $file->formatted_size }}</td>
+                                    <td data-label="Uploaded By">{{ $file->uploader?->name ?? 'System' }}</td>
+                                    <td data-label="Date">{{ $file->created_at->format('M d, Y H:i') }}</td>
+                                    <td data-label="" class="text-end fin-cell-actions">
                                         <a href="{{ route('projects.files.download', $file) }}" class="btn btn-sm btn-light me-1" title="Download"><i class="bi bi-download"></i></a>
                                         @can('project_files.delete')
                                             <form action="{{ route('projects.files.destroy', $file) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete file?');">
@@ -450,12 +470,12 @@
                             <tbody class="fs-sm">
                                 @forelse($project->expenses as $expense)
                                     <tr>
-                                        <td><span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $expense->category }}</span></td>
-                                        <td class="fw-bold text-danger">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expense->amount, 2) }}</td>
-                                        <td>{{ $expense->expense_date->format('M d, Y') }}</td>
-                                        <td class="text-muted">{{ $expense->description }}</td>
-                                        <td>{{ $expense->addedBy?->name ?? 'N/A' }}</td>
-                                        <td class="text-end">
+                                        <td data-label="Category"><span class="badge bg-secondary-subtle text-secondary fs-xs">{{ $expense->category }}</span></td>
+                                        <td data-label="Amount" class="fw-bold text-danger">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expense->amount, 2) }}</td>
+                                        <td data-label="Date">{{ $expense->expense_date->format('M d, Y') }}</td>
+                                        <td data-label="Description" class="text-muted">{{ $expense->description }}</td>
+                                        <td data-label="Added By">{{ $expense->addedBy?->name ?? 'N/A' }}</td>
+                                        <td data-label="" class="text-end fin-cell-actions">
                                             @can('project_expenses.edit')
                                                 <form action="{{ route('projects.expenses.destroy', $expense) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete expense?');">
                                                     @csrf
@@ -509,7 +529,7 @@
 
                 <div class="row g-4">
                     <div class="col-12 col-lg-8">
-                        <div class="card border-0 shadow-sm p-4">
+                        <div class="card border-0 shadow-sm p-3 p-md-4">
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <div>
                                     <h5 class="fw-bold text-dark mb-0"><i class="bi bi-cash-stack text-success me-2"></i>Client Payment Receipts Breakdown</h5>
@@ -517,7 +537,7 @@
                                 </div>
                             </div>
                             <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0 fs-sm">
+                                <table class="table table-hover align-middle mb-0 fs-sm table-cards-lg">
                                     <thead class="table-light">
                                         <tr>
                                             <th>#</th>
@@ -532,13 +552,13 @@
                                     <tbody>
                                         @forelse($project->payments as $idx => $payment)
                                             <tr>
-                                                <td>{{ $idx + 1 }}</td>
-                                                <td class="fw-semibold">{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '—' }}</td>
-                                                <td class="fw-bold text-primary">{{ $payment->payment_number }}</td>
-                                                <td class="text-capitalize"><span class="badge bg-light text-dark border">{{ str_replace('_', ' ', $payment->method) }}</span></td>
-                                                <td>{{ $payment->reference_number ?: '—' }}</td>
-                                                <td class="text-muted">{{ $payment->notes ?: '—' }}</td>
-                                                <td class="text-end fw-bold text-success">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($payment->amount, 2) }}</td>
+                                                <td data-label="#">{{ $idx + 1 }}</td>
+                                                <td data-label="Date" class="fw-semibold">{{ $payment->payment_date ? $payment->payment_date->format('M d, Y') : '—' }}</td>
+                                                <td data-label="Receipt #" class="fw-bold text-primary">{{ $payment->payment_number }}</td>
+                                                <td data-label="Method" class="text-capitalize"><span class="badge bg-light text-dark border">{{ str_replace('_', ' ', $payment->method) }}</span></td>
+                                                <td data-label="Ref / Trx ID">{{ $payment->reference_number ?: '—' }}</td>
+                                                <td data-label="Notes" class="text-muted">{{ $payment->notes ?: '—' }}</td>
+                                                <td data-label="Amount" class="text-end fw-bold text-success">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($payment->amount, 2) }}</td>
                                             </tr>
                                         @empty
                                             <tr>

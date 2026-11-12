@@ -67,12 +67,12 @@
                 <input type="date" name="to_date" value="{{ $toDate }}" class="form-control form-control-sm">
             </div>
 
-            <div class="col-auto d-flex gap-1 ms-auto">
-                <button type="submit" class="btn btn-sm btn-primary px-3">
+            <div class="col-12 col-sm-auto d-flex flex-wrap gap-1 ms-sm-auto">
+                <button type="submit" class="btn btn-sm btn-primary px-3 flex-fill flex-sm-grow-0">
                     <i class="bi bi-funnel me-1"></i>Filter
                 </button>
                 @if(request()->hasAny(['period', 'from_date', 'to_date', 'owner_id']))
-                    <a href="{{ route('crm.dashboard') }}" class="btn btn-sm btn-light border" title="Reset Filters">
+                    <a href="{{ route('crm.dashboard') }}" class="btn btn-sm btn-light border flex-fill flex-sm-grow-0" title="Reset Filters">
                         <i class="bi bi-x-circle"></i> Clear
                     </a>
                 @endif
@@ -160,7 +160,7 @@
     {{-- Dynamic Sales Pipeline Chart / Progress Bars --}}
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="fw-bold mb-0 text-dark">
                     <i class="bi bi-diagram-3 text-primary me-2"></i>Sales Pipeline Stages
                 </h5>
@@ -205,8 +205,8 @@
                 <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-speedometer2 text-success me-2"></i>Sales Performance Summary</h5>
             </div>
             <div class="card-body vstack gap-3 pt-0">
-                <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 bg-light">
+                    <div class="min-w-0">
                         <div class="fs-xs text-muted text-uppercase fw-semibold">Pending Follow-ups</div>
                         <div class="fs-4 fw-bold text-warning mb-0">{{ number_format($stats['pending_followups']) }}</div>
                     </div>
@@ -219,18 +219,18 @@
                     @endif
                 </div>
 
-                <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 bg-light">
+                    <div class="min-w-0">
                         <div class="fs-xs text-muted text-uppercase fw-semibold">Total Accounts / Clients</div>
                         <div class="fs-4 fw-bold text-dark mb-0">{{ number_format($stats['total_clients']) }}</div>
                     </div>
                     <a href="{{ route('crm.clients.index') }}" class="btn btn-sm btn-outline-primary fs-xs">View Clients</a>
                 </div>
 
-                <div class="d-flex align-items-center justify-content-between p-3 rounded-3 bg-light">
-                    <div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 p-3 rounded-3 bg-light">
+                    <div class="min-w-0">
                         <div class="fs-xs text-muted text-uppercase fw-semibold">Outstanding Client Payments</div>
-                        <div class="fs-4 fw-bold text-danger mb-0">{{ number_format($stats['outstanding_payments'], 2) }} <span class="fs-xs text-muted fw-normal">PKR</span></div>
+                        <div class="fs-4 fw-bold text-danger mb-0 text-break">{{ number_format($stats['outstanding_payments'], 2) }} <span class="fs-xs text-muted fw-normal">PKR</span></div>
                     </div>
                     <span class="badge bg-danger-subtle text-danger px-2 py-1 fs-xs">Receivables</span>
                 </div>
@@ -244,9 +244,9 @@
     {{-- Recent Leads Table --}}
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-lines-fill text-info me-2"></i>My Recent Leads</h5>
-                <a href="{{ route('crm.leads.index') }}" class="btn btn-sm btn-link text-decoration-none">View All Leads &rarr;</a>
+                <a href="{{ route('crm.leads.index') }}" class="btn btn-sm btn-link text-decoration-none p-0">View All Leads &rarr;</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle mb-0 fs-sm">
@@ -262,18 +262,18 @@
                     <tbody>
                         @forelse($recentLeads as $lead)
                             <tr>
-                                <td class="fw-semibold text-primary">{{ $lead->lead_number }}</td>
-                                <td>
+                                <td data-label="Lead #" class="fw-semibold text-primary">{{ $lead->lead_number }}</td>
+                                <td data-label="Company / Contact">
                                     <div class="fw-bold text-dark">{{ $lead->company_name ?: 'N/A' }}</div>
                                     <div class="fs-xs text-muted">{{ $lead->contact_person ?: $lead->phone }}</div>
                                 </td>
-                                <td>{{ $lead->owner?->name ?? 'Unassigned' }}</td>
-                                <td>
+                                <td data-label="Owner">{{ $lead->owner?->name ?? 'Unassigned' }}</td>
+                                <td data-label="Status">
                                     <span class="badge bg-secondary-subtle text-dark border px-2 py-1 text-capitalize">
                                         {{ str_replace('_', ' ', $lead->status) }}
                                     </span>
                                 </td>
-                                <td class="text-end">
+                                <td data-label="Action" class="text-end fin-cell-actions">
                                     <a href="{{ route('crm.leads.show', $lead) }}" class="btn btn-sm btn-light border"><i class="bi bi-eye"></i> View</a>
                                 </td>
                             </tr>
@@ -291,9 +291,9 @@
     {{-- Upcoming Follow-ups --}}
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+            <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-calendar-event text-warning me-2"></i>Upcoming Follow-ups</h5>
-                <a href="{{ route('crm.followups.index') }}" class="btn btn-sm btn-link text-decoration-none">View Schedule &rarr;</a>
+                <a href="{{ route('crm.followups.index') }}" class="btn btn-sm btn-link text-decoration-none p-0">View Schedule &rarr;</a>
             </div>
             <div class="card-body p-0">
                 <div class="list-group list-group-flush border-top-0">

@@ -36,18 +36,18 @@
                 <tbody>
                     @forelse ($logs as $log)
                         <tr>
-                            <td>{{ format_datetime($log->login_at) }}</td>
-                            <td class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
-                            <td>{{ $log->browser ?? '—' }}</td>
-                            <td>{{ $log->platform ?? '—' }}</td>
-                            <td>{{ $log->device ?? '—' }}</td>
-                            <td>{{ $log->remember ? 'Yes' : 'No' }}</td>
-                            <td>
+                            <td data-label="Date & Time">{{ format_datetime($log->login_at) }}</td>
+                            <td data-label="IP Address" class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
+                            <td data-label="Browser">{{ $log->browser ?? '—' }}</td>
+                            <td data-label="Platform">{{ $log->platform ?? '—' }}</td>
+                            <td data-label="Device">{{ $log->device ?? '—' }}</td>
+                            <td data-label="Remember">{{ $log->remember ? 'Yes' : 'No' }}</td>
+                            <td data-label="Status">
                                 <span class="badge badge-soft-{{ $log->status === 'success' ? 'success' : ($log->status === 'locked' ? 'warning' : ($log->status === 'logged_out' ? 'secondary' : 'danger')) }}">
                                     {{ ucfirst($log->status) }}
                                 </span>
                             </td>
-                            <td>{{ $log->logout_at ? format_datetime($log->logout_at) : '—' }}</td>
+                            <td data-label="Logout">{{ $log->logout_at ? format_datetime($log->logout_at) : '—' }}</td>
                         </tr>
                     @empty
                         <tr><td colspan="8" class="text-center text-muted py-4">No login records yet.</td></tr>

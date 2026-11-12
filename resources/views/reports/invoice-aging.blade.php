@@ -50,7 +50,7 @@
     <x-card>
         @if ($invoices->count())
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                     <tr>
                         <th>Invoice</th>
@@ -68,13 +68,13 @@
                             $daysOverdue = $invoice->due_date && $invoice->due_date->isPast() ? $invoice->due_date->diffInDays(now()) : 0;
                         @endphp
                         <tr>
-                            <td class="fw-medium">{{ $invoice->invoice_number }}</td>
-                            <td>{{ $invoice->client?->company_name ?? '—' }}</td>
-                            <td>{{ format_date($invoice->due_date?->toDateString()) }}</td>
-                            <td class="text-end">{{ format_money($invoice->total) }}</td>
-                            <td class="text-end text-success">{{ format_money($invoice->paid_amount) }}</td>
-                            <td class="text-end fw-semibold text-danger">{{ format_money($invoice->total - $invoice->paid_amount) }}</td>
-                            <td class="text-center">
+                            <td data-label="Invoice" class="fw-medium">{{ $invoice->invoice_number }}</td>
+                            <td data-label="Client">{{ $invoice->client?->company_name ?? '—' }}</td>
+                            <td data-label="Due Date">{{ format_date($invoice->due_date?->toDateString()) }}</td>
+                            <td data-label="Total" class="text-end">{{ format_money($invoice->total) }}</td>
+                            <td data-label="Paid" class="text-end text-success">{{ format_money($invoice->paid_amount) }}</td>
+                            <td data-label="Outstanding" class="text-end fw-semibold text-danger">{{ format_money($invoice->total - $invoice->paid_amount) }}</td>
+                            <td data-label="Overdue" class="text-center">
                                 @if ($daysOverdue > 0)
                                     <span class="badge bg-danger-subtle text-danger-emphasis">{{ $daysOverdue }}d</span>
                                 @else

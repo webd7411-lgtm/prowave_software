@@ -27,19 +27,19 @@
                 {{ \Carbon\Carbon::now()->format('l, F j, Y') }}.
             </p>
         </div>
-        <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
+        <div class="d-flex flex-wrap gap-2 dashboard-actions">
             @can('users.import')
-                <a href="{{ route('admin.users.import') }}" class="btn btn-outline flex-grow-1 flex-md-grow-0">
+                <a href="{{ route('admin.users.import') }}" class="btn btn-outline flex-fill flex-md-grow-0">
                     <i class="bi bi-upload me-1"></i>Import
                 </a>
             @endcan
             @can('users.export')
-                <a href="{{ route('admin.users.export') }}" class="btn btn-soft-success flex-grow-1 flex-md-grow-0">
+                <a href="{{ route('admin.users.export') }}" class="btn btn-soft-success flex-fill flex-md-grow-0">
                     <i class="bi bi-cloud-download me-1"></i>Export
                 </a>
             @endcan
             @can('users.create')
-                <a href="{{ route('admin.users.create') }}" class="btn btn-primary flex-grow-1 flex-md-grow-0">
+                <a href="{{ route('admin.users.create') }}" class="btn btn-primary flex-fill flex-md-grow-0">
                     <i class="bi bi-person-plus me-1"></i>Add User
                 </a>
             @endcan
@@ -47,8 +47,8 @@
     </div>
 
     {{-- ============ KPI cards ============ --}}
-    <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-1">
+    <div class="row g-2 g-sm-3 g-md-4 mb-4">
+        <div class="col-6 col-xl-3 animate-fade-in-up stagger-1">
             <x-stat-card
                 label="Total Staff"
                 icon="bi-people-fill"
@@ -58,7 +58,7 @@
                 :trend-up="true"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-2">
+        <div class="col-6 col-xl-3 animate-fade-in-up stagger-2">
             <x-stat-card
                 label="Active Staff"
                 icon="bi-person-check-fill"
@@ -68,7 +68,7 @@
                 :trend-up="true"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-3">
+        <div class="col-6 col-xl-3 animate-fade-in-up stagger-3">
             <x-stat-card
                 label="New This Month"
                 icon="bi-person-plus-fill"
@@ -78,7 +78,7 @@
                 :trend-up="$trends['users_delta'] >= 0"
             />
         </div>
-        <div class="col-12 col-sm-6 col-xl-3 animate-fade-in-up stagger-4">
+        <div class="col-6 col-xl-3 animate-fade-in-up stagger-4">
             <x-stat-card
                 label="Departments"
                 icon="bi-diagram-3-fill"
@@ -92,7 +92,7 @@
 
     {{-- ============ Charts row ============ --}}
     <div class="row g-3 g-md-4 mb-4">
-        <div class="col-12 col-xl-8 animate-fade-in-up stagger-2">
+        <div class="col-12 col-lg-7 col-xl-8 animate-fade-in-up stagger-2">
             <x-card
                 title="Staff Growth"
                 subtitle="New staff members over the last 6 months"
@@ -122,7 +122,7 @@
             </x-card>
         </div>
 
-        <div class="col-12 col-md-6 col-xl-4 animate-fade-in-up stagger-3">
+        <div class="col-12 col-lg-5 col-xl-4 animate-fade-in-up stagger-3">
             <x-card title="Staff Distribution" subtitle="Active vs. inactive" icon="bi-pie-chart">
                 <div class="chart-wrapper chart-wrapper-sm">
                     <canvas id="staffStatusChart" data-chart="doughnut"
@@ -180,7 +180,7 @@
                 <div class="progress mb-3" style="height: 8px;">
                     <div class="progress-bar bg-success" style="width: {{ $attendance['present_pct'] }}%;"></div>
                 </div>
-                <div class="d-flex justify-content-between fs-sm">
+                <div class="d-flex justify-content-between flex-wrap gap-2 fs-sm">
                     <span><i class="bi bi-person-check text-success me-1"></i>{{ $attendance['present'] }} Present</span>
                     <span><i class="bi bi-person-x text-secondary me-1"></i>{{ $attendance['absent'] }} Absent</span>
                 </div>
@@ -244,7 +244,7 @@
                             <div class="fw-700 h5 mb-0 text-danger">$0</div>
                         </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
                         <span class="badge badge-soft-info">Sales Executive</span>
                         <span class="badge badge-soft-info">Accountant</span>
                     </div>
@@ -260,13 +260,13 @@
             <x-card title="Recent Sign-ins" subtitle="Latest successful logins" icon="bi-shield-check" body-class="p-0">
                 <div class="list-group list-group-flush">
                     @forelse ($recentLogins as $log)
-                        <div class="list-group-item px-3 py-3 d-flex align-items-center gap-3">
+                        <div class="list-group-item px-3 py-2 py-sm-3 d-flex align-items-center flex-wrap flex-sm-nowrap gap-2 gap-sm-3">
                             <span class="avatar-fallback sm">{{ $log->user ? initials($log->user->name) : '?' }}</span>
                             <div class="flex-grow-1 min-w-0">
                                 <div class="fw-500 text-truncate">{{ $log->user?->name ?? $log->email }}</div>
-                                <div class="fs-xs text-muted">{{ $log->browser ?? 'Unknown' }} · {{ $log->ip_address }}</div>
+                                <div class="fs-xs text-muted text-truncate">{{ $log->browser ?? 'Unknown' }} · {{ $log->ip_address }}</div>
                             </div>
-                            <span class="fs-xs text-muted text-nowrap">{{ \Carbon\Carbon::parse($log->login_at)->diffForHumans() }}</span>
+                            <span class="fs-xs text-muted text-nowrap ms-auto">{{ \Carbon\Carbon::parse($log->login_at)->diffForHumans() }}</span>
                         </div>
                     @empty
                         <div class="py-4">
@@ -280,7 +280,7 @@
 
     {{-- ============ Recent activity + users ============ --}}
     <div class="row g-3 g-md-4">
-        <div class="col-12 col-xl-5 animate-fade-in-up stagger-4">
+        <div class="col-12 col-lg-5 animate-fade-in-up stagger-4">
             <x-card title="Recent Activity" subtitle="Latest system events" icon="bi-activity">
                 @if ($activities->count())
                     <div class="activity-timeline">
@@ -299,7 +299,7 @@
             </x-card>
         </div>
 
-        <div class="col-12 col-xl-7 animate-fade-in-up stagger-5">
+        <div class="col-12 col-lg-7 animate-fade-in-up stagger-5">
             <x-card
                 title="Recent Staff"
                 subtitle="Latest people added to the system"

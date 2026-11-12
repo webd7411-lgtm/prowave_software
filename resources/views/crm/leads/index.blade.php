@@ -267,14 +267,16 @@
             </div>
         </div>
 
-        <!-- Mobile View Cards -->
-        <div class="d-md-none">
+        <!-- Mobile & Tablet View Cards (no horizontal scroll below xl) -->
+        <div class="d-xl-none">
             <div class="d-flex align-items-center gap-2 mb-2 px-1">
                 <input type="checkbox" class="form-check-input" id="selectAllMobile">
                 <label for="selectAllMobile" class="fs-xs fw-bold text-dark mb-0">Select all on page</label>
             </div>
+            <div class="row g-3">
             @forelse($leads as $lead)
-                <div class="luxury-card mb-3 p-3 lead-card-mobile" data-lead-id="{{ $lead->id }}">
+                <div class="col-12 col-md-6">
+                <div class="luxury-card h-100 p-3 lead-card-mobile" data-lead-id="{{ $lead->id }}">
                     <div class="d-flex justify-content-between gap-2 mb-2">
                         <div class="d-flex gap-2 min-w-0">
                             <input type="checkbox" class="form-check-input lead-checkbox-mobile flex-shrink-0 mt-1" value="{{ $lead->id }}">
@@ -333,13 +335,17 @@
                         <a class="btn btn-action-view" href="{{ route('crm.leads.show',$lead) }}"><i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
+                </div>
             @empty
-                <x-empty-state title="No leads found" text="Create a lead to get your sales pipeline moving." />
+                <div class="col-12">
+                    <x-empty-state title="No leads found" text="Create a lead to get your sales pipeline moving." />
+                </div>
             @endforelse
+            </div>
         </div>
 
         <!-- Desktop View Table -->
-        <div class="leads-table-wrapper d-none d-md-block">
+        <div class="leads-table-wrapper d-none d-xl-block">
             <div class="table-responsive">
                 <table class="table leads-table align-middle mb-0" id="leadsTable">
                     <thead>

@@ -19,9 +19,11 @@ use App\Services\Admin\UserService;
 use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Role;
 
 class StaffController extends Controller
 {
@@ -62,7 +64,7 @@ class StaffController extends Controller
     {
         return view('hr.staff.create', [
             'departments' => Department::query()->active()->orderBy('name')->get(),
-            'designations' => Designation::query()->active()->orderBy('name')->get(),
+            'designations' => Designation::query()->active()->with('role')->orderBy('name')->get(),
             'shifts' => Shift::query()->active()->orderBy('name')->get(),
             'managers' => $this->repository->employeesOptions(),
             'statuses' => EmployeeStatus::options(),
@@ -76,7 +78,14 @@ class StaffController extends Controller
         $data = $request->validated();
 
         $roles = $data['roles'] ?? [];
-        unset($data['roles']);
+        unset($data['roles'], $data['avatar'], $data['cover_photo']);
+
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $this->storeImage($request->file('avatar'), 'avatars');
+        }
+        if ($request->hasFile('cover_photo')) {
+            $data['cover_photo'] = $this->storeImage($request->file('cover_photo'), 'covers');
+        }
 
         $data['password'] = Hash::make($data['password']);
         $data['employee_status'] = $data['employee_status'] ?? EmployeeStatus::Active->value;
@@ -85,7 +94,7 @@ class StaffController extends Controller
         $data['created_by'] = auth()->id();
 
         $employee = User::create($data);
-        $employee->syncRoles(\Spatie\Permission\Models\Role::whereIn('id', $roles)->get());
+        $this->syncStaffRoles($employee, $roles, $data['designation'] ?? null, true);
 
         $this->audit->log('Staff member created', 'hr', $employee, event: 'created');
 
@@ -130,7 +139,7 @@ class StaffController extends Controller
         return view('hr.staff.edit', [
             'employee' => $staff,
             'departments' => Department::query()->active()->orderBy('name')->get(),
-            'designations' => Designation::query()->active()->orderBy('name')->get(),
+            'designations' => Designation::query()->active()->with('role')->orderBy('name')->get(),
             'shifts' => Shift::query()->active()->orderBy('name')->get(),
             'managers' => $this->repository->employeesOptions(),
             'statuses' => EmployeeStatus::options(),
@@ -144,7 +153,14 @@ class StaffController extends Controller
         $data = $request->validated();
 
         $roles = $data['roles'] ?? [];
-        unset($data['roles']);
+        unset($data['roles'], $data['avatar'], $data['cover_photo']);
+
+        if ($request->hasFile('avatar')) {
+            $data['avatar'] = $this->storeImage($request->file('avatar'), 'avatars', $staff->avatar);
+        }
+        if ($request->hasFile('cover_photo')) {
+            $data['cover_photo'] = $this->storeImage($request->file('cover_photo'), 'covers', $staff->cover_photo);
+        }
 
         if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
@@ -152,12 +168,15 @@ class StaffController extends Controller
             unset($data['password']);
         }
 
+        $designationChanged = ($data['designation'] ?? null) !== $staff->designation;
+        $hasNoRoles = $staff->roles()->count() === 0;
+
         $data['employee_status'] = $data['employee_status'] ?? $staff->employee_status?->value ?? EmployeeStatus::Active->value;
         $data['is_active'] = $data['employee_status'] === EmployeeStatus::Active->value;
         $data['updated_by'] = auth()->id();
 
         $staff->update($data);
-        $staff->syncRoles(\Spatie\Permission\Models\Role::whereIn('id', $roles)->get());
+        $this->syncStaffRoles($staff, $roles, $data['designation'] ?? null, $designationChanged || $hasNoRoles);
 
         $this->audit->log('Staff member updated', 'hr', $staff, event: 'updated');
 
@@ -204,5 +223,50 @@ class StaffController extends Controller
         $filters = $request->only(['search', 'status', 'department_id', 'designation', 'employment_type', 'joining_from', 'joining_to']);
 
         return app(EmployeesPdfExport::class, ['filters' => $filters])->download('employees-'.now()->format('Y-m-d').'.pdf');
+    }
+
+    /**
+     * Sync roles from explicit role IDs or fall back to the designation's default role.
+     */
+    private function syncStaffRoles(User $employee, array $roleIds, ?string $designationName, bool $syncFromDesignation): void
+    {
+        if (! empty($roleIds)) {
+            $employee->syncRoles(Role::whereIn('id', $roleIds)->get());
+
+            return;
+        }
+
+        if (! $syncFromDesignation || empty($designationName)) {
+            return;
+        }
+
+        $designation = Designation::query()
+            ->where('name', $designationName)
+            ->with('role')
+            ->first();
+
+        if ($designation?->role) {
+            $employee->syncRoles([$designation->role]);
+        }
+    }
+
+    /**
+     * Store an uploaded image into public/{directory} and remove the previous file if present.
+     */
+    private function storeImage(UploadedFile $file, string $directory, ?string $existingPath = null): string
+    {
+        if ($existingPath && file_exists(public_path($existingPath))) {
+            @unlink(public_path($existingPath));
+        }
+
+        $targetDir = public_path($directory);
+        if (! is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $filename = uniqid('', true).'-'.time().'.'.$file->getClientOriginalExtension();
+        $file->move($targetDir, $filename);
+
+        return $directory.'/'.$filename;
     }
 }

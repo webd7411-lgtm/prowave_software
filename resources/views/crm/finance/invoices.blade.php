@@ -12,7 +12,7 @@
         <h1 class="page-title">Invoices</h1>
         <p class="page-subtitle">Track invoice status, due dates and collections.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('crm.invoices.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle me-1"></i>New Invoice
         </a>
@@ -34,23 +34,23 @@
                     <th class="text-end">Total</th>
                     <th class="text-end">Paid</th>
                     <th>Status</th>
-                    <th class="text-end" style="min-width: 220px;">Actions</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($records as $record)
                 <tr>
-                    <td>
+                    <td data-label="Invoice #">
                         <a href="{{ route('crm.invoices.show', $record) }}" class="fw-semibold text-decoration-none">
                             {{ $record->invoice_number }}
                         </a>
                     </td>
-                    <td>{{ $record->client->company_name }}</td>
-                    <td>{{ $record->invoice_date->format('d M, Y') }}</td>
-                    <td>{{ $record->due_date?->format('d M, Y') ?? '—' }}</td>
-                    <td class="text-end fw-semibold">{{ number_format($record->total, 2) }}</td>
-                    <td class="text-end text-success fw-semibold">{{ number_format($record->paid_amount, 2) }}</td>
-                    <td>
+                    <td data-label="Client">{{ $record->client->company_name }}</td>
+                    <td data-label="Date">{{ $record->invoice_date->format('d M, Y') }}</td>
+                    <td data-label="Due">{{ $record->due_date?->format('d M, Y') ?? '—' }}</td>
+                    <td data-label="Total" class="text-end fw-semibold">{{ number_format($record->total, 2) }}</td>
+                    <td data-label="Paid" class="text-end text-success fw-semibold">{{ number_format($record->paid_amount, 2) }}</td>
+                    <td data-label="Status">
                         @php
                             $sc = ['unpaid'=>'danger','partially_paid'=>'warning','paid'=>'success','cancelled'=>'secondary'];
                         @endphp
@@ -58,8 +58,8 @@
                             {{ ucwords(str_replace('_',' ',$record->status)) }}
                         </span>
                     </td>
-                    <td class="text-end">
-                        <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                    <td data-label="Actions" class="text-end fin-cell-actions">
+                        <div class="d-flex justify-content-end gap-1 flex-wrap">
                             <a href="{{ route('crm.invoices.show', $record) }}"
                                class="btn btn-sm btn-soft-primary" title="View">
                                 <i class="bi bi-eye me-1"></i>View

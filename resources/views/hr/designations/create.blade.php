@@ -31,6 +31,9 @@
                     <x-form.select label="Department" name="department_id" :options="$departments->pluck('name', 'id')" placeholder="Select department" select2 />
                 </div>
                 <div class="col-12 col-md-6">
+                    <x-form.select label="Default System Role" name="role_id" :options="$roles->pluck('name', 'id')" placeholder="Select default role" select2 />
+                </div>
+                <div class="col-12 col-md-6">
                     <x-form.switch label="Active" name="is_active" checked />
                 </div>
                 <div class="col-12">

@@ -89,7 +89,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-md-2 d-flex gap-2">
+            <div class="col-12 col-md-2 d-flex flex-wrap gap-2">
                 <button type="submit" class="btn btn-soft-primary flex-grow-1"><i class="bi bi-funnel me-1"></i>Filter</button>
                 <a href="{{ route('hr.staff.index') }}" class="btn btn-soft-secondary flex-grow-1" title="Reset all filters"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</a>
             </div>
@@ -124,21 +124,33 @@
                             <span class="badge badge-soft-{{ $employee->employee_status?->color() ?? 'secondary' }} flex-shrink-0">{{ $employee->employee_status?->label() ?? '—' }}</span>
                         </div>
                         <div class="row g-2 mt-2 fs-xs text-muted">
-                            <div class="col-6"><i class="bi bi-envelope me-1"></i>{{ $employee->email }}</div>
+                            <div class="col-12 col-sm-6 text-break"><i class="bi bi-envelope me-1"></i>{{ $employee->email }}</div>
                             <div class="col-6"><i class="bi bi-building me-1"></i>{{ $employee->department?->name ?? '—' }}</div>
                             <div class="col-6"><i class="bi bi-telephone me-1"></i>{{ $employee->phone ?? '—' }}</div>
-                            <div class="col-6"><i class="bi bi-calendar3 me-1"></i>Joined {{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</div>
+                            <div class="col-12 col-sm-6"><i class="bi bi-calendar3 me-1"></i>Joined {{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</div>
                         </div>
-                        @if ($employee->trashed())
-                            <div class="mt-2">
+                        <div class="d-flex flex-wrap justify-content-end gap-1 mt-2 pt-2 border-top">
+                            <a href="{{ route('hr.staff.show', $employee) }}" class="btn btn-sm btn-soft-primary" title="View"><i class="bi bi-eye me-1"></i>View</a>
+                            @if (! $employee->trashed())
+                                @can('staff.edit')
+                                    <a href="{{ route('hr.staff.edit', $employee) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil"></i></a>
+                                @endcan
+                                @can('staff.delete')
+                                    <form method="POST" action="{{ route('hr.staff.destroy', $employee) }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-soft-danger" data-confirm data-confirm-title="Delete staff?" data-confirm-text="This staff member will be moved to trash." data-confirm-confirm-text="Yes, delete"><i class="bi bi-trash"></i></button>
+                                    </form>
+                                @endcan
+                            @else
                                 <form method="POST" action="{{ route('hr.staff.restore', $employee->id) }}" class="d-inline">
                                     @csrf
                                     <button type="submit" class="btn btn-sm btn-soft-primary" data-confirm data-confirm-title="Restore staff?" data-confirm-text="This staff member will be restored." data-confirm-confirm-text="Yes, restore" data-confirm-danger="false">
                                         <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
                                     </button>
                                 </form>
-                            </div>
-                        @endif
+                            @endif
+                        </div>
                     </div>
                 </div>
             @endforeach
@@ -146,7 +158,7 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Employee</th>
@@ -162,24 +174,24 @@
                     <tbody>
                         @foreach ($employees as $employee)
                             <tr>
-                                <td>
+                                <td data-label="Employee">
                                     <div class="d-flex align-items-center gap-2">
                                         <img src="{{ user_avatar($employee) }}" alt="{{ $employee->name }}" class="rounded-circle" style="width:36px;height:36px;object-fit:cover">
                                         <div class="min-w-0">
                                             <a href="{{ route('hr.staff.show', $employee) }}" class="fw-600 text-decoration-none text-truncate d-block">{{ $employee->name }}</a>
-                                            <div class="fs-xs text-muted">{{ $employee->employee_id }} · {{ $employee->email }}</div>
+                                            <div class="fs-xs text-muted text-break">{{ $employee->employee_id }} · {{ $employee->email }}</div>
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $employee->department?->name ?? '—' }}</td>
-                                <td>{{ $employee->designation ?? '—' }}</td>
-                                <td>{{ $employee->employment_type?->label() ?? '—' }}</td>
-                                <td>{{ $employee->shift?->name ?? '—' }}</td>
-                                <td>
+                                <td data-label="Department">{{ $employee->department?->name ?? '—' }}</td>
+                                <td data-label="Designation">{{ $employee->designation ?? '—' }}</td>
+                                <td data-label="Employment">{{ $employee->employment_type?->label() ?? '—' }}</td>
+                                <td data-label="Shift">{{ $employee->shift?->name ?? '—' }}</td>
+                                <td data-label="Status">
                                     <span class="badge badge-soft-{{ $employee->employee_status?->color() ?? 'secondary' }}">{{ $employee->employee_status?->label() ?? '—' }}</span>
                                 </td>
-                                <td>{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</td>
-                                <td class="text-end">
+                                <td data-label="Joined">{{ $employee->joining_date ? format_date($employee->joining_date) : '—' }}</td>
+                                <td data-label="" class="text-end fin-cell-actions">
                                     <div class="d-flex justify-content-end gap-1">
                                         <a href="{{ route('hr.staff.show', $employee) }}" class="btn btn-sm btn-soft-primary" title="View"><i class="bi bi-eye"></i></a>
                                         @if (! $employee->trashed())

@@ -47,7 +47,7 @@
                 $grand = $sources->sum('total');
             @endphp
             <div class="table-responsive">
-                <table class="table align-middle mb-4">
+                <table class="table align-middle mb-4 table-cards-lg">
                     <thead>
                     <tr>
                         <th>Source</th>
@@ -61,19 +61,19 @@
                     <tbody>
                     @foreach ($sources as $source)
                         <tr>
-                            <td class="fw-medium">{{ ucfirst($source->source) }}</td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
+                            <td data-label="Source" class="fw-medium">{{ ucfirst($source->source) }}</td>
+                            <td data-label="Share">
+                                <div class="d-flex align-items-center gap-2 w-100" style="max-width: 220px;">
                                     <div class="progress flex-grow-1" style="height: 8px;">
                                         <div class="progress-bar" style="width: {{ $max > 0 ? ($source->total / $max) * 100 : 0 }}%"></div>
                                     </div>
                                     <span class="fs-xs text-muted">{{ $grand > 0 ? round(($source->total / $grand) * 100, 1) : 0 }}%</span>
                                 </div>
                             </td>
-                            <td class="text-center fw-semibold">{{ $source->total }}</td>
-                            <td class="text-center text-success">{{ $source->won }}</td>
-                            <td class="text-center text-danger">{{ $source->lost }}</td>
-                            <td class="text-end fw-semibold">{{ $source->total > 0 ? round(($source->won / $source->total) * 100, 1).'%' : '—' }}</td>
+                            <td data-label="Leads" class="text-center fw-semibold">{{ $source->total }}</td>
+                            <td data-label="Won" class="text-center text-success">{{ $source->won }}</td>
+                            <td data-label="Lost" class="text-center text-danger">{{ $source->lost }}</td>
+                            <td data-label="Conversion" class="text-end fw-semibold">{{ $source->total > 0 ? round(($source->won / $source->total) * 100, 1).'%' : '—' }}</td>
                         </tr>
                     @endforeach
                     </tbody>

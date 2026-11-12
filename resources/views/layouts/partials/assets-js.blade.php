@@ -1,5 +1,5 @@
 @php
-    $assetVer = '1.0.2';
+    $assetVer = '1.0.3';
     $includeAppAssets = $includeAppAssets ?? true;
     $includePdfMake = $includePdfMake ?? request()->routeIs('admin.departments.*', 'admin.roles.*');
 @endphp

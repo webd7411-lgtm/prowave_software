@@ -21,6 +21,12 @@ class Project extends Model
         'project_manager_id',
         'description',
         'project_type',
+        'billing_type',
+        'recurring_amount',
+        'billing_start_date',
+        'next_billing_date',
+        'billing_alert_day',
+        'last_invoiced_at',
         'start_date',
         'deadline',
         'priority',
@@ -39,6 +45,10 @@ class Project extends Model
     protected $casts = [
         'start_date' => 'date',
         'deadline' => 'date',
+        'billing_start_date' => 'date',
+        'next_billing_date' => 'date',
+        'last_invoiced_at' => 'date',
+        'recurring_amount' => 'decimal:2',
         'budget' => 'decimal:2',
         'estimated_hours' => 'decimal:2',
         'actual_hours' => 'decimal:2',
@@ -100,9 +110,39 @@ class Project extends Model
         return $this->hasMany(ProjectExpense::class)->latest();
     }
 
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class)->latest();
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(Payment::class)->orderBy('payment_date', 'desc');
+    }
+
+    public function isRecurring(): bool
+    {
+        return in_array($this->billing_type, ['monthly', 'annually']);
+    }
+
+    public function isRenewalDue(): bool
+    {
+        if (! $this->isRecurring() || ! $this->next_billing_date) {
+            return false;
+        }
+
+        $today = now()->startOfDay();
+        $due = $this->next_billing_date->copy()->startOfDay();
+
+        if ($this->billing_type === 'monthly') {
+            $alertDay = $this->billing_alert_day ?: 5;
+            // Trigger alert on or after the alert day of current month, or if overdue
+            return $today->day >= $alertDay || $today->gte($due);
+        }
+
+        // Annually: alert N days before year completion
+        $daysBefore = $this->billing_alert_day ?: 7;
+        return $today->gte($due->copy()->subDays($daysBefore));
     }
 
     public function getPaidAmountAttribute(): float

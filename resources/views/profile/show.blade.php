@@ -196,15 +196,15 @@
                     <tbody>
                         @forelse ($activities as $activity)
                             <tr>
-                                <td>
+                                <td data-label="Event">
                                     @if ($activity->event)
                                         <span class="badge badge-soft-{{ $activity->event === 'created' ? 'success' : ($activity->event === 'deleted' ? 'danger' : 'primary') }}">{{ ucfirst($activity->event) }}</span>
                                     @else
                                         <span class="badge badge-soft-secondary">Action</span>
                                     @endif
                                 </td>
-                                <td>{{ $activity->description }}</td>
-                                <td>{{ format_datetime($activity->created_at) }}</td>
+                                <td data-label="Description" class="text-break">{{ $activity->description }}</td>
+                                <td data-label="When">{{ format_datetime($activity->created_at) }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="3" class="text-center text-muted py-4">No activity recorded yet.</td></tr>
@@ -217,7 +217,7 @@
     @elseif ($tab === 'login-history')
         <x-card title="Login History" subtitle="All of your sign-in attempts" icon="bi-clock-history">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover align-middle mb-0 table-cards-lg">
                     <thead>
                         <tr>
                             <th>Date & Time</th>
@@ -231,14 +231,14 @@
                     <tbody>
                         @forelse ($loginLogs as $log)
                             <tr>
-                                <td>{{ format_datetime($log->login_at) }}</td>
-                                <td class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
-                                <td>{{ $log->browser ?? '—' }}</td>
-                                <td>{{ $log->device ?? '—' }} · {{ $log->platform ?? '—' }}</td>
-                                <td>
+                                <td data-label="Date & Time">{{ format_datetime($log->login_at) }}</td>
+                                <td data-label="IP Address" class="font-monospace">{{ $log->ip_address ?? '—' }}</td>
+                                <td data-label="Browser">{{ $log->browser ?? '—' }}</td>
+                                <td data-label="Device">{{ $log->device ?? '—' }} · {{ $log->platform ?? '—' }}</td>
+                                <td data-label="Status">
                                     <span class="badge badge-soft-{{ $log->status === 'success' ? 'success' : ($log->status === 'locked' ? 'warning' : 'danger') }}">{{ ucfirst($log->status) }}</span>
                                 </td>
-                                <td>{{ $log->logout_at ? format_datetime($log->logout_at) : '—' }}</td>
+                                <td data-label="Logout">{{ $log->logout_at ? format_datetime($log->logout_at) : '—' }}</td>
                             </tr>
                         @empty
                             <tr><td colspan="6" class="text-center text-muted py-4">No login records yet.</td></tr>

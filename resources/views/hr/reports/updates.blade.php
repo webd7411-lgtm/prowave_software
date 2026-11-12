@@ -68,13 +68,13 @@
                     <tbody>
                         @foreach ($updates as $update)
                             <tr>
-                                <td class="fs-sm">{{ format_date($update->date) }}</td>
-                                <td class="fw-500">{{ $update->employee?->name }}</td>
-                                <td>{{ $update->hours_worked ?: '—' }}</td>
-                                <td class="fs-sm">
-                                    <span class="text-truncate d-inline-block" style="max-width:320px" title="{{ $update->work_description }}">{{ $update->work_description ?: '—' }}</span>
+                                <td data-label="Date" class="fs-sm">{{ format_date($update->date) }}</td>
+                                <td data-label="Employee" class="fw-500">{{ $update->employee?->name }}</td>
+                                <td data-label="Hours">{{ $update->hours_worked ?: '—' }}</td>
+                                <td data-label="Work Description" class="fs-sm">
+                                    <span class="text-break" title="{{ $update->work_description }}">{{ \Illuminate\Support\Str::limit($update->work_description ?: '—', 120) }}</span>
                                 </td>
-                                <td><span class="badge badge-soft-{{ $update->status->color() }}">{{ $update->status->label() }}</span></td>
+                                <td data-label="Status"><span class="badge badge-soft-{{ $update->status->color() }}">{{ $update->status->label() }}</span></td>
                             </tr>
                         @endforeach
                     </tbody>

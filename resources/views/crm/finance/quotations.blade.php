@@ -12,7 +12,7 @@
         <h1 class="page-title">Quotations</h1>
         <p class="page-subtitle">Create proposals that move opportunities forward.</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex flex-wrap gap-2">
         <a href="{{ route('crm.quotations.create') }}" class="btn btn-primary">
             <i class="bi bi-plus-circle me-1"></i>New Quotation
         </a>
@@ -33,22 +33,22 @@
                     <th>Valid Until</th>
                     <th class="text-end">Total</th>
                     <th>Status</th>
-                    <th class="text-end" style="min-width: 220px;">Actions</th>
+                    <th class="text-end">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($records as $record)
                 <tr>
-                    <td>
+                    <td data-label="Quotation #">
                         <a href="{{ route('crm.quotations.show', $record) }}" class="fw-semibold text-decoration-none">
                             {{ $record->quotation_number }}
                         </a>
                     </td>
-                    <td>{{ $record->client->company_name }}</td>
-                    <td>{{ $record->quotation_date->format('d M, Y') }}</td>
-                    <td>{{ $record->valid_until?->format('d M, Y') ?? '—' }}</td>
-                    <td class="text-end fw-semibold">{{ number_format($record->total, 2) }} PKR</td>
-                    <td>
+                    <td data-label="Client">{{ $record->client->company_name }}</td>
+                    <td data-label="Date">{{ $record->quotation_date->format('d M, Y') }}</td>
+                    <td data-label="Valid Until">{{ $record->valid_until?->format('d M, Y') ?? '—' }}</td>
+                    <td data-label="Total" class="text-end fw-semibold">{{ number_format($record->total, 2) }} PKR</td>
+                    <td data-label="Status">
                         @php
                             $statusColors = ['draft'=>'secondary','sent'=>'primary','accepted'=>'success','rejected'=>'danger','expired'=>'warning'];
                         @endphp
@@ -56,8 +56,8 @@
                             {{ ucfirst($record->status) }}
                         </span>
                     </td>
-                    <td class="text-end">
-                        <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                    <td data-label="Actions" class="text-end fin-cell-actions">
+                        <div class="d-flex justify-content-end gap-1 flex-wrap">
                             <a href="{{ route('crm.quotations.show', $record) }}"
                                class="btn btn-sm btn-soft-primary" title="View">
                                 <i class="bi bi-eye me-1"></i>View

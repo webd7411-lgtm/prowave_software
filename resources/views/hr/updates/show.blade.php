@@ -24,9 +24,9 @@
     <div class="row g-3 g-md-4">
         <div class="col-12 col-lg-8">
             <x-card title="Report" icon="bi-journal-text">
-                <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
                     <img src="{{ user_avatar($update->employee) }}" alt="" class="rounded-circle" style="width:48px;height:48px;object-fit:cover">
-                    <div class="flex-grow-1">
+                    <div class="flex-grow-1 min-w-0">
                         <div class="fw-600">{{ $update->employee?->name }}</div>
                         <div class="fs-xs text-muted">{{ $update->employee?->employee_id }} · {{ format_date($update->date) }}</div>
                     </div>

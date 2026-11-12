@@ -18,7 +18,7 @@
 
     <div class="row g-3 g-md-4">
         <div class="col-12 col-lg-8">
-            <x-card body-class="p-4">
+            <x-card body-class="p-3 p-md-4">
                 <form method="POST" action="{{ $action }}" id="lead-form">
                     @csrf
                     @if ($lead->exists) @method('PATCH') @endif

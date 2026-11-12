@@ -6,6 +6,7 @@
 <x-form
     :action="$isEdit ? route('hr.staff.update', $employee) : route('hr.staff.store')"
     :method="$isEdit ? 'PATCH' : 'POST'"
+    :multipart="true"
     :submit="$isEdit ? 'Update Staff' : 'Add Staff'"
     :cancel-url="route('hr.staff.index')"
 >
@@ -48,6 +49,38 @@
             <x-form.input label="Address" name="address" :value="$employee?->address" icon="bi-geo-alt" placeholder="Street, area, town" />
         </div>
 
+        <div class="col-12 col-md-6">
+            <div class="mb-3">
+                <label for="avatar-input" class="form-label">Employee Profile Image</label>
+                <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/webp" class="form-control @error('avatar') is-invalid @enderror">
+                <div class="form-text">Recommended: square image (JPG, PNG, WEBP, max 2MB).</div>
+                @if ($isEdit && $employee->avatar_url)
+                    <div class="mt-2">
+                        <img src="{{ $employee->avatar_url }}" alt="{{ $employee->name }}" class="rounded-circle object-fit-cover" style="width: 48px; height: 48px;">
+                    </div>
+                @endif
+                @error('avatar')
+                    <div class="invalid-feedback d-flex"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <div class="mb-3">
+                <label for="cover_photo-input" class="form-label">Employee Cover Photo</label>
+                <input type="file" id="cover_photo-input" name="cover_photo" accept="image/jpeg,image/png,image/webp" class="form-control @error('cover_photo') is-invalid @enderror">
+                <div class="form-text">Recommended: wide banner image (JPG, PNG, WEBP, max 4MB).</div>
+                @if ($isEdit && $employee->cover_photo_url)
+                    <div class="mt-2">
+                        <img src="{{ $employee->cover_photo_url }}" alt="Cover Photo" class="rounded object-fit-cover" style="width: 96px; height: 48px;">
+                    </div>
+                @endif
+                @error('cover_photo')
+                    <div class="invalid-feedback d-flex"><i class="bi bi-exclamation-circle me-1"></i>{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
         <div class="col-12">
             <hr class="my-1">
             <h6 class="section-label mt-2"><i class="bi bi-briefcase me-1"></i>Employment Information</h6>
@@ -72,12 +105,16 @@
                         <option 
                             value="{{ $designation->name }}" 
                             data-department-id="{{ $designation->department_id }}"
+                            data-role-name="{{ $designation->role?->name ?? '' }}"
                             @selected(old('designation', $employee?->designation) === $designation->name)
                         >
                             {{ $designation->name }}
                         </option>
                     @endforeach
                 </select>
+                <div class="form-text" id="designation-role-hint">
+                    <i class="bi bi-shield-check me-1"></i>System Role: <span id="designation-role-name" class="fw-600">Auto-assigned from designation</span>
+                </div>
             </div>
         </div>
         <div class="col-12 col-md-4">
@@ -97,24 +134,13 @@
             <x-form.input label="Joining Date" name="joining_date" type="date" :value="$employee?->joining_date?->format('Y-m-d')" icon="bi-calendar-check" />
         </div>
 
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-4">
             <x-form.select label="Employee Status" name="employee_status" :options="$statuses" :selected="$employee?->employee_status?->value ?? 'active'" />
         </div>
-        <div class="col-12 col-md-3">
-            <x-form.select
-                label="System Roles"
-                name="roles"
-                :options="$roles->pluck('name', 'id')->all()"
-                :selected="$employee?->roles->pluck('id')->all()"
-                :multiple="true"
-                :select2="true"
-                placeholder="Select one or more roles"
-            />
-        </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-4">
             <x-form.input label="Emergency Contact" name="emergency_contact" :value="$employee?->emergency_contact" icon="bi-person-exclamation" placeholder="Name" />
         </div>
-        <div class="col-12 col-md-3">
+        <div class="col-12 col-md-4">
             <x-form.input label="Emergency Phone" name="emergency_phone" :value="$employee?->emergency_phone" icon="bi-telephone-forward" placeholder="+92 300 0000000" />
         </div>
 
@@ -149,3 +175,25 @@
         </div>
     </div>
 </x-form>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const designationSelect = document.getElementById('designation');
+    const roleNameEl = document.getElementById('designation-role-name');
+    if (!designationSelect || !roleNameEl) return;
+
+    function updateDesignationRoleHint() {
+        const selected = designationSelect.options[designationSelect.selectedIndex];
+        const roleName = selected ? selected.getAttribute('data-role-name') : '';
+        roleNameEl.textContent = roleName ? roleName : 'Auto-assigned from designation (none mapped)';
+    }
+
+    updateDesignationRoleHint();
+    designationSelect.addEventListener('change', updateDesignationRoleHint);
+    if (window.jQuery) {
+        window.jQuery(designationSelect).on('change.select2 select2:select', updateDesignationRoleHint);
+    }
+});
+</script>
+@endpush

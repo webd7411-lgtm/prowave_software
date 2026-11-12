@@ -19,7 +19,7 @@
 
     <div class="row justify-content-center">
         <div class="col-12 col-lg-8">
-            <x-card title="New Department" subtitle="Provide a name and short code" icon="bi-building-add" body-class="p-4">
+            <x-card title="New Department" subtitle="Provide a name and short code" icon="bi-building-add" body-class="p-3 p-md-4">
                 <x-form :action="route('admin.departments.store')" method="POST" spinner="Creating..." cancel-url="{{ route('admin.departments.index') }}">
                     <div class="row g-3">
                         <div class="col-md-7">

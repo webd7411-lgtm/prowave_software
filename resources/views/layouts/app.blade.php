@@ -77,6 +77,46 @@
                 <div class="fade-in">
                     @yield('content')
                 </div>
+
+                @if (! request()->routeIs('dashboard'))
+                    <script>
+                        (function () {
+                            var contentRoot = document.querySelector('.app-content');
+                            if (!contentRoot || contentRoot.querySelector('.bi-arrow-left')) return;
+
+                            var btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'btn btn-outline d-print-none pw-auto-back-btn';
+                            btn.innerHTML = '<i class="bi bi-arrow-left me-1"></i>Back';
+                            btn.addEventListener('click', function () {
+                                if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.origin) === 0) {
+                                    window.history.back();
+                                } else {
+                                    window.location.href = @json(route('dashboard'));
+                                }
+                            });
+
+                            var header = contentRoot.querySelector('.page-header');
+                            if (header) {
+                                var actions = header.querySelector(':scope > .d-flex');
+                                if (actions) {
+                                    actions.insertBefore(btn, actions.firstChild);
+                                } else {
+                                    var wrap = document.createElement('div');
+                                    wrap.className = 'd-flex flex-wrap gap-2 d-print-none';
+                                    wrap.appendChild(btn);
+                                    header.appendChild(wrap);
+                                }
+                            } else {
+                                var container = contentRoot.querySelector('.fade-in') || contentRoot;
+                                var bar = document.createElement('div');
+                                bar.className = 'mb-3 d-print-none';
+                                bar.appendChild(btn);
+                                container.insertBefore(bar, container.firstChild);
+                            }
+                        })();
+                    </script>
+                @endif
             </div>
 
             <div class="d-print-none">

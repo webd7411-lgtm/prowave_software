@@ -11,7 +11,7 @@
             <p class="text-muted mb-0 fs-sm">Track actual billable and development time for software projects and tasks.</p>
         </div>
 
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <a href="{{ route('projects.index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-arrow-left me-1"></i> Back to Projects
             </a>
@@ -26,7 +26,7 @@
     {{-- Live Stopwatch Card --}}
     @can('time_tracking.create')
         <div class="card border-0 shadow-sm mb-4 bg-white overflow-hidden">
-            <div class="card-body p-4">
+            <div class="card-body p-3 p-md-4">
                 <div class="row align-items-center g-3">
                     <div class="col-12 col-lg-7">
                         <h5 class="fw-bold text-dark mb-3"><i class="bi bi-stopwatch text-primary me-2"></i>Live Timer Stopwatch</h5>
@@ -106,7 +106,7 @@
 
     {{-- History Table --}}
     <div class="card border-0 shadow-sm">
-        <div class="card-header bg-white py-3 border-bottom-0 d-flex justify-content-between align-items-center">
+        <div class="card-header bg-white py-3 border-bottom-0 d-flex flex-wrap justify-content-between align-items-center gap-2">
             <h5 class="fw-bold text-dark mb-0"><i class="bi bi-list-columns-reverse me-2 text-primary"></i>Time Log History</h5>
             <form method="GET" action="{{ route('projects.time.index') }}" class="d-flex align-items-center gap-2">
                 <select name="project_id" class="form-select form-select-sm" onchange="this.form.submit()">
@@ -132,12 +132,12 @@
                 <tbody class="fs-sm">
                     @forelse($timeEntries as $entry)
                         <tr>
-                            <td class="fw-semibold text-dark">{{ $entry->user?->name }}</td>
-                            <td><span class="fw-semibold text-primary">{{ $entry->project->name }}</span></td>
-                            <td>{{ $entry->task?->title ?? 'General Work' }}</td>
-                            <td class="text-muted">{{ $entry->description }}</td>
-                            <td>{{ $entry->start_time ? $entry->start_time->format('M d, Y H:i') : $entry->created_at->format('M d, Y') }}</td>
-                            <td>
+                            <td data-label="User" class="fw-semibold text-dark">{{ $entry->user?->name }}</td>
+                            <td data-label="Project"><span class="fw-semibold text-primary">{{ $entry->project->name }}</span></td>
+                            <td data-label="Task">{{ $entry->task?->title ?? 'General Work' }}</td>
+                            <td data-label="Description" class="text-muted">{{ $entry->description }}</td>
+                            <td data-label="Date / Time">{{ $entry->start_time ? $entry->start_time->format('M d, Y H:i') : $entry->created_at->format('M d, Y') }}</td>
+                            <td data-label="Duration">
                                 @if($entry->is_running)
                                     <span class="badge bg-warning text-dark fw-bold animate-pulse">RUNNING...</span>
                                 @else

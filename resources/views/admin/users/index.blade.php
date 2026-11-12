@@ -84,7 +84,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-12 col-md-3 d-flex align-items-center justify-content-md-end gap-2 pt-2 pt-md-0">
+            <div class="col-12 col-md-3 d-flex flex-wrap align-items-center justify-content-md-end gap-2 pt-2 pt-md-0">
                 <div class="form-check form-switch mb-0">
                     <input class="form-check-input me-2 cursor-pointer" type="checkbox" name="trashed" value="1" id="filter-trashed" @checked(! empty($filters['trashed']))>
                     <label class="form-check-label text-muted fs-sm cursor-pointer mb-0" for="filter-trashed">Trashed</label>
@@ -94,11 +94,11 @@
             </div>
         </form>
 
-        <div class="d-flex align-items-center gap-2 mb-2 mt-2">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2 mt-2">
             <form id="bulkForm" method="POST" action="{{ route('admin.users.bulk') }}">
                 @csrf
                 <input type="hidden" name="ids" id="bulkIds">
-                <div class="d-flex gap-2 align-items-center">
+                <div class="d-flex flex-wrap gap-2 align-items-center">
                     <select name="action" class="form-select form-select-sm w-auto" required>
                         <option value="" disabled selected>Bulk actions</option>
                         <option value="activate">Activate</option>
@@ -114,7 +114,7 @@
         </div>
 
         <div class="table-responsive">
-            <table id="usersTable" class="table table-hover align-middle" style="width:100%">
+            <table id="usersTable" class="table table-hover align-middle dt-mobile-cards dt-mobile-has-checkbox" style="width:100%">
                 <thead>
                     <tr>
                         <th class="no-sort"></th>
@@ -148,12 +148,20 @@
             const table = $('#usersTable').DataTable({
                 processing: true,
                 serverSide: true,
-                responsive: true,
+                responsive: window.innerWidth >= 768,
                 autoWidth: false,
                 searching: false,
                 pageLength: 15,
                 lengthMenu: [10, 15, 25, 50, 100],
                 order: [[7, 'desc']],
+                createdRow: function (row) {
+                    const labels = ['', '', 'Employee ID', 'Roles', 'Department', 'Status', 'Last Login', 'Joined', ''];
+                    $(row).children('td').each(function (idx) {
+                        if (labels[idx] !== undefined) {
+                            $(this).attr('data-label', labels[idx]);
+                        }
+                    });
+                },
                 ajax: {
                     url: '{{ route('admin.users.data') }}',
                     data: function (d) {
@@ -176,6 +184,11 @@
                     { data: 'last_login' },
                     { data: 'joined' },
                     { data: 'actions', orderable: false, searchable: false },
+                ],
+                columnDefs: [
+                    { responsivePriority: 1, targets: [0, 1] },
+                    { responsivePriority: 2, targets: 8 },
+                    { responsivePriority: 3, targets: 5 }
                 ],
                 error: function (xhr, error, thrown) {
                     console.error('DataTables AJAX error:', error, thrown);

@@ -46,7 +46,7 @@
                 $max = $rows->max('total');
             @endphp
             <div class="table-responsive">
-                <table class="table align-middle mb-4">
+                <table class="table align-middle mb-4 table-cards-lg">
                     <thead>
                     <tr>
                         <th>Team Member</th>
@@ -60,16 +60,16 @@
                     <tbody>
                     @foreach ($rows as $row)
                         <tr>
-                            <td class="fw-medium">{{ $row['name'] }}</td>
-                            <td>
-                                <div class="progress" style="height: 8px;">
+                            <td data-label="Team Member" class="fw-medium">{{ $row['name'] }}</td>
+                            <td data-label="Throughput">
+                                <div class="progress w-100" style="height: 8px; max-width: 180px;">
                                     <div class="progress-bar" style="width: {{ $max > 0 ? ($row['total'] / $max) * 100 : 0 }}%"></div>
                                 </div>
                             </td>
-                            <td class="text-center fw-semibold">{{ $row['total'] }}</td>
-                            <td class="text-center text-success">{{ $row['completed'] }}</td>
-                            <td class="text-center text-danger">{{ $row['overdue'] }}</td>
-                            <td class="text-end fw-semibold">{{ $row['total'] > 0 ? round(($row['completed'] / $row['total']) * 100, 1).'%' : '—' }}</td>
+                            <td data-label="Total" class="text-center fw-semibold">{{ $row['total'] }}</td>
+                            <td data-label="Completed" class="text-center text-success">{{ $row['completed'] }}</td>
+                            <td data-label="Overdue" class="text-center text-danger">{{ $row['overdue'] }}</td>
+                            <td data-label="Completion" class="text-end fw-semibold">{{ $row['total'] > 0 ? round(($row['completed'] / $row['total']) * 100, 1).'%' : '—' }}</td>
                         </tr>
                     @endforeach
                     </tbody>

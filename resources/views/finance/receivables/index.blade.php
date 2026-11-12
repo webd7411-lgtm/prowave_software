@@ -109,7 +109,7 @@ function invStatusBadge(string $status): string {
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-hover mb-0 fin-table">
+        <table class="table table-hover mb-0 fin-table table-cards-lg">
             <thead>
                 <tr>
                     <th>Invoice</th>

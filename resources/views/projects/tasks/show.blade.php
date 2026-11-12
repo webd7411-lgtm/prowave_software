@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid px-0">
     {{-- Header --}}
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
                 <span class="badge bg-light text-muted border fs-xs">{{ $task->task_code }}</span>
                 <span class="badge {{ $task->priority_badge_class }} fs-xs">{{ $task->priority }} Priority</span>
                 <span class="badge {{ $task->status_badge_class }} fs-xs">{{ $task->status }}</span>
@@ -89,8 +89,8 @@
                             <div class="mb-2">
                                 <textarea name="comment" class="form-control" rows="3" placeholder="Write a comment or issue update..." required></textarea>
                             </div>
-                            <div class="d-flex align-items-center justify-content-between">
-                                <input type="file" name="attachment" class="form-control form-control-sm" style="max-width: 250px;">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                <input type="file" name="attachment" class="form-control form-control-sm w-100 w-sm-auto">
                                 <button type="submit" class="btn btn-primary btn-sm fw-semibold">
                                     <i class="bi bi-send me-1"></i> Post Comment
                                 </button>

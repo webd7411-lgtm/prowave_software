@@ -58,7 +58,7 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-hover mb-0 fin-table">
+        <table class="table table-hover mb-0 fin-table table-cards-lg">
             <thead>
                 <tr>
                     <th>#</th>
@@ -76,25 +76,25 @@
             <tbody>
                 @forelse($records as $income)
                 <tr>
-                    <td class="text-muted small">{{ $records->firstItem() + $loop->index }}</td>
-                    <td>
+                    <td data-label="#" class="text-muted small">{{ $records->firstItem() + $loop->index }}</td>
+                    <td data-label="Income No">
                         <a href="{{ route('finance.income.show', $income) }}" class="fw-semibold text-decoration-none">{{ $income->income_number }}</a>
                         @if($income->description)
-                        <div class="text-muted small text-truncate" style="max-width:150px">{{ $income->description }}</div>
+                        <div class="text-muted small text-break">{{ \Illuminate\Support\Str::limit($income->description, 70) }}</div>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Category">
                         <span class="badge rounded-pill" style="background:{{ $income->category?->color ?? '#198754' }}20;color:{{ $income->category?->color ?? '#198754' }}">
                             {{ $income->category?->name ?? 'Uncategorized' }}
                         </span>
                     </td>
-                    <td class="text-muted small">{{ $income->client?->company_name ?? '—' }}</td>
-                    <td class="fw-bold text-success">{{ setting('general.currency', 'PKR') }} {{ number_format($income->amount, 2) }}</td>
-                    <td class="text-muted small">{{ $income->income_date->format('d M Y') }}</td>
-                    <td class="text-muted small">{{ $income->accountLabel() }}</td>
-                    <td class="text-muted small">{{ $income->reference_number ?? '—' }}</td>
-                    <td class="text-muted small">{{ $income->addedBy?->name ?? '—' }}</td>
-                    <td class="text-end">
+                    <td data-label="Client" class="text-muted small">{{ $income->client?->company_name ?? '—' }}</td>
+                    <td data-label="Amount" class="fw-bold text-success">{{ setting('general.currency', 'PKR') }} {{ number_format($income->amount, 2) }}</td>
+                    <td data-label="Date" class="text-muted small">{{ $income->income_date->format('d M Y') }}</td>
+                    <td data-label="Account" class="text-muted small">{{ $income->accountLabel() }}</td>
+                    <td data-label="Reference" class="text-muted small">{{ $income->reference_number ?? '—' }}</td>
+                    <td data-label="Added By" class="text-muted small">{{ $income->addedBy?->name ?? '—' }}</td>
+                    <td data-label="" class="text-end fin-cell-actions">
                         <div class="d-flex gap-1 justify-content-end">
                             <a href="{{ route('finance.income.show', $income) }}" class="btn btn-xs btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
                             @can('income.edit')

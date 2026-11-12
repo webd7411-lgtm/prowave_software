@@ -41,7 +41,8 @@
                 name="{{ $name }}"
                 rows="{{ $rows ?? 3 }}"
                 placeholder="{{ $placeholder }}"
-                @class(['form-control', 'ps-4' => $icon, 'is-invalid' => $hasError])
+                @class(['form-control', 'is-invalid' => $hasError])
+                @if ($icon) style="padding-left: 2.5rem;" @endif
                 @required($required)
                 @if ($autofocus) autofocus @endif
                 {{ $attributes }}
@@ -68,7 +69,8 @@
                 name="{{ $name }}"
                 placeholder="{{ $placeholder }}"
                 value="{{ old($name, $value) }}"
-                @class(['form-control', 'ps-4' => $icon, 'is-invalid' => $hasError])
+                @class(['form-control', 'is-invalid' => $hasError])
+                @if ($icon) style="padding-left: 2.5rem;" @endif
                 @required($required)
                 @if ($autofocus) autofocus @endif
                 @if ($min !== null) min="{{ $min }}" @endif

@@ -440,6 +440,7 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
             Route::get('/{project}/edit', [ProjectController::class, 'edit'])->middleware('permission:projects.edit')->name('edit');
             Route::patch('/{project}', [ProjectController::class, 'update'])->middleware('permission:projects.edit')->name('update');
             Route::delete('/{project}', [ProjectController::class, 'destroy'])->middleware('permission:projects.delete')->name('destroy');
+            Route::post('/{project}/generate-invoice', [ProjectController::class, 'generateNextInvoice'])->middleware('permission:invoices.create')->name('generate-invoice');
 
             // Team Management
             Route::post('/{project}/team', [ProjectTeamController::class, 'store'])->middleware('permission:project_team.manage')->name('team.store');

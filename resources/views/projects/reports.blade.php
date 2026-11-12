@@ -178,7 +178,7 @@
     {{-- Report Results Table --}}
     <div class="card border-0 shadow-sm">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <table class="table table-hover align-middle mb-0 table-cards-lg">
                 <thead class="bg-light fs-xs text-uppercase text-muted">
                     <tr>
                         <th style="width: 40px;">#</th>
@@ -201,31 +201,31 @@
                     @forelse($reportProjects as $project)
                         @php $expenses = $project->expenses->sum('amount'); @endphp
                         <tr>
-                            <td class="text-muted small">{{ $loop->iteration }}</td>
-                            <td class="fw-bold text-muted">{{ $project->project_code }}</td>
-                            <td>
+                            <td data-label="#" class="text-muted small">{{ $loop->iteration }}</td>
+                            <td data-label="Code" class="fw-bold text-muted">{{ $project->project_code }}</td>
+                            <td data-label="Project Name">
                                 <a href="{{ route('projects.show', $project) }}" class="fw-semibold text-dark text-decoration-none hover-primary">
                                     {{ $project->name }}
                                 </a>
                             </td>
-                            <td>{{ $project->client?->company_name ?? 'N/A' }}</td>
-                            <td>{{ $project->manager?->name ?? 'Unassigned' }}</td>
-                            <td><span class="badge {{ $project->status_badge_class }} fs-xs">{{ $project->status }}</span></td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2" style="min-width: 100px;">
-                                    <div class="progress flex-grow-1" style="height: 6px;">
+                            <td data-label="Client">{{ $project->client?->company_name ?? 'N/A' }}</td>
+                            <td data-label="Manager">{{ $project->manager?->name ?? 'Unassigned' }}</td>
+                            <td data-label="Status"><span class="badge {{ $project->status_badge_class }} fs-xs">{{ $project->status }}</span></td>
+                            <td data-label="Progress">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress flex-grow-1" style="height: 6px; min-width: 70px;">
                                         <div class="progress-bar bg-primary" role="progressbar" style="width: {{ $project->progress }}%;"></div>
                                     </div>
                                     <span class="fs-xs fw-bold">{{ $project->progress }}%</span>
                                 </div>
                             </td>
                             @can('project_finance.view')
-                                <td class="fw-bold text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</td>
-                                <td class="text-danger text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expenses, 2) }}</td>
-                                <td class="fw-bold text-success text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget - $expenses, 2) }}</td>
+                                <td data-label="Budget" class="fw-bold text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget, 2) }}</td>
+                                <td data-label="Expenses" class="text-danger text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($expenses, 2) }}</td>
+                                <td data-label="Est. Profit" class="fw-bold text-success text-end">{{ $project->currency ?? setting('general.currency','PKR') }} {{ number_format($project->budget - $expenses, 2) }}</td>
                             @endcan
-                            <td>{{ $project->deadline ? $project->deadline->format('M d, Y') : 'N/A' }}</td>
-                            <td><span class="badge {{ $project->health_badge_class }} fs-xs">{{ $project->health }}</span></td>
+                            <td data-label="Deadline">{{ $project->deadline ? $project->deadline->format('M d, Y') : 'N/A' }}</td>
+                            <td data-label="Health"><span class="badge {{ $project->health_badge_class }} fs-xs">{{ $project->health }}</span></td>
                         </tr>
                     @empty
                         <tr>

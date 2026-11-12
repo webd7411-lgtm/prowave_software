@@ -142,7 +142,7 @@
     {{-- Recent Expenses --}}
     <div class="col-12 col-lg-6">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="mb-0"><i class="bi bi-receipt-cutoff me-2 text-danger"></i>Recent Expenses</h5>
                 <a href="{{ route('finance.expenses.index') }}" class="btn btn-sm btn-outline-secondary">View All</a>
             </div>
@@ -151,12 +151,12 @@
                     <tbody>
                         @forelse($recentExpenses as $exp)
                         <tr>
-                            <td>
+                            <td data-label="Category">
                                 <span class="badge" style="background:{{ $exp->category?->color ?? '#6c757d' }}20;color:{{ $exp->category?->color ?? '#6c757d' }}">{{ $exp->category?->name ?? 'Uncategorized' }}</span>
                             </td>
-                            <td class="text-muted small">{{ $exp->expense_date->format('d M') }}</td>
-                            <td class="fw-semibold text-danger">{{ number_format($exp->amount, 0) }}</td>
-                            <td><span class="badge bg-{{ $exp->statusBadge() }}-subtle text-{{ $exp->statusBadge() }}">{{ ucfirst($exp->status) }}</span></td>
+                            <td data-label="Date" class="text-muted small">{{ $exp->expense_date->format('d M') }}</td>
+                            <td data-label="Amount" class="fw-semibold text-danger">{{ number_format($exp->amount, 0) }}</td>
+                            <td data-label="Status"><span class="badge bg-{{ $exp->statusBadge() }}-subtle text-{{ $exp->statusBadge() }}">{{ ucfirst($exp->status) }}</span></td>
                         </tr>
                         @empty
                         <tr><td colspan="4" class="text-center text-muted py-3">No expenses yet</td></tr>
@@ -170,7 +170,7 @@
     {{-- Overdue Invoices --}}
     <div class="col-12 col-lg-6">
         <div class="card">
-            <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
                 <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2 text-warning"></i>Overdue Invoices</h5>
                 <a href="{{ route('finance.receivables.index') }}?overdue_only=1" class="btn btn-sm btn-outline-secondary">View All</a>
             </div>
@@ -179,13 +179,13 @@
                     <tbody>
                         @forelse($overdueInvoices as $inv)
                         <tr>
-                            <td>
+                            <td data-label="Client / Invoice">
                                 <div class="fw-semibold">{{ $inv->client?->company_name }}</div>
                                 <div class="text-muted small">{{ $inv->invoice_number }}</div>
                             </td>
-                            <td class="text-danger small">{{ $inv->due_date?->format('d M Y') }}</td>
-                            <td class="fw-semibold">{{ setting('general.currency', 'PKR') }} {{ number_format($inv->balance(), 0) }}</td>
-                            <td>
+                            <td data-label="Due Date" class="text-danger small">{{ $inv->due_date?->format('d M Y') }}</td>
+                            <td data-label="Balance" class="fw-semibold">{{ setting('general.currency', 'PKR') }} {{ number_format($inv->balance(), 0) }}</td>
+                            <td data-label="" class="fin-cell-actions">
                                 <a href="{{ route('finance.receivables.index') }}" class="btn btn-xs btn-outline-warning py-0 px-1">
                                     <i class="bi bi-bell"></i>
                                 </a>

@@ -28,7 +28,7 @@
     <div class="col-lg-8">
         <x-card title="Lead information" body-class="p-3">
             <div class="row g-3 fs-sm">
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <span class="text-muted d-block mb-1">Status</span>
                     <span class="badge" style="background:{{ $statusColors[$lead->status] ?? '#6c757d' }}">{{ ucwords(str_replace('_', ' ', $lead->status)) }}</span>
                     @if(in_array($lead->status, ['meeting_scheduled', 'call_again']))
@@ -45,19 +45,19 @@
                         @endif
                     @endif
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <span class="text-muted d-block">Priority</span>{{ ucfirst($lead->priority) }}
                 </div>
 
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <span class="text-muted d-block">Estimated budget</span>{{ $lead->estimated_budget ? number_format($lead->estimated_budget, 2) : '—' }}
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <span class="text-muted d-block">Owner</span>
                     @if($canAssign ?? false)
-                        <form method="POST" action="{{ route('crm.leads.assign', $lead) }}" class="d-inline-flex align-items-center gap-1 mt-1">
+                        <form method="POST" action="{{ route('crm.leads.assign', $lead) }}" class="d-flex align-items-center gap-1 mt-1">
                             @csrf @method('PATCH')
-                            <select name="owner_id" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto; min-width: 140px;">
+                            <select name="owner_id" class="form-select form-select-sm" onchange="this.form.submit()" style="max-width: 100%;">
                                 <option value="">Unassigned</option>
                                 @foreach($salesTeam as $u)
                                     <option value="{{ $u->id }}" @selected($lead->owner_id == $u->id)>{{ $u->name }}</option>
@@ -68,18 +68,18 @@
                         <span class="fw-semibold">{{ $lead->owner?->name ?? 'Unassigned' }}</span>
                     @endif
                 </div>
-                <div class="col-6">
+                <div class="col-12 col-sm-6">
                     <span class="text-muted d-block">Expected close</span>{{ $lead->expected_closing_date?->format('M d, Y') ?? '—' }}
                 </div>
                 <div class="col-12">
-                    <span class="text-muted d-block">Notes</span>{{ $lead->notes ?: 'No notes added.' }}
+                    <span class="text-muted d-block">Notes</span><span class="text-break">{{ $lead->notes ?: 'No notes added.' }}</span>
                 </div>
             </div>
         </x-card>
 
         <x-card title="Follow-up history & Schedule" class="mt-3" body-class="p-3">
             @forelse($lead->followups as $fu)
-                <div class="d-flex justify-content-between align-items-start border-bottom pb-2 mb-2">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 border-bottom pb-2 mb-2">
                     <div>
                         <div class="fw-600 fs-sm text-capitalize">
                             <i class="bi bi-calendar-event me-1 text-primary"></i>{{ ucfirst($fu->type) }}
@@ -117,11 +117,11 @@
             <form method="POST" action="{{ route('crm.leads.followups.store', $lead) }}">
                 @csrf
                 <div class="row g-2 mb-2">
-                    <div class="col-7">
+                    <div class="col-12 col-sm-7">
                         <label class="form-label fs-xs text-muted mb-1">Date <span class="text-danger">*</span></label>
                         <input type="date" name="follow_up_date" class="form-control" required min="{{ date('Y-m-d') }}">
                     </div>
-                    <div class="col-5">
+                    <div class="col-12 col-sm-5">
                         <label class="form-label fs-xs text-muted mb-1">Time</label>
                         <input type="time" name="follow_up_time" class="form-control">
                     </div>

@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid px-0">
-    <div class="d-flex align-items-center justify-content-between mb-4">
+    <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2 mb-4">
         <div>
             <span class="badge bg-light text-muted border mb-1">{{ $project->project_code }}</span>
             <h1 class="h3 fw-bold text-dark mb-1">Edit Project: {{ $project->name }}</h1>
@@ -124,6 +124,46 @@
                             </div>
                         </div>
 
+                        <div class="row g-2 mb-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold fs-sm">Billing Model <span class="text-danger">*</span></label>
+                                <select name="billing_type" id="billingTypeSelect" class="form-select" required>
+                                    <option value="one_time" {{ old('billing_type', $project->billing_type ?? 'one_time') === 'one_time' ? 'selected' : '' }}>One-Time (Fixed Price)</option>
+                                    <option value="monthly" {{ old('billing_type', $project->billing_type) === 'monthly' ? 'selected' : '' }}>Monthly (Retainer / Subscription)</option>
+                                    <option value="annually" {{ old('billing_type', $project->billing_type) === 'annually' ? 'selected' : '' }}>Annually (Yearly Contract / Renewal)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Recurring Billing Extra Options (Shown for Monthly/Annually) --}}
+                        <div id="recurringBillingBox" class="p-3 mb-3 rounded border bg-light" style="display: none;">
+                            <div class="fw-bold fs-xs text-uppercase text-primary mb-2">
+                                <i class="bi bi-arrow-repeat me-1"></i><span id="recurringBoxTitle">Recurring Billing Settings</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label fw-semibold fs-xs">Recurring Fee / Amount <span class="text-danger">*</span></label>
+                                <input type="number" step="0.01" min="0" name="recurring_amount" id="recurringAmountInput" class="form-control form-control-sm" placeholder="0.00" value="{{ old('recurring_amount', $project->recurring_amount) }}">
+                            </div>
+
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold fs-xs">Cycle Start Date</label>
+                                    <input type="date" name="billing_start_date" class="form-control form-control-sm" value="{{ old('billing_start_date', $project->billing_start_date ? $project->billing_start_date->format('Y-m-d') : date('Y-m-d')) }}">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label fw-semibold fs-xs" id="nextBillingDateLabel">Next Invoice Date</label>
+                                    <input type="date" name="next_billing_date" class="form-control form-control-sm" value="{{ old('next_billing_date', $project->next_billing_date ? $project->next_billing_date->format('Y-m-d') : '') }}">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label fw-semibold fs-xs" id="alertDayLabel">Monthly Alert Day (Day of Month 1-31)</label>
+                                <input type="number" min="1" max="31" name="billing_alert_day" id="billingAlertDayInput" class="form-control form-control-sm" placeholder="5" value="{{ old('billing_alert_day', $project->billing_alert_day ?? 5) }}">
+                                <div class="form-text fs-xs" id="alertDayHelp">Is date ko unpaid client ka alert/notification generate hoga.</div>
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label class="form-label fw-semibold fs-sm">Currency</label>
                             <select name="currency" class="form-select" id="currencySelect">
@@ -172,6 +212,42 @@
             currencySelect.addEventListener('change', function () {
                 budgetCurrencyLabel.textContent = '(' + this.value + ')';
             });
+        }
+
+        // Dynamic Recurring Billing Settings
+        const billingTypeSelect = document.getElementById('billingTypeSelect');
+        const recurringBox = document.getElementById('recurringBillingBox');
+        const recurringTitle = document.getElementById('recurringBoxTitle');
+        const nextBillingLabel = document.getElementById('nextBillingDateLabel');
+        const alertDayLabel = document.getElementById('alertDayLabel');
+        const alertDayHelp = document.getElementById('alertDayHelp');
+        const alertDayInput = document.getElementById('billingAlertDayInput');
+
+        function toggleBillingFields() {
+            if (!billingTypeSelect || !recurringBox) return;
+            const val = billingTypeSelect.value;
+            if (val === 'monthly') {
+                recurringBox.style.display = 'block';
+                recurringTitle.textContent = 'Monthly Retainer / Subscription Settings';
+                nextBillingLabel.textContent = 'Next Monthly Bill Date';
+                alertDayLabel.textContent = 'Monthly Alert Day (Day of Month, e.g. 5)';
+                alertDayHelp.textContent = 'Har mahine is date ko unpaid hone par notification aayegi.';
+                if (!alertDayInput.value || alertDayInput.value > 31) alertDayInput.value = 5;
+            } else if (val === 'annually') {
+                recurringBox.style.display = 'block';
+                recurringTitle.textContent = 'Annual Contract / Renewal Settings';
+                nextBillingLabel.textContent = 'Year Completion / Renewal Date';
+                alertDayLabel.textContent = 'Alert Days Before Expiry (e.g. 7 or 15 days)';
+                alertDayHelp.textContent = 'Year complete hone se itne din pehle expiry/payment reminder aayega.';
+                if (!alertDayInput.value) alertDayInput.value = 7;
+            } else {
+                recurringBox.style.display = 'none';
+            }
+        }
+
+        if (billingTypeSelect) {
+            billingTypeSelect.addEventListener('change', toggleBillingFields);
+            toggleBillingFields();
         }
     });
 </script>

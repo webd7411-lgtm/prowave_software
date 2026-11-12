@@ -43,7 +43,7 @@
     <x-card>
         @if ($clients->count())
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                     <tr>
                         <th>Client</th>
@@ -60,15 +60,15 @@
                             $pct = $client->invoiced > 0 ? min(round(($client->received / $client->invoiced) * 100), 100) : 0;
                         @endphp
                         <tr>
-                            <td class="fw-medium">
+                            <td data-label="Client" class="fw-medium">
                                 <a href="{{ route('crm.clients.show', $client) }}" class="text-decoration-none">{{ $client->company_name }}</a>
                             </td>
-                            <td class="text-center">{{ $client->invoice_count }}</td>
-                            <td class="text-end">{{ setting('general.currency', 'USD') }} {{ format_money($client->invoiced) }}</td>
-                            <td class="text-end text-success">{{ setting('general.currency', 'USD') }} {{ format_money($client->received) }}</td>
-                            <td class="text-end {{ ($client->invoiced - $client->received) > 0 ? 'text-danger' : '' }}">{{ setting('general.currency', 'USD') }} {{ format_money($client->invoiced - $client->received) }}</td>
-                            <td>
-                                <div class="progress" style="height: 8px;">
+                            <td data-label="Invoices" class="text-center">{{ $client->invoice_count }}</td>
+                            <td data-label="Invoiced" class="text-end">{{ setting('general.currency', 'USD') }} {{ format_money($client->invoiced) }}</td>
+                            <td data-label="Received" class="text-end text-success">{{ setting('general.currency', 'USD') }} {{ format_money($client->received) }}</td>
+                            <td data-label="Outstanding" class="text-end {{ ($client->invoiced - $client->received) > 0 ? 'text-danger' : '' }}">{{ setting('general.currency', 'USD') }} {{ format_money($client->invoiced - $client->received) }}</td>
+                            <td data-label="Collection">
+                                <div class="progress w-100" style="height: 8px; max-width: 180px;">
                                     <div class="progress-bar {{ $pct >= 100 ? 'bg-success' : '' }}" style="width: {{ $pct }}%"></div>
                                 </div>
                             </td>

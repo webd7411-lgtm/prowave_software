@@ -9,8 +9,8 @@
 
 <div {{ $attributes->merge(['class' => 'card ' . ($hover ? 'card-hover' : '')]) }}>
     @if ($title || $actions)
-        <div class="card-header d-flex align-items-center justify-content-between gap-3">
-            <div>
+        <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2 gap-md-3">
+            <div class="min-w-0">
                 @if ($title)
                     <h5 class="card-title d-flex align-items-center gap-2">
                         @if ($icon)

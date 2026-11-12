@@ -68,7 +68,7 @@
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-hover mb-0 fin-table">
+        <table class="table table-hover mb-0 fin-table table-cards-lg">
             <thead>
                 <tr>
                     <th>#</th>
@@ -86,33 +86,33 @@
             <tbody>
                 @forelse($records as $expense)
                 <tr>
-                    <td class="text-muted small">{{ $records->firstItem() + $loop->index }}</td>
-                    <td>
+                    <td data-label="#" class="text-muted small">{{ $records->firstItem() + $loop->index }}</td>
+                    <td data-label="Expense No">
                         <a href="{{ route('finance.expenses.show', $expense) }}" class="fw-semibold text-decoration-none">{{ $expense->expense_number }}</a>
                         @if($expense->description)
-                        <div class="text-muted small text-truncate" style="max-width:150px">{{ $expense->description }}</div>
+                        <div class="text-muted small text-break">{{ \Illuminate\Support\Str::limit($expense->description, 70) }}</div>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Category">
                         <span class="badge rounded-pill" style="background:{{ $expense->category?->color ?? '#6c757d' }}20;color:{{ $expense->category?->color ?? '#6c757d' }}">
                             {{ $expense->category?->name ?? 'Uncategorized' }}
                         </span>
                     </td>
-                    <td class="fw-bold text-danger">{{ setting('general.currency', 'PKR') }} {{ number_format($expense->amount, 2) }}</td>
-                    <td class="text-muted small">{{ $expense->expense_date->format('d M Y') }}</td>
-                    <td class="text-muted small">{{ $expense->accountLabel() }}</td>
-                    <td class="text-muted small">
+                    <td data-label="Amount" class="fw-bold text-danger">{{ setting('general.currency', 'PKR') }} {{ number_format($expense->amount, 2) }}</td>
+                    <td data-label="Date" class="text-muted small">{{ $expense->expense_date->format('d M Y') }}</td>
+                    <td data-label="Account" class="text-muted small">{{ $expense->accountLabel() }}</td>
+                    <td data-label="Vendor / Project" class="text-muted small">
                         @if($expense->vendor) <div>{{ $expense->vendor->name }}</div> @endif
                         @if($expense->project) <div class="text-primary">{{ $expense->project->name }}</div> @endif
                         @if(!$expense->vendor && !$expense->project) — @endif
                     </td>
-                    <td>
+                    <td data-label="Status">
                         <span class="badge bg-{{ $expense->statusBadge() }}-subtle text-{{ $expense->statusBadge() }} rounded-pill">
                             {{ ucfirst($expense->status) }}
                         </span>
                     </td>
-                    <td class="text-muted small">{{ $expense->addedBy?->name ?? '—' }}</td>
-                    <td class="text-end">
+                    <td data-label="Added By" class="text-muted small">{{ $expense->addedBy?->name ?? '—' }}</td>
+                    <td data-label="" class="text-end fin-cell-actions">
                         <div class="d-flex gap-1 justify-content-end">
                             <a href="{{ route('finance.expenses.show', $expense) }}" class="btn btn-xs btn-outline-secondary" title="View"><i class="bi bi-eye"></i></a>
                             @can('expenses.edit')

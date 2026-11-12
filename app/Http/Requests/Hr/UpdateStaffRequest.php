@@ -41,6 +41,8 @@ class UpdateStaffRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:2000'],
             'roles' => ['nullable', 'array'],
             'roles.*' => ['exists:roles,id'],
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'cover_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
 }

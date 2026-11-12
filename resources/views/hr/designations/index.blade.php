@@ -56,13 +56,26 @@
             @foreach ($designations as $designation)
                 <div class="card mb-2">
                     <div class="card-body">
-                        <div class="d-flex align-items-center gap-2">
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
                             <span class="badge badge-soft-primary fs-sm">{{ $designation->name }}</span>
                             <span class="badge badge-soft-{{ $designation->is_active ? 'success' : 'secondary' }} flex-shrink-0">{{ $designation->is_active ? 'Active' : 'Inactive' }}</span>
                         </div>
                         <div class="fs-xs text-muted mt-2">
                             <div><i class="bi bi-building me-1"></i>{{ $designation->department?->name ?? '—' }}</div>
+                            <div><i class="bi bi-shield-check me-1"></i>{{ $designation->role?->name ?? 'No default role' }}</div>
                             <div><i class="bi bi-people me-1"></i>{{ $designation->users_count }} employee(s)</div>
+                        </div>
+                        <div class="d-flex flex-wrap justify-content-end gap-1 mt-2 pt-2 border-top">
+                            @can('designations.edit')
+                                <a href="{{ route('hr.designations.edit', $designation) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil me-1"></i>Edit</a>
+                            @endcan
+                            @can('designations.delete')
+                                <form method="POST" action="{{ route('hr.designations.destroy', $designation) }}" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-soft-danger" data-confirm data-confirm-title="Delete designation?" data-confirm-text="This designation will be permanently deleted." data-confirm-confirm-text="Yes, delete"><i class="bi bi-trash"></i></button>
+                                </form>
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -71,12 +84,13 @@
 
         <div class="d-none d-md-block">
             <div class="table-responsive">
-                <table class="table table-hover align-middle">
+                <table class="table table-hover align-middle table-cards-lg">
                     <thead>
                         <tr>
                             <th>Designation</th>
                             <th>Code</th>
                             <th>Department</th>
+                            <th>Default Role</th>
                             <th>Employees</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
@@ -85,14 +99,21 @@
                     <tbody>
                         @foreach ($designations as $designation)
                             <tr>
-                                <td class="fw-600">{{ $designation->name }}</td>
-                                <td><span class="badge badge-soft-secondary font-monospace">{{ $designation->code ?? '—' }}</span></td>
-                                <td>{{ $designation->department?->name ?? '—' }}</td>
-                                <td>{{ $designation->users_count }}</td>
-                                <td>
+                                <td data-label="Designation" class="fw-600">{{ $designation->name }}</td>
+                                <td data-label="Code"><span class="badge badge-soft-secondary font-monospace">{{ $designation->code ?? '—' }}</span></td>
+                                <td data-label="Department">{{ $designation->department?->name ?? '—' }}</td>
+                                <td data-label="Default Role">
+                                    @if ($designation->role)
+                                        <span class="badge badge-soft-info">{{ $designation->role->name }}</span>
+                                    @else
+                                        <span class="text-muted">—</span>
+                                    @endif
+                                </td>
+                                <td data-label="Employees">{{ $designation->users_count }}</td>
+                                <td data-label="Status">
                                     <span class="badge badge-soft-{{ $designation->is_active ? 'success' : 'secondary' }}">{{ $designation->is_active ? 'Active' : 'Inactive' }}</span>
                                 </td>
-                                <td class="text-end">
+                                <td data-label="" class="text-end fin-cell-actions">
                                     <div class="d-flex justify-content-end gap-1">
                                         @can('designations.edit')
                                             <a href="{{ route('hr.designations.edit', $designation) }}" class="btn btn-sm btn-soft-info" title="Edit"><i class="bi bi-pencil"></i></a>

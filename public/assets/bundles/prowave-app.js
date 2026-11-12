@@ -642,6 +642,14 @@
             }
         });
 
+        document.querySelectorAll('.sidebar-nav a.nav-link[href]:not([href="#"])').forEach((link) => {
+            link.addEventListener('click', () => {
+                if (isMobile()) {
+                    closeSidebar();
+                }
+            });
+        });
+
         const searchInput = document.querySelector('[data-sidebar-search]');
         if (searchInput) {
             searchInput.addEventListener('input', () => {
