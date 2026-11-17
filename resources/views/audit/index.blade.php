@@ -14,7 +14,11 @@
             <h1 class="page-title">Audit Logs</h1>
             <p class="page-subtitle">Every significant action, recorded for accountability.</p>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('app.download') }}" class="btn btn-success d-inline-flex align-items-center gap-1 shadow-sm" title="Download Android APK">
+                <i class="bi bi-android2"></i>
+                <span>Download App (.apk)</span>
+            </a>
             <a href="{{ route('audit.export', request()->query()) }}" class="btn btn-soft-primary">
                 <i class="bi bi-download me-1"></i>Export CSV
             </a>

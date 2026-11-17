@@ -14,3 +14,5 @@
     <script src="{{ asset('assets/bundles/vendor-auth.min.js') }}?v={{ $assetVer }}"></script>
     <script src="{{ asset('assets/bundles/prowave-auth.js') }}?v={{ $assetVer }}"></script>
 @endif
+
+<script src="{{ asset('assets/js/pwa.js') }}?v={{ $assetVer }}"></script>

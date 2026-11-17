@@ -590,6 +590,17 @@ Route::get('/leads/{lead}', [LeadController::class, 'show'])->name('leads.show')
             Route::delete('/method/{paymentMethod}', [FinanceCategoryController::class, 'destroyMethod'])->name('method.destroy');
         });
     });
+
+    // PWA & Android App Download
+    Route::get('/app-download', function () {
+        $path = public_path('downloads/prowave.apk');
+        if (!file_exists($path)) {
+            return back()->with('error', 'APK file is not available yet. Please place prowave.apk in public/downloads folder.');
+        }
+        return response()->download($path, 'prowave.apk', [
+            'Content-Type' => 'application/vnd.android.package-archive',
+        ]);
+    })->name('app.download');
 });
 
 require __DIR__.'/auth.php';
