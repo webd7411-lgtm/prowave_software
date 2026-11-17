@@ -135,7 +135,17 @@ if (! function_exists('app_version')) {
 if (! function_exists('app_logo')) {
     function app_logo(): string
     {
-        return asset(setting('general.logo', 'images/logo.png'));
+        $customLogo = setting('general.logo');
+        if ($customLogo && file_exists(public_path($customLogo))) {
+            return asset($customLogo);
+        }
+        if (file_exists(public_path('images/logo.png'))) {
+            return asset('images/logo.png');
+        }
+        if (file_exists(public_path('images/logo.jpg'))) {
+            return asset('images/logo.jpg');
+        }
+        return asset('images/logo.png');
     }
 }
 
