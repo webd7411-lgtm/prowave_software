@@ -53,7 +53,7 @@
             <div class="mb-3">
                 <label for="avatar-input" class="form-label">Employee Profile Image</label>
                 <input type="file" id="avatar-input" name="avatar" accept="image/jpeg,image/png,image/webp" class="form-control @error('avatar') is-invalid @enderror">
-                <div class="form-text">Recommended: square image (JPG, PNG, WEBP, max 2MB).</div>
+                <div class="form-text">Recommended: square image (JPG, PNG, WEBP, max 10MB).</div>
                 @if ($isEdit && $employee->avatar_url)
                     <div class="mt-2">
                         <img src="{{ $employee->avatar_url }}" alt="{{ $employee->name }}" class="rounded-circle object-fit-cover" style="width: 48px; height: 48px;">
@@ -69,7 +69,7 @@
             <div class="mb-3">
                 <label for="cover_photo-input" class="form-label">Employee Cover Photo</label>
                 <input type="file" id="cover_photo-input" name="cover_photo" accept="image/jpeg,image/png,image/webp" class="form-control @error('cover_photo') is-invalid @enderror">
-                <div class="form-text">Recommended: wide banner image (JPG, PNG, WEBP, max 4MB).</div>
+                <div class="form-text">Recommended: wide banner image (JPG, PNG, WEBP, max 10MB).</div>
                 @if ($isEdit && $employee->cover_photo_url)
                     <div class="mt-2">
                         <img src="{{ $employee->cover_photo_url }}" alt="Cover Photo" class="rounded object-fit-cover" style="width: 96px; height: 48px;">
